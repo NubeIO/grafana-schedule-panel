@@ -1,0 +1,34 @@
+{
+  "type": "panel",
+  "name": "Schedule",
+  "id": "nubeio-schedule",
+  "info": {
+    "description": "It's a panel for scheduling events",
+    "author": {
+      "name": "RaiBnod",
+      "url": "https://nube-io.com/"
+    },
+    "keywords": ["schedule", "events"],
+    "logos": {
+      "small": "img/logo.svg",
+      "large": "img/logo.svg"
+    },
+    "links": [
+      {
+        "name": "Website",
+        "url": "https://github.com/NubeIO/grafana-schedule-panel"
+      },
+      {
+        "name": "License",
+        "url": "https://github.com/NubeIO/grafana-schedule-panel/blob/master/LICENSE"
+      }
+    ],
+    "screenshots": [],
+    "version": "%VERSION%",
+    "updated": "%TODAY%"
+  },
+  "dependencies": {
+    "grafanaVersion": "6.3.x",
+    "plugins": []
+  }
+}
