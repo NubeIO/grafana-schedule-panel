@@ -1754,6 +1754,14 @@
   dependencies:
     "@types/react" "*"
 
+"@types/react-big-calendar@^0.24.2":
+  version "0.24.2"
+  resolved "https://registry.yarnpkg.com/@types/react-big-calendar/-/react-big-calendar-0.24.2.tgz#527c7923db6c88d5c96b63351966957b49326052"
+  integrity sha512-rjr3IfBIIkPy5n4Jc4PAcPqPtYMq1OR2WpK7PZD9MeDi7W8mh8nKG87LqHAcVhfY05xs5xvZXLlBpobVvp0DyQ==
+  dependencies:
+    "@types/prop-types" "*"
+    "@types/react" "*"
+
 "@types/react-color@3.0.1":
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/@types/react-color/-/react-color-3.0.1.tgz#5433e2f503ea0e0831cbc6fd0c20f8157d93add0"

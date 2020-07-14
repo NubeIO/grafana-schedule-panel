@@ -3,7 +3,7 @@ import moment from 'moment-timezone';
 
 interface IProps {
   timezone: string;
-  children?: (toggleTimezone: (event: MouseEvent) => void, timezone: {}, timezoneName: {}) => void;
+  children?: (toggleTimezone: (event: MouseEvent) => void, timezone: string, timezoneName: string) => void;
 }
 
 const defaultProps: IProps = {
