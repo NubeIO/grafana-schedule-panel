@@ -56,9 +56,9 @@ interface IProps {
   startAccessorField: string;
   endAccessorField: string;
   onSelectEvent: (event: any) => void;
+  eventPropGetter: (event: any) => void;
   localizer: any;
   components: any;
-  elementProps: any;
   defaultView: string;
 }
 
@@ -103,7 +103,7 @@ export default function withTimeZone(Calendar: any) {
               ...event,
               days: days
                 ? days.map(day =>
-                    day
+                    moment(day)
                       .tz(timezone)
                       .format('dddd')
                       .toLowerCase()
