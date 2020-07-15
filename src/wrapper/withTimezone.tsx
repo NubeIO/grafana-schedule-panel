@@ -55,6 +55,7 @@ interface IProps {
   timezone: string;
   startAccessorField: string;
   endAccessorField: string;
+  onNavigate: (visibleDate: any) => void;
   onSelectEvent: (event: any) => void;
   eventPropGetter: (event: any) => void;
   localizer: any;

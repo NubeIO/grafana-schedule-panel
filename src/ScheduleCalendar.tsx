@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import TimezoneToggle from './TimezoneToggle';
 import { stylesFactory, useTheme } from '@grafana/ui';
 import { css } from 'emotion';
@@ -7,10 +7,19 @@ import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment-timezone';
 import withTimeZone from './wrapper/withTimezone';
 import CustomEvent from './CustomEvent';
+import { DAY_MAP, extractEvents, getDaysArrayByMonth } from './utils';
+import { EventOutput, Event, Weekly } from './types';
+import { DataFrame, Field } from '@grafana/data';
+import _ from 'lodash';
 
 import 'react-big-calendar/lib/sass/styles.scss';
 
-export default function ScheduleCalendar() {
+interface IProps {
+  data: any;
+}
+
+export default function ScheduleCalendar(props: IProps) {
+  const { data } = props;
   const theme = useTheme();
   const styles = getStyles();
   const color = theme.isDark ? 'primary' : 'default';
@@ -18,677 +27,72 @@ export default function ScheduleCalendar() {
   const staticLocalizer = momentLocalizer(moment);
   const CalendarHOC = withTimeZone(Calendar);
 
-  const eventExample = [
-    {
-      id: '61b2a89e-69d4-4a45-a6cf-3bf97c2e7550',
-      start: '2020-07-14T02:00:00.000Z',
-      end: '2020-07-14T08:00:00.000Z',
-      title: 'Training',
-      value: 11,
-      color: '#9013fe',
-      event: {
-        name: 'Training',
-        value: 11,
-        color: '#9013fe',
-        dates: [
-          {
-            start: '2020-07-14T02:00:00.000Z',
-            end: '2020-07-14T08:00:00.000Z',
-          },
-        ],
-      },
-    },
-    {
-      id: '288feecc-3886-430e-9e41-7b013dedd201',
-      start: '2020-06-28T17:00:00.000Z',
-      end: '2020-06-28T21:00:00.000Z',
-      title: 'Training',
-      value: null,
-      color: '#d0021b',
-      days: [
-        '2020-07-12T17:00:00.000Z',
-        '2020-07-13T17:00:00.000Z',
-        '2020-07-14T17:00:00.000Z',
-        '2020-07-15T17:00:00.000Z',
-        '2020-07-16T17:00:00.000Z',
-      ],
-      isWeekly: true,
-      dayString: 'sunday',
-      event: {
-        color: '#d0021b',
-        start: '17:00',
-        name: 'Training',
-        days: ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday'],
-        end: '21:00',
-        id: '288feecc-3886-430e-9e41-7b013dedd201',
-        value: null,
-      },
-    },
-    {
-      id: '288feecc-3886-430e-9e41-7b013dedd201',
-      start: '2020-06-29T17:00:00.000Z',
-      end: '2020-06-29T21:00:00.000Z',
-      title: 'Training',
-      value: null,
-      color: '#d0021b',
-      days: [
-        '2020-07-12T17:00:00.000Z',
-        '2020-07-13T17:00:00.000Z',
-        '2020-07-14T17:00:00.000Z',
-        '2020-07-15T17:00:00.000Z',
-        '2020-07-16T17:00:00.000Z',
-      ],
-      isWeekly: true,
-      dayString: 'monday',
-      event: {
-        color: '#d0021b',
-        start: '17:00',
-        name: 'Training',
-        days: ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday'],
-        end: '21:00',
-        id: '288feecc-3886-430e-9e41-7b013dedd201',
-        value: null,
-      },
-    },
-    {
-      id: '288feecc-3886-430e-9e41-7b013dedd201',
-      start: '2020-06-30T17:00:00.000Z',
-      end: '2020-06-30T21:00:00.000Z',
-      title: 'Training',
-      value: null,
-      color: '#d0021b',
-      days: [
-        '2020-07-12T17:00:00.000Z',
-        '2020-07-13T17:00:00.000Z',
-        '2020-07-14T17:00:00.000Z',
-        '2020-07-15T17:00:00.000Z',
-        '2020-07-16T17:00:00.000Z',
-      ],
-      isWeekly: true,
-      dayString: 'tuesday',
-      event: {
-        color: '#d0021b',
-        start: '17:00',
-        name: 'Training',
-        days: ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday'],
-        end: '21:00',
-        id: '288feecc-3886-430e-9e41-7b013dedd201',
-        value: null,
-      },
-    },
-    {
-      id: '288feecc-3886-430e-9e41-7b013dedd201',
-      start: '2020-07-01T17:00:00.000Z',
-      end: '2020-07-01T21:00:00.000Z',
-      title: 'Training',
-      value: null,
-      color: '#d0021b',
-      days: [
-        '2020-07-12T17:00:00.000Z',
-        '2020-07-13T17:00:00.000Z',
-        '2020-07-14T17:00:00.000Z',
-        '2020-07-15T17:00:00.000Z',
-        '2020-07-16T17:00:00.000Z',
-      ],
-      isWeekly: true,
-      dayString: 'wednesday',
-      event: {
-        color: '#d0021b',
-        start: '17:00',
-        name: 'Training',
-        days: ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday'],
-        end: '21:00',
-        id: '288feecc-3886-430e-9e41-7b013dedd201',
-        value: null,
-      },
-    },
-    {
-      id: '288feecc-3886-430e-9e41-7b013dedd201',
-      start: '2020-07-02T17:00:00.000Z',
-      end: '2020-07-02T21:00:00.000Z',
-      title: 'Training',
-      value: null,
-      color: '#d0021b',
-      days: [
-        '2020-07-12T17:00:00.000Z',
-        '2020-07-13T17:00:00.000Z',
-        '2020-07-14T17:00:00.000Z',
-        '2020-07-15T17:00:00.000Z',
-        '2020-07-16T17:00:00.000Z',
-      ],
-      isWeekly: true,
-      dayString: 'thursday',
-      event: {
-        color: '#d0021b',
-        start: '17:00',
-        name: 'Training',
-        days: ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday'],
-        end: '21:00',
-        id: '288feecc-3886-430e-9e41-7b013dedd201',
-        value: null,
-      },
-    },
-    {
-      id: '288feecc-3886-430e-9e41-7b013dedd201',
-      start: '2020-07-05T17:00:00.000Z',
-      end: '2020-07-05T21:00:00.000Z',
-      title: 'Training',
-      value: null,
-      color: '#d0021b',
-      days: [
-        '2020-07-12T17:00:00.000Z',
-        '2020-07-13T17:00:00.000Z',
-        '2020-07-14T17:00:00.000Z',
-        '2020-07-15T17:00:00.000Z',
-        '2020-07-16T17:00:00.000Z',
-      ],
-      isWeekly: true,
-      dayString: 'sunday',
-      event: {
-        color: '#d0021b',
-        start: '17:00',
-        name: 'Training',
-        days: ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday'],
-        end: '21:00',
-        id: '288feecc-3886-430e-9e41-7b013dedd201',
-        value: null,
-      },
-    },
-    {
-      id: '288feecc-3886-430e-9e41-7b013dedd201',
-      start: '2020-07-06T17:00:00.000Z',
-      end: '2020-07-06T21:00:00.000Z',
-      title: 'Training',
-      value: null,
-      color: '#d0021b',
-      days: [
-        '2020-07-12T17:00:00.000Z',
-        '2020-07-13T17:00:00.000Z',
-        '2020-07-14T17:00:00.000Z',
-        '2020-07-15T17:00:00.000Z',
-        '2020-07-16T17:00:00.000Z',
-      ],
-      isWeekly: true,
-      dayString: 'monday',
-      event: {
-        color: '#d0021b',
-        start: '17:00',
-        name: 'Training',
-        days: ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday'],
-        end: '21:00',
-        id: '288feecc-3886-430e-9e41-7b013dedd201',
-        value: null,
-      },
-    },
-    {
-      id: '288feecc-3886-430e-9e41-7b013dedd201',
-      start: '2020-07-07T17:00:00.000Z',
-      end: '2020-07-07T21:00:00.000Z',
-      title: 'Training',
-      value: null,
-      color: '#d0021b',
-      days: [
-        '2020-07-12T17:00:00.000Z',
-        '2020-07-13T17:00:00.000Z',
-        '2020-07-14T17:00:00.000Z',
-        '2020-07-15T17:00:00.000Z',
-        '2020-07-16T17:00:00.000Z',
-      ],
-      isWeekly: true,
-      dayString: 'tuesday',
-      event: {
-        color: '#d0021b',
-        start: '17:00',
-        name: 'Training',
-        days: ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday'],
-        end: '21:00',
-        id: '288feecc-3886-430e-9e41-7b013dedd201',
-        value: null,
-      },
-    },
-    {
-      id: '288feecc-3886-430e-9e41-7b013dedd201',
-      start: '2020-07-08T17:00:00.000Z',
-      end: '2020-07-08T21:00:00.000Z',
-      title: 'Training',
-      value: null,
-      color: '#d0021b',
-      days: [
-        '2020-07-12T17:00:00.000Z',
-        '2020-07-13T17:00:00.000Z',
-        '2020-07-14T17:00:00.000Z',
-        '2020-07-15T17:00:00.000Z',
-        '2020-07-16T17:00:00.000Z',
-      ],
-      isWeekly: true,
-      dayString: 'wednesday',
-      event: {
-        color: '#d0021b',
-        start: '17:00',
-        name: 'Training',
-        days: ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday'],
-        end: '21:00',
-        id: '288feecc-3886-430e-9e41-7b013dedd201',
-        value: null,
-      },
-    },
-    {
-      id: '288feecc-3886-430e-9e41-7b013dedd201',
-      start: '2020-07-09T17:00:00.000Z',
-      end: '2020-07-09T21:00:00.000Z',
-      title: 'Training',
-      value: null,
-      color: '#d0021b',
-      days: [
-        '2020-07-12T17:00:00.000Z',
-        '2020-07-13T17:00:00.000Z',
-        '2020-07-14T17:00:00.000Z',
-        '2020-07-15T17:00:00.000Z',
-        '2020-07-16T17:00:00.000Z',
-      ],
-      isWeekly: true,
-      dayString: 'thursday',
-      event: {
-        color: '#d0021b',
-        start: '17:00',
-        name: 'Training',
-        days: ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday'],
-        end: '21:00',
-        id: '288feecc-3886-430e-9e41-7b013dedd201',
-        value: null,
-      },
-    },
-    {
-      id: '288feecc-3886-430e-9e41-7b013dedd201',
-      start: '2020-07-12T17:00:00.000Z',
-      end: '2020-07-12T21:00:00.000Z',
-      title: 'Training',
-      value: null,
-      color: '#d0021b',
-      days: [
-        '2020-07-12T17:00:00.000Z',
-        '2020-07-13T17:00:00.000Z',
-        '2020-07-14T17:00:00.000Z',
-        '2020-07-15T17:00:00.000Z',
-        '2020-07-16T17:00:00.000Z',
-      ],
-      isWeekly: true,
-      dayString: 'sunday',
-      event: {
-        color: '#d0021b',
-        start: '17:00',
-        name: 'Training',
-        days: ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday'],
-        end: '21:00',
-        id: '288feecc-3886-430e-9e41-7b013dedd201',
-        value: null,
-      },
-    },
-    {
-      id: '288feecc-3886-430e-9e41-7b013dedd201',
-      start: '2020-07-13T17:00:00.000Z',
-      end: '2020-07-13T21:00:00.000Z',
-      title: 'Training',
-      value: null,
-      color: '#d0021b',
-      days: [
-        '2020-07-12T17:00:00.000Z',
-        '2020-07-13T17:00:00.000Z',
-        '2020-07-14T17:00:00.000Z',
-        '2020-07-15T17:00:00.000Z',
-        '2020-07-16T17:00:00.000Z',
-      ],
-      isWeekly: true,
-      dayString: 'monday',
-      event: {
-        color: '#d0021b',
-        start: '17:00',
-        name: 'Training',
-        days: ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday'],
-        end: '21:00',
-        id: '288feecc-3886-430e-9e41-7b013dedd201',
-        value: null,
-      },
-    },
-    {
-      id: '288feecc-3886-430e-9e41-7b013dedd201',
-      start: '2020-07-14T17:00:00.000Z',
-      end: '2020-07-14T21:00:00.000Z',
-      title: 'Training',
-      value: null,
-      color: '#d0021b',
-      days: [
-        '2020-07-12T17:00:00.000Z',
-        '2020-07-13T17:00:00.000Z',
-        '2020-07-14T17:00:00.000Z',
-        '2020-07-15T17:00:00.000Z',
-        '2020-07-16T17:00:00.000Z',
-      ],
-      isWeekly: true,
-      dayString: 'tuesday',
-      event: {
-        color: '#d0021b',
-        start: '17:00',
-        name: 'Training',
-        days: ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday'],
-        end: '21:00',
-        id: '288feecc-3886-430e-9e41-7b013dedd201',
-        value: null,
-      },
-    },
-    {
-      id: '288feecc-3886-430e-9e41-7b013dedd201',
-      start: '2020-07-15T17:00:00.000Z',
-      end: '2020-07-15T21:00:00.000Z',
-      title: 'Training',
-      value: null,
-      color: '#d0021b',
-      days: [
-        '2020-07-12T17:00:00.000Z',
-        '2020-07-13T17:00:00.000Z',
-        '2020-07-14T17:00:00.000Z',
-        '2020-07-15T17:00:00.000Z',
-        '2020-07-16T17:00:00.000Z',
-      ],
-      isWeekly: true,
-      dayString: 'wednesday',
-      event: {
-        color: '#d0021b',
-        start: '17:00',
-        name: 'Training',
-        days: ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday'],
-        end: '21:00',
-        id: '288feecc-3886-430e-9e41-7b013dedd201',
-        value: null,
-      },
-    },
-    {
-      id: '288feecc-3886-430e-9e41-7b013dedd201',
-      start: '2020-07-16T17:00:00.000Z',
-      end: '2020-07-16T21:00:00.000Z',
-      title: 'Training',
-      value: null,
-      color: '#d0021b',
-      days: [
-        '2020-07-12T17:00:00.000Z',
-        '2020-07-13T17:00:00.000Z',
-        '2020-07-14T17:00:00.000Z',
-        '2020-07-15T17:00:00.000Z',
-        '2020-07-16T17:00:00.000Z',
-      ],
-      isWeekly: true,
-      dayString: 'thursday',
-      event: {
-        color: '#d0021b',
-        start: '17:00',
-        name: 'Training',
-        days: ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday'],
-        end: '21:00',
-        id: '288feecc-3886-430e-9e41-7b013dedd201',
-        value: null,
-      },
-    },
-    {
-      id: '288feecc-3886-430e-9e41-7b013dedd201',
-      start: '2020-07-19T17:00:00.000Z',
-      end: '2020-07-19T21:00:00.000Z',
-      title: 'Training',
-      value: null,
-      color: '#d0021b',
-      days: [
-        '2020-07-12T17:00:00.000Z',
-        '2020-07-13T17:00:00.000Z',
-        '2020-07-14T17:00:00.000Z',
-        '2020-07-15T17:00:00.000Z',
-        '2020-07-16T17:00:00.000Z',
-      ],
-      isWeekly: true,
-      dayString: 'sunday',
-      event: {
-        color: '#d0021b',
-        start: '17:00',
-        name: 'Training',
-        days: ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday'],
-        end: '21:00',
-        id: '288feecc-3886-430e-9e41-7b013dedd201',
-        value: null,
-      },
-    },
-    {
-      id: '288feecc-3886-430e-9e41-7b013dedd201',
-      start: '2020-07-20T17:00:00.000Z',
-      end: '2020-07-20T21:00:00.000Z',
-      title: 'Training',
-      value: null,
-      color: '#d0021b',
-      days: [
-        '2020-07-12T17:00:00.000Z',
-        '2020-07-13T17:00:00.000Z',
-        '2020-07-14T17:00:00.000Z',
-        '2020-07-15T17:00:00.000Z',
-        '2020-07-16T17:00:00.000Z',
-      ],
-      isWeekly: true,
-      dayString: 'monday',
-      event: {
-        color: '#d0021b',
-        start: '17:00',
-        name: 'Training',
-        days: ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday'],
-        end: '21:00',
-        id: '288feecc-3886-430e-9e41-7b013dedd201',
-        value: null,
-      },
-    },
-    {
-      id: '288feecc-3886-430e-9e41-7b013dedd201',
-      start: '2020-07-21T17:00:00.000Z',
-      end: '2020-07-21T21:00:00.000Z',
-      title: 'Training',
-      value: null,
-      color: '#d0021b',
-      days: [
-        '2020-07-12T17:00:00.000Z',
-        '2020-07-13T17:00:00.000Z',
-        '2020-07-14T17:00:00.000Z',
-        '2020-07-15T17:00:00.000Z',
-        '2020-07-16T17:00:00.000Z',
-      ],
-      isWeekly: true,
-      dayString: 'tuesday',
-      event: {
-        color: '#d0021b',
-        start: '17:00',
-        name: 'Training',
-        days: ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday'],
-        end: '21:00',
-        id: '288feecc-3886-430e-9e41-7b013dedd201',
-        value: null,
-      },
-    },
-    {
-      id: '288feecc-3886-430e-9e41-7b013dedd201',
-      start: '2020-07-22T17:00:00.000Z',
-      end: '2020-07-22T21:00:00.000Z',
-      title: 'Training',
-      value: null,
-      color: '#d0021b',
-      days: [
-        '2020-07-12T17:00:00.000Z',
-        '2020-07-13T17:00:00.000Z',
-        '2020-07-14T17:00:00.000Z',
-        '2020-07-15T17:00:00.000Z',
-        '2020-07-16T17:00:00.000Z',
-      ],
-      isWeekly: true,
-      dayString: 'wednesday',
-      event: {
-        color: '#d0021b',
-        start: '17:00',
-        name: 'Training',
-        days: ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday'],
-        end: '21:00',
-        id: '288feecc-3886-430e-9e41-7b013dedd201',
-        value: null,
-      },
-    },
-    {
-      id: '288feecc-3886-430e-9e41-7b013dedd201',
-      start: '2020-07-23T17:00:00.000Z',
-      end: '2020-07-23T21:00:00.000Z',
-      title: 'Training',
-      value: null,
-      color: '#d0021b',
-      days: [
-        '2020-07-12T17:00:00.000Z',
-        '2020-07-13T17:00:00.000Z',
-        '2020-07-14T17:00:00.000Z',
-        '2020-07-15T17:00:00.000Z',
-        '2020-07-16T17:00:00.000Z',
-      ],
-      isWeekly: true,
-      dayString: 'thursday',
-      event: {
-        color: '#d0021b',
-        start: '17:00',
-        name: 'Training',
-        days: ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday'],
-        end: '21:00',
-        id: '288feecc-3886-430e-9e41-7b013dedd201',
-        value: null,
-      },
-    },
-    {
-      id: '288feecc-3886-430e-9e41-7b013dedd201',
-      start: '2020-07-26T17:00:00.000Z',
-      end: '2020-07-26T21:00:00.000Z',
-      title: 'Training',
-      value: null,
-      color: '#d0021b',
-      days: [
-        '2020-07-12T17:00:00.000Z',
-        '2020-07-13T17:00:00.000Z',
-        '2020-07-14T17:00:00.000Z',
-        '2020-07-15T17:00:00.000Z',
-        '2020-07-16T17:00:00.000Z',
-      ],
-      isWeekly: true,
-      dayString: 'sunday',
-      event: {
-        color: '#d0021b',
-        start: '17:00',
-        name: 'Training',
-        days: ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday'],
-        end: '21:00',
-        id: '288feecc-3886-430e-9e41-7b013dedd201',
-        value: null,
-      },
-    },
-    {
-      id: '288feecc-3886-430e-9e41-7b013dedd201',
-      start: '2020-07-27T17:00:00.000Z',
-      end: '2020-07-27T21:00:00.000Z',
-      title: 'Training',
-      value: null,
-      color: '#d0021b',
-      days: [
-        '2020-07-12T17:00:00.000Z',
-        '2020-07-13T17:00:00.000Z',
-        '2020-07-14T17:00:00.000Z',
-        '2020-07-15T17:00:00.000Z',
-        '2020-07-16T17:00:00.000Z',
-      ],
-      isWeekly: true,
-      dayString: 'monday',
-      event: {
-        color: '#d0021b',
-        start: '17:00',
-        name: 'Training',
-        days: ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday'],
-        end: '21:00',
-        id: '288feecc-3886-430e-9e41-7b013dedd201',
-        value: null,
-      },
-    },
-    {
-      id: '288feecc-3886-430e-9e41-7b013dedd201',
-      start: '2020-07-28T17:00:00.000Z',
-      end: '2020-07-28T21:00:00.000Z',
-      title: 'Training',
-      value: null,
-      color: '#d0021b',
-      days: [
-        '2020-07-12T17:00:00.000Z',
-        '2020-07-13T17:00:00.000Z',
-        '2020-07-14T17:00:00.000Z',
-        '2020-07-15T17:00:00.000Z',
-        '2020-07-16T17:00:00.000Z',
-      ],
-      isWeekly: true,
-      dayString: 'tuesday',
-      event: {
-        color: '#d0021b',
-        start: '17:00',
-        name: 'Training',
-        days: ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday'],
-        end: '21:00',
-        id: '288feecc-3886-430e-9e41-7b013dedd201',
-        value: null,
-      },
-    },
-    {
-      id: '288feecc-3886-430e-9e41-7b013dedd201',
-      start: '2020-07-29T17:00:00.000Z',
-      end: '2020-07-29T21:00:00.000Z',
-      title: 'Training',
-      value: null,
-      color: '#d0021b',
-      days: [
-        '2020-07-12T17:00:00.000Z',
-        '2020-07-13T17:00:00.000Z',
-        '2020-07-14T17:00:00.000Z',
-        '2020-07-15T17:00:00.000Z',
-        '2020-07-16T17:00:00.000Z',
-      ],
-      isWeekly: true,
-      dayString: 'wednesday',
-      event: {
-        color: '#d0021b',
-        start: '17:00',
-        name: 'Training',
-        days: ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday'],
-        end: '21:00',
-        id: '288feecc-3886-430e-9e41-7b013dedd201',
-        value: null,
-      },
-    },
-    {
-      id: '288feecc-3886-430e-9e41-7b013dedd201',
-      start: '2020-07-30T17:00:00.000Z',
-      end: '2020-07-30T21:00:00.000Z',
-      title: 'Training',
-      value: null,
-      color: '#d0021b',
-      days: [
-        '2020-07-12T17:00:00.000Z',
-        '2020-07-13T17:00:00.000Z',
-        '2020-07-14T17:00:00.000Z',
-        '2020-07-15T17:00:00.000Z',
-        '2020-07-16T17:00:00.000Z',
-      ],
-      isWeekly: true,
-      dayString: 'thursday',
-      event: {
-        color: '#d0021b',
-        start: '17:00',
-        name: 'Training',
-        days: ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday'],
-        end: '21:00',
-        id: '288feecc-3886-430e-9e41-7b013dedd201',
-        value: null,
-      },
-    },
-  ];
+  const [extractedValue, setExtractedValue] = useState<{ events: any; weekly: any }>({ events: {}, weekly: {} });
+  const [eventCollection, setEventCollection] = useState<Array<EventOutput>>([]);
+  const [visibleDate, setVisibleDate] = useState(moment());
+
+  useEffect(() => {
+    const series: DataFrame[] = data?.series;
+    const fields: Field[] = (series && series.length && series[0]?.fields) || [];
+    const index = fields.map((field: Field) => field.name).indexOf('value');
+    let value: any = {};
+    if (index !== -1) {
+      const values = fields[index].values;
+      if (values && values.length) {
+        value = values.get(values.length - 1);
+      }
+    }
+    setExtractedValue(value);
+  }, [data]);
+
+  useEffect(() => {
+    updateEvents();
+  }, [extractedValue, visibleDate]);
+
+  const updateEvents = () => {
+    if (_.isEmpty(extractedValue)) {
+      return;
+    }
+    const { events, weekly } = extractedValue;
+    let eventsCollection: Array<EventOutput> = [];
+
+    const isolatedEvents = extractEvents(events);
+
+    const days = getDaysArrayByMonth(visibleDate);
+
+    const dayEventsCollection = [];
+
+    const dayEventMap: { [day: string]: { [id: string]: Weekly } } = {};
+    for (const wKey in weekly) {
+      if (weekly.hasOwnProperty(wKey) && weekly[wKey]) {
+        const item: Weekly = weekly[wKey];
+        item.days.forEach(d => {
+          if (!dayEventMap[d]) {
+            dayEventMap[d] = {};
+          }
+          dayEventMap[d][wKey] = item;
+        });
+      }
+    }
+
+    for (let i = 0; i < days.length; i += 1) {
+      const day = days[i];
+      const dayNumeric = day.day();
+      const dayString = DAY_MAP[dayNumeric];
+      const dayEventsMap = dayEventMap[dayString];
+      if (dayEventsMap) {
+        const dayEvents = extractEvents(dayEventsMap, {
+          day,
+          dayString,
+        });
+        dayEventsCollection.push(dayEvents);
+      }
+    }
+
+    eventsCollection = eventsCollection.concat(isolatedEvents, ...dayEventsCollection);
+    console.log('eventsCollection', eventsCollection);
+    setEventCollection(eventsCollection);
+  };
 
   const onSelectEvent = (event: any) => {
     console.log('event', event);
@@ -723,9 +127,13 @@ export default function ScheduleCalendar() {
     // this.toggleEventForm(true, isWeekly);
   };
 
-  const eventStyleGetter = ({ color }: { color: string }) => {
+  const onNavigate = (visibleDate: any) => {
+    setVisibleDate(moment(visibleDate));
+  };
+
+  const eventStyleGetter = (event: Event | Weekly) => {
     const style = {
-      backgroundColor: color,
+      backgroundColor: event.color,
       borderRadius: '2px',
       opacity: 0.8,
       color: 'white',
@@ -773,10 +181,11 @@ export default function ScheduleCalendar() {
           </div>
           <div className={styles.calendar}>
             <CalendarHOC
-              events={eventExample}
+              events={eventCollection}
               timezone={timezone}
               startAccessorField="start"
               endAccessorField="end"
+              onNavigate={onNavigate}
               onSelectEvent={onSelectEvent}
               eventPropGetter={eventStyleGetter}
               localizer={staticLocalizer}

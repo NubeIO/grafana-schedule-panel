@@ -19,7 +19,7 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
         `
       )}
     >
-      <ScheduleCalendar />
+      <ScheduleCalendar data={data} />
     </div>
   );
 };
