@@ -61,6 +61,7 @@ interface IProps {
   localizer: any;
   components: any;
   defaultView: string;
+  date?: string | Date;
 }
 
 export default function withTimeZone(Calendar: any) {

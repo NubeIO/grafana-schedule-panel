@@ -191,6 +191,7 @@ export default function ScheduleCalendar(props: IProps) {
               localizer={staticLocalizer}
               components={{ event: CustomEvent }}
               defaultView="week"
+              date={visibleDate.toDate()}
             />
           </div>
         </>
