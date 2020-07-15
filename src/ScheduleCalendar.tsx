@@ -8,7 +8,7 @@ import moment from 'moment-timezone';
 import withTimeZone from './wrapper/withTimezone';
 import CustomEvent from './CustomEvent';
 import { DAY_MAP, extractEvents, getDaysArrayByMonth } from './utils';
-import { EventOutput, Event, Weekly } from './types';
+import { EventOutput, Event, Weekly, PanelOptions } from './types';
 import { DataFrame, Field } from '@grafana/data';
 import _ from 'lodash';
 
@@ -16,10 +16,11 @@ import 'react-big-calendar/lib/sass/styles.scss';
 
 interface IProps {
   data: any;
+  options: PanelOptions;
 }
 
 export default function ScheduleCalendar(props: IProps) {
-  const { data } = props;
+  const { data, options } = props;
   const theme = useTheme();
   const styles = getStyles();
   const color = theme.isDark ? 'primary' : 'default';
@@ -146,7 +147,7 @@ export default function ScheduleCalendar(props: IProps) {
   };
 
   return (
-    <TimezoneToggle timezone="UTC">
+    <TimezoneToggle timezone={options.timezone}>
       {(toggleTimezone, timezone, timezoneName) => (
         <>
           <div className={styles.title}>

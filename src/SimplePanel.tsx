@@ -1,11 +1,11 @@
 import React from 'react';
 import { PanelProps } from '@grafana/data';
-import { SimpleOptions } from 'types';
+import { PanelOptions } from 'types';
 import { css, cx } from 'emotion';
 import { stylesFactory } from '@grafana/ui';
 import ScheduleCalendar from './ScheduleCalendar';
 
-interface Props extends PanelProps<SimpleOptions> {}
+interface Props extends PanelProps<PanelOptions> {}
 
 export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) => {
   const styles = getStyles();
@@ -19,7 +19,7 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
         `
       )}
     >
-      <ScheduleCalendar data={data} />
+      <ScheduleCalendar data={data} options={options} />
     </div>
   );
 };

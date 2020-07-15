@@ -1,40 +1,75 @@
 import { PanelPlugin } from '@grafana/data';
-import { SimpleOptions } from './types';
+import moment from 'moment-timezone';
+import { PanelOptions } from './types';
 import { SimplePanel } from './SimplePanel';
 
-export const plugin = new PanelPlugin<SimpleOptions>(SimplePanel).setPanelOptions(builder => {
+export const plugin = new PanelPlugin<PanelOptions>(SimplePanel).setPanelOptions(builder => {
   return builder
     .addTextInput({
-      path: 'text',
-      name: 'Simple text option',
-      description: 'Description of panel option',
-      defaultValue: 'Default value of text input option',
+      path: 'defaultName',
+      name: 'Default Name',
     })
     .addBooleanSwitch({
-      path: 'showSeriesCount',
-      name: 'Show series counter',
-      defaultValue: false,
+      path: 'hasPayload',
+      name: 'Has Payload',
+      defaultValue: true,
+    })
+    .addNumberInput({
+      path: 'min',
+      name: 'Min value',
+      defaultValue: 0,
+      showIf: config => config.hasPayload,
+    })
+    .addNumberInput({
+      path: 'max',
+      name: 'Max value',
+      defaultValue: 100,
+      showIf: config => config.hasPayload,
+    })
+    .addNumberInput({
+      path: 'step',
+      name: 'Step',
+      defaultValue: 1,
+      showIf: config => config.hasPayload,
     })
     .addRadio({
-      path: 'seriesCountSize',
-      defaultValue: 'sm',
-      name: 'Series counter size',
+      path: 'inputType',
+      defaultValue: 'number',
+      name: 'Input Type',
       settings: {
         options: [
           {
-            value: 'sm',
-            label: 'Small',
+            value: 'number',
+            label: 'Number',
           },
           {
-            value: 'md',
-            label: 'Medium',
-          },
-          {
-            value: 'lg',
-            label: 'Large',
+            value: 'slider',
+            label: 'Slider',
           },
         ],
       },
-      showIf: config => config.showSeriesCount,
+    })
+    .addBooleanSwitch({
+      path: 'allowOverlap',
+      name: 'Allow Overlap',
+      defaultValue: false,
+    })
+    .addBooleanSwitch({
+      path: 'hasDisableWeeklyEvent',
+      name: 'Disable Weekly Event',
+      defaultValue: false,
+    })
+    .addBooleanSwitch({
+      path: 'hasDisableEvent',
+      name: 'Disable Event',
+      defaultValue: false,
+    })
+    .addSelect({
+      path: 'timezone',
+      name: 'Timezone',
+      settings: {
+        options: moment.tz.names().map(it => ({ value: it, label: it })),
+      },
+      defaultValue: moment.tz.guess(),
     });
 });

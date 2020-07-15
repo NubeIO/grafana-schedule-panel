@@ -1,11 +1,18 @@
 import moment from 'moment-timezone';
 
-type SeriesSize = 'sm' | 'md' | 'lg';
+type InputType = 'number' | 'slider';
 
-export interface SimpleOptions {
-  text: string;
-  showSeriesCount: boolean;
-  seriesCountSize: SeriesSize;
+export interface PanelOptions {
+  defaultName: string;
+  hasPayload: boolean;
+  min: number;
+  max: number;
+  step: number;
+  inputType: InputType;
+  allowOverlap: boolean;
+  disableWeeklyEvent: boolean;
+  disableEvent: boolean;
+  timezone: string;
 }
 
 export interface EventDate {
