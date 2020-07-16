@@ -1,6 +1,7 @@
 import moment from 'moment-timezone';
 
 type InputType = 'number' | 'slider';
+export type Operation = 'add' | 'edit';
 
 export interface PanelOptions {
   defaultName: string;

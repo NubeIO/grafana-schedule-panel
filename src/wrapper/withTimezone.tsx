@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import { accessor } from 'react-big-calendar/lib/utils/accessors';
 import moment from 'moment-timezone';
 import { DAY_MAP, enumerateDaysBetweenDates, getStartAndEndWithTimezone } from 'utils';
+import {EventOutput} from "../types";
 
 export const convertDateTimeToDate = (datetime: string, timezone: string) => {
   const m = moment.tz(datetime, timezone);
@@ -56,7 +57,7 @@ interface IProps {
   startAccessorField: string;
   endAccessorField: string;
   onNavigate: (visibleDate: any) => void;
-  onSelectEvent: (event: any) => void;
+  onSelectEvent: (event: EventOutput) => void;
   eventPropGetter: (event: any) => void;
   localizer: any;
   components: any;
