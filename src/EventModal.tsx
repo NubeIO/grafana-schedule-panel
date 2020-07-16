@@ -1,5 +1,5 @@
 import React, { ChangeEvent } from 'react';
-import { EventOutput, Operation } from './types';
+import { EventOutput, Operation, PanelOptions } from './types';
 
 import { createStyles, Dialog, DialogActions, DialogContent, DialogTitle, Theme } from '@material-ui/core';
 import { Form, Formik } from 'formik';
@@ -23,7 +23,7 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     textField: {
       marginRight: theme.spacing(2),
-      width: 150,
+      minWidth: 170,
     },
   })
 );
@@ -34,10 +34,11 @@ interface EventModalProps {
   operation: Operation;
   eventOutput: EventOutput | null;
   onModalClose: () => void;
+  options: PanelOptions;
 }
 
 export default function EventModal(props: EventModalProps) {
-  const { isOpenModal, isWeekly, operation, onModalClose } = props;
+  const { isOpenModal, isWeekly, operation, onModalClose, options } = props;
   const classes = useStyles();
   const handleDeleteEvent = () => {};
   const handleSubmit = (data: any) => {
@@ -53,23 +54,33 @@ export default function EventModal(props: EventModalProps) {
       open={isOpenModal}
     >
       <Formik
-        initialValues={{ title: '', days: [], startTime: '12:00', endTime: '12:00' }}
+        initialValues={{
+          title: options.defaultTitle,
+          days: [],
+          startTime: '12:00',
+          endTime: '12:00',
+          value: options.min,
+        }}
         validationSchema={Yup.object({
           title: Yup.string().required('Title is required'),
           days: Yup.array().min(1, 'Select at least a day'),
+          value: Yup.number()
+            .min(options.min, `Should be higher than ${options.min}`)
+            .max(options.max, `Should be lower than ${options.max}`),
         })}
         onSubmit={handleSubmit}
       >
         {formikProps => {
           const { values, errors, touched, handleChange, handleBlur, setFieldValue, isValid } = formikProps;
           const defaultProps: any = {
+            className: classes.input,
             variant: 'outlined',
             size: 'small',
             onChange: (e: any) => handleChange(e),
             onBlur: (e: any) => handleBlur(e),
           };
 
-          const { title, days, startTime, endTime } = values;
+          const { title, days, startTime, endTime, value } = values;
           const onChangeAutoComplete = (name: string, e: ChangeEvent<{}>, value: string[]) => {
             setFieldValue(name, value);
           };
@@ -78,7 +89,6 @@ export default function EventModal(props: EventModalProps) {
             return (
               <TextField
                 {...defaultProps}
-                className={classes.input}
                 name="title"
                 label="Title"
                 value={title}
@@ -120,7 +130,7 @@ export default function EventModal(props: EventModalProps) {
 
           function renderStartEndTime() {
             return (
-              <>
+              <div {...defaultProps}>
                 <TextField
                   {...defaultProps}
                   label="Start time"
@@ -132,7 +142,7 @@ export default function EventModal(props: EventModalProps) {
                     shrink: true,
                   }}
                   inputProps={{
-                    step: 300, // 5 min
+                    step: options.step * 60, // 1 min
                   }}
                 />
                 <TextField
@@ -146,10 +156,33 @@ export default function EventModal(props: EventModalProps) {
                     shrink: true,
                   }}
                   inputProps={{
-                    step: 300, // 5 min
+                    step: options.step * 60, // 1 min
                   }}
                 />
-              </>
+              </div>
+            );
+          }
+
+          function renderValues() {
+            return (
+              <TextField
+                {...defaultProps}
+                label="value"
+                type="number"
+                name="value"
+                value={value}
+                className={classes.textField}
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                inputProps={{
+                  step: options.step,
+                  min: options.min,
+                  max: options.max,
+                }}
+                helperText={(touched.value && errors.value) || ''}
+                error={touched.value && Boolean(errors.value)}
+              />
             );
           }
 
@@ -163,6 +196,7 @@ export default function EventModal(props: EventModalProps) {
                   {renderTitle()}
                   {renderDays()}
                   {renderStartEndTime()}
+                  {renderValues()}
                 </form>
               </DialogContent>
               <DialogActions>

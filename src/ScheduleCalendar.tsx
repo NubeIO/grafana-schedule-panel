@@ -192,6 +192,7 @@ export default function ScheduleCalendar(props: IProps) {
         operation={operation}
         eventOutput={eventOutput}
         onModalClose={onModalClose}
+        options={options}
       />
     </>
   );

@@ -6,8 +6,8 @@ import { SimplePanel } from './SimplePanel';
 export const plugin = new PanelPlugin<PanelOptions>(SimplePanel).setPanelOptions(builder => {
   return builder
     .addTextInput({
-      path: 'defaultName',
-      name: 'Default Name',
+      path: 'defaultTitle',
+      name: 'Default Title',
     })
     .addBooleanSwitch({
       path: 'hasPayload',
