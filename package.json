@@ -19,6 +19,9 @@
     "@grafana/data": "7.0.1",
     "@grafana/toolkit": "7.0.1",
     "@grafana/ui": "7.0.1",
+    "@types/lodash": "^4.14.157",
+    "@types/react-big-calendar": "^0.24.2",
+    "@types/yup": "^0.29.3",
     "emotion": "10.0.27"
   },
   "engines": {
@@ -26,10 +29,11 @@
   },
   "dependencies": {
     "@material-ui/core": "^4.11.0",
-    "@types/lodash": "^4.14.157",
-    "@types/react-big-calendar": "^0.24.2",
+    "@material-ui/lab": "^4.0.0-alpha.56",
+    "formik": "^2.1.5",
     "lodash": "^4.17.19",
     "moment-timezone": "^0.5.31",
-    "react-big-calendar": "^0.26.0"
+    "react-big-calendar": "^0.26.0",
+    "yup": "^0.29.1"
   }
 }
