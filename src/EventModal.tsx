@@ -10,6 +10,8 @@ import TextField from '@material-ui/core/TextField/TextField';
 
 import { makeStyles } from '@material-ui/core/styles';
 import { DAY_MAP } from './utils';
+import Slider from '@material-ui/core/Slider';
+import Typography from '@material-ui/core/Typography';
 
 const dayOptions = Object.values(DAY_MAP);
 
@@ -81,7 +83,11 @@ export default function EventModal(props: EventModalProps) {
           };
 
           const { title, days, startTime, endTime, value } = values;
-          const onChangeAutoComplete = (name: string, e: ChangeEvent<{}>, value: string[]) => {
+          const handleChangeAutoComplete = (name: string, e: ChangeEvent<{}>, value: string[]) => {
+            setFieldValue(name, value);
+          };
+
+          const handleChangeSlider = (name: string, e: ChangeEvent<{}>, value: number | number[]) => {
             setFieldValue(name, value);
           };
 
@@ -123,7 +129,7 @@ export default function EventModal(props: EventModalProps) {
                   );
                 }}
                 size="small"
-                onChange={(e: ChangeEvent<{}>, value: string[]) => onChangeAutoComplete('days', e, value)}
+                onChange={(e: ChangeEvent<{}>, value: string[]) => handleChangeAutoComplete('days', e, value)}
               />
             );
           }
@@ -164,11 +170,12 @@ export default function EventModal(props: EventModalProps) {
           }
 
           function renderValues() {
-            return (
+            return options.inputType === 'number' ? (
               <TextField
                 {...defaultProps}
-                label="value"
+                label="Value"
                 type="number"
+                id="number-input"
                 name="value"
                 value={value}
                 className={classes.textField}
@@ -183,6 +190,25 @@ export default function EventModal(props: EventModalProps) {
                 helperText={(touched.value && errors.value) || ''}
                 error={touched.value && Boolean(errors.value)}
               />
+            ) : (
+              <>
+                <Typography gutterBottom>Value</Typography>
+                <Slider
+                  {...defaultProps}
+                  id="slider"
+                  name="value"
+                  min={options.min}
+                  max={options.max}
+                  value={value}
+                  marks={[
+                    { value: options.min, label: options.min },
+                    { value: options.max, label: options.max },
+                  ]}
+                  valueLabelDisplay="auto"
+                  aria-labelledby="continuous-slider"
+                  onChange={(e, v) => handleChangeSlider('value', e, v)}
+                />
+              </>
             );
           }
 
