@@ -1,7 +1,7 @@
 import React, { ChangeEvent } from 'react';
 import { EventOutput, Operation } from './types';
 
-import { createStyles, Dialog, DialogActions, DialogContent, DialogTitle } from '@material-ui/core';
+import { createStyles, Dialog, DialogActions, DialogContent, DialogTitle, Theme } from '@material-ui/core';
 import { Form, Formik } from 'formik';
 import * as Yup from 'yup';
 import Button from '@material-ui/core/Button';
@@ -13,13 +13,17 @@ import { DAY_MAP } from './utils';
 
 const dayOptions = Object.values(DAY_MAP);
 
-const useStyles = makeStyles(() =>
+const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     body: {
       width: '100%',
     },
     input: {
       marginBottom: '20px',
+    },
+    textField: {
+      marginRight: theme.spacing(2),
+      width: 150,
     },
   })
 );
@@ -49,35 +53,38 @@ export default function EventModal(props: EventModalProps) {
       open={isOpenModal}
     >
       <Formik
-        initialValues={{ title: '', days: [] }}
+        initialValues={{ title: '', days: [], startTime: '12:00', endTime: '12:00' }}
         validationSchema={Yup.object({
           title: Yup.string().required('Title is required'),
           days: Yup.array().min(1, 'Select at least a day'),
         })}
         onSubmit={handleSubmit}
       >
-        {props => {
-          const { values, errors, touched, handleChange, handleBlur, setFieldValue, isValid } = props;
-          const { title, days } = values;
+        {formikProps => {
+          const { values, errors, touched, handleChange, handleBlur, setFieldValue, isValid } = formikProps;
+          const defaultProps: any = {
+            variant: 'outlined',
+            size: 'small',
+            onChange: (e: any) => handleChange(e),
+            onBlur: (e: any) => handleBlur(e),
+          };
+
+          const { title, days, startTime, endTime } = values;
           const onChangeAutoComplete = (name: string, e: ChangeEvent<{}>, value: string[]) => {
             setFieldValue(name, value);
-            handleChange(e);
           };
 
           function renderTitle() {
             return (
               <TextField
+                {...defaultProps}
                 className={classes.input}
                 name="title"
                 label="Title"
                 value={title}
                 fullWidth
-                variant="outlined"
-                size="small"
                 helperText={(touched.title && errors.title) || ''}
                 error={touched.title && Boolean(errors.title)}
-                onChange={handleChange}
-                onBlur={handleBlur}
               />
             );
           }
@@ -111,6 +118,41 @@ export default function EventModal(props: EventModalProps) {
             );
           }
 
+          function renderStartEndTime() {
+            return (
+              <>
+                <TextField
+                  {...defaultProps}
+                  label="Start time"
+                  type="time"
+                  name="startTime"
+                  value={startTime}
+                  className={classes.textField}
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                  inputProps={{
+                    step: 300, // 5 min
+                  }}
+                />
+                <TextField
+                  {...defaultProps}
+                  label="End time"
+                  type="time"
+                  name="endTime"
+                  value={endTime}
+                  className={classes.textField}
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                  inputProps={{
+                    step: 300, // 5 min
+                  }}
+                />
+              </>
+            );
+          }
+
           return (
             <Form>
               <DialogTitle id="customized-dialog-title" onAbort={onModalClose}>
@@ -120,6 +162,7 @@ export default function EventModal(props: EventModalProps) {
                 <form>
                   {renderTitle()}
                   {renderDays()}
+                  {renderStartEndTime()}
                 </form>
               </DialogContent>
               <DialogActions>
