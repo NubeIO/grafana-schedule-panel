@@ -12,6 +12,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { DAY_MAP } from './utils';
 import Slider from '@material-ui/core/Slider';
 import Typography from '@material-ui/core/Typography';
+import ColorSelector from './ColorSelector';
 
 const dayOptions = Object.values(DAY_MAP);
 
@@ -26,6 +27,20 @@ const useStyles = makeStyles((theme: Theme) =>
     textField: {
       marginRight: theme.spacing(2),
       minWidth: 170,
+    },
+    colorPreview: {
+      marginRight: '8px',
+      padding: '4px',
+      background: '#fff',
+      borderRadius: '4px',
+      display: 'inline-block',
+      border: '1px solid',
+      cursor: 'pointer',
+      '& div': {
+        width: '32px',
+        height: '28px',
+        borderRadius: '2px',
+      },
     },
   })
 );
@@ -62,6 +77,7 @@ export default function EventModal(props: EventModalProps) {
           startTime: '12:00',
           endTime: '12:00',
           value: options.min,
+          color: '',
         }}
         validationSchema={Yup.object({
           title: Yup.string().required('Title is required'),
@@ -82,7 +98,7 @@ export default function EventModal(props: EventModalProps) {
             onBlur: (e: any) => handleBlur(e),
           };
 
-          const { title, days, startTime, endTime, value } = values;
+          const { title, days, startTime, endTime, value, color } = values;
           const handleChangeAutoComplete = (name: string, e: ChangeEvent<{}>, value: string[]) => {
             setFieldValue(name, value);
           };
@@ -169,46 +185,94 @@ export default function EventModal(props: EventModalProps) {
             );
           }
 
+          function renderEvents() {
+            return <></>;
+          }
+
           function renderValues() {
-            return options.inputType === 'number' ? (
-              <TextField
-                {...defaultProps}
-                label="Value"
-                type="number"
-                id="number-input"
-                name="value"
-                value={value}
-                className={classes.textField}
-                InputLabelProps={{
-                  shrink: true,
-                }}
-                inputProps={{
-                  step: options.step,
-                  min: options.min,
-                  max: options.max,
-                }}
-                helperText={(touched.value && errors.value) || ''}
-                error={touched.value && Boolean(errors.value)}
-              />
-            ) : (
-              <>
-                <Typography gutterBottom>Value</Typography>
-                <Slider
+            return (
+              options.hasPayload &&
+              (options.inputType === 'number' ? (
+                <TextField
                   {...defaultProps}
-                  id="slider"
+                  label="Value"
+                  type="number"
+                  id="number-input"
                   name="value"
-                  min={options.min}
-                  max={options.max}
                   value={value}
-                  marks={[
-                    { value: options.min, label: options.min },
-                    { value: options.max, label: options.max },
-                  ]}
-                  valueLabelDisplay="auto"
-                  aria-labelledby="continuous-slider"
-                  onChange={(e, v) => handleChangeSlider('value', e, v)}
+                  className={classes.textField}
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                  inputProps={{
+                    step: options.step,
+                    min: options.min,
+                    max: options.max,
+                  }}
+                  helperText={(touched.value && errors.value) || ''}
+                  error={touched.value && Boolean(errors.value)}
                 />
-              </>
+              ) : (
+                <>
+                  <Typography gutterBottom>Value</Typography>
+                  <Slider
+                    {...defaultProps}
+                    id="slider"
+                    name="value"
+                    min={options.min}
+                    max={options.max}
+                    value={value}
+                    marks={[
+                      { value: options.min, label: options.min },
+                      { value: options.max, label: options.max },
+                    ]}
+                    valueLabelDisplay="auto"
+                    aria-labelledby="continuous-slider"
+                    onChange={(e, v) => handleChangeSlider('value', e, v)}
+                  />
+                </>
+              ))
+            );
+          }
+
+          function renderColor() {
+            return (
+              <ColorSelector
+                defaultColor="#000"
+                handleChange={color => {
+                  setFieldValue('color', color);
+                }}
+                disabled={false}
+                visible={false}
+              >
+                {({ color: colorFromSelector, handleClick, handleChange: handleChangeFromSelector, force }) => {
+                  return (
+                    <div>
+                      <div className={classes.colorPreview} onClick={handleClick}>
+                        <div style={{ backgroundColor: force ? colorFromSelector : color }} />
+                      </div>
+                      <TextField
+                        {...defaultProps}
+                        label="Color"
+                        type="text"
+                        name="color"
+                        value={color}
+                        className={classes.textField}
+                        InputLabelProps={{
+                          shrink: true,
+                        }}
+                        inputProps={{
+                          step: options.step * 60, // 1 min
+                        }}
+                        onChange={e => {
+                          handleChangeFromSelector(e);
+                          handleChange(e);
+                        }}
+                      />
+                    </div>
+                  );
+                }}
+              </ColorSelector>
             );
           }
 
@@ -220,9 +284,11 @@ export default function EventModal(props: EventModalProps) {
               <DialogContent dividers>
                 <form>
                   {renderTitle()}
-                  {renderDays()}
-                  {renderStartEndTime()}
+                  {isWeekly && renderDays()}
+                  {isWeekly && renderStartEndTime()}
+                  {!isWeekly && renderEvents()}
                   {renderValues()}
+                  {renderColor()}
                 </form>
               </DialogContent>
               <DialogActions>
