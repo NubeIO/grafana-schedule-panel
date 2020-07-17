@@ -42,7 +42,7 @@ export default function ColorSelector(props: ColorSelectorProps = defaultProps) 
   };
 
   return (
-    <div>
+    <>
       {props.children &&
         props.children({
           color, // Emits the current color
@@ -87,6 +87,6 @@ export default function ColorSelector(props: ColorSelectorProps = defaultProps) 
           </div>
         </>
       )}
-    </div>
+    </>
   );
 }
