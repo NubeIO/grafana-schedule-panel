@@ -53,6 +53,7 @@ export interface EventOutput {
   color: string;
   isWeekly: boolean;
   event: Weekly | Event;
+  dates?: Array<EventDate>;
   days?: Array<moment.Moment>;
   dayString?: string;
 }

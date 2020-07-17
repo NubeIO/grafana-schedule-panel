@@ -56,7 +56,7 @@ interface EventModalProps {
 }
 
 export default function EventModal(props: EventModalProps) {
-  const { isOpenModal, isWeekly, operation, onModalClose, options } = props;
+  const { isOpenModal, isWeekly, operation, eventOutput, onModalClose, options } = props;
   const classes = useStyles();
   const handleDeleteEvent = () => {};
   const handleSubmit = (data: any) => {
@@ -185,7 +185,7 @@ export default function EventModal(props: EventModalProps) {
           function renderEvents() {
             return (
               <div className={classes.input}>
-                <DateRange {...defaultProps} />
+                <DateRange {...defaultProps} eventOutput={eventOutput} />
               </div>
             );
           }
@@ -287,8 +287,8 @@ export default function EventModal(props: EventModalProps) {
               <DialogContent dividers>
                 <form>
                   {renderTitle()}
-                  {!isWeekly && renderDays()}
-                  {!isWeekly && renderStartEndTime()}
+                  {isWeekly && renderDays()}
+                  {isWeekly && renderStartEndTime()}
                   {!isWeekly && renderEvents()}
                   {renderValues()}
                   {renderColor()}

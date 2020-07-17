@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { createStyles, TextField, Theme } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import moment from 'moment-timezone';
@@ -29,14 +29,37 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-export default function DateRange(props: any) {
-  const classes = useStyles();
-  const today = moment().format('YYYY-MM-DDThh:mm');
-  const tomorrow = moment()
-    .add(1, 'day')
-    .format('YYYY-MM-DDThh:mm');
+interface DateRangeProps {
+  values: [string, string];
+  onChange: ({ startDate, endDate }: { startDate: string; endDate: string }) => void;
+}
 
-  console.log('props', props);
+export default function DateRange(props: DateRangeProps) {
+  const classes = useStyles();
+  const [startDate, setStartDate] = useState(props.values[0]);
+  const [endDate, setEndDate] = useState(props.values[1]);
+  const [error, setError] = useState(false);
+
+  const handleStartDateChange = (e: any) => {
+    setStartDate(e.target.value);
+    if (!moment(e.target.value).isBefore(endDate)) {
+      setError(true);
+    } else {
+      setError(false);
+      props.onChange({ startDate: e.target.value, endDate });
+    }
+  };
+
+  const handleEndDateChange = (e: any) => {
+    setEndDate(e.target.value);
+    if (!moment(e.target.value).isAfter(startDate)) {
+      setError(true);
+    } else {
+      setError(false);
+      props.onChange({ startDate, endDate: e.target.value });
+    }
+  };
+
   return (
     <div className={classes.dateRange}>
       <TextField
@@ -45,7 +68,12 @@ export default function DateRange(props: any) {
         id="datetime-local"
         label="Start Date"
         type="datetime-local"
-        defaultValue={today}
+        value={startDate}
+        onChange={handleStartDateChange}
+        error={error}
+        InputLabelProps={{
+          shrink: true,
+        }}
       />
       <TextField
         {...props}
@@ -53,7 +81,12 @@ export default function DateRange(props: any) {
         id="datetime-local"
         label="End Date"
         type="datetime-local"
-        defaultValue={tomorrow}
+        value={endDate}
+        onChange={handleEndDateChange}
+        error={error}
+        InputLabelProps={{
+          shrink: true,
+        }}
       />
       <div className={classes.buttonWrapper}>
         <IconButton aria-label="add" className={classes.button}>

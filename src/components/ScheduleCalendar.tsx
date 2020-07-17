@@ -110,10 +110,10 @@ export default function ScheduleCalendar(props: IProps) {
   };
 
   const onSelectEvent = (event: EventOutput) => {
-    setIsOpenModal(true);
     setOperation('edit');
     setIsWeekly(event.isWeekly);
     setEventOutput(event);
+    setIsOpenModal(true);
   };
 
   const onNavigate = (visibleDate: any) => {
