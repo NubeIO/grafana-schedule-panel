@@ -3,7 +3,7 @@ import { PanelProps } from '@grafana/data';
 import { PanelOptions } from 'types';
 import { css, cx } from 'emotion';
 import { stylesFactory, useTheme } from '@grafana/ui';
-import ScheduleCalendar from './ScheduleCalendar';
+import ScheduleCalendar from './components/ScheduleCalendar';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core';
 import { blue, red } from '@material-ui/core/colors';
 

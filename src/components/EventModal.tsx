@@ -1,5 +1,5 @@
 import React, { ChangeEvent } from 'react';
-import { EventOutput, Operation, PanelOptions } from './types';
+import { EventOutput, Operation, PanelOptions } from '../types';
 
 import { createStyles, Dialog, DialogActions, DialogContent, DialogTitle, Theme } from '@material-ui/core';
 import { Form, Formik } from 'formik';
@@ -9,10 +9,10 @@ import Autocomplete from '@material-ui/lab/Autocomplete/Autocomplete';
 import TextField from '@material-ui/core/TextField/TextField';
 
 import { makeStyles } from '@material-ui/core/styles';
-import { DAY_MAP } from './utils';
+import { DAY_MAP } from '../utils';
 import Slider from '@material-ui/core/Slider';
 import Typography from '@material-ui/core/Typography';
-import ColorSelector from './ColorSelector';
+import ColorSelector from './renderProps/ColorSelector';
 
 const dayOptions = Object.values(DAY_MAP);
 
