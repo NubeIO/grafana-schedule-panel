@@ -46,8 +46,8 @@ export default function DateRange(props: DateRangeProps) {
       setError(true);
     } else {
       setError(false);
-      props.onChange({ startDate: e.target.value, endDate });
     }
+    props.onChange({ startDate: e.target.value, endDate });
   };
 
   const handleEndDateChange = (e: any) => {
@@ -56,8 +56,8 @@ export default function DateRange(props: DateRangeProps) {
       setError(true);
     } else {
       setError(false);
-      props.onChange({ startDate, endDate: e.target.value });
     }
+    props.onChange({ startDate, endDate: e.target.value });
   };
 
   return (

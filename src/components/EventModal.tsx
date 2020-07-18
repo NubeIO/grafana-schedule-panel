@@ -13,7 +13,7 @@ import { DAY_MAP } from '../utils';
 import Slider from '@material-ui/core/Slider';
 import Typography from '@material-ui/core/Typography';
 import ColorSelector from './renderProps/ColorSelector';
-import DateRange from './DateRangeCollection';
+import DateRangeCollection from './DateRangeCollection';
 
 const dayOptions = Object.values(DAY_MAP);
 
@@ -185,7 +185,13 @@ export default function EventModal(props: EventModalProps) {
           function renderEvents() {
             return (
               <div className={classes.input}>
-                <DateRange {...defaultProps} eventOutput={eventOutput} />
+                <DateRangeCollection
+                  {...defaultProps}
+                  eventOutput={eventOutput}
+                  onChange={eventDates => {
+                    console.log('eventDates', eventDates);
+                  }}
+                />
               </div>
             );
           }
