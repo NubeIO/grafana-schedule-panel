@@ -4,6 +4,7 @@ import { createStyles, makeStyles } from '@material-ui/core/styles';
 import { EventDate, EventOutput } from '../types';
 import moment from 'moment-timezone';
 import { v4 as uuidv4 } from 'uuid';
+import _ from 'lodash';
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -15,6 +16,10 @@ const useStyles = makeStyles(() =>
   })
 );
 
+interface DateDict {
+  [key: string]: EventDate;
+}
+
 interface DateRangeCollection {
   eventOutput: EventOutput;
   onChange: (eventDates: Array<EventDate>, error: string) => void;
@@ -24,18 +29,76 @@ const format = 'YYYY-MM-DDThh:mm';
 
 export default function DateRangeCollection(props: DateRangeCollection) {
   const { eventOutput, onChange, ...restProps } = props;
-  const [dates, setDates] = useState<{ [key: string]: EventDate }>({});
+  const [dates, setDates] = useState<DateDict>({});
+  const [lastDateKey, setLastDateKey] = useState('');
+  const [errorKey, setErrorKey] = useState('');
+  const [error, setError] = useState('');
   const classes = useStyles();
 
   useEffect(() => {
-    let convertedDict: { [key: string]: EventDate } = {};
+    let convertedDict: DateDict = {};
     eventOutput?.dates?.forEach(date => {
       convertedDict[uuidv4()] = { start: moment(date.start).format(format), end: moment(date.end).format(format) };
     });
+    if (!Object.keys(convertedDict).length) {
+      const key = uuidv4();
+      setLastDateKey(lastDateKey);
+      convertedDict[key] = { start: '', end: '', isIncomplete: true };
+    }
     setDates(convertedDict);
   }, [eventOutput?.dates]);
 
-  useEffect(() => {}, [dates]);
+  useEffect(() => {
+    const reformattedEditedDates: Array<EventDate> = [];
+    const errors: Array<string> = [];
+    Object.keys(dates).forEach(key => {
+      const error = dates[key].error;
+      if (error) {
+        errors.push(error);
+      }
+      if (dates[key].start && dates[key].end) {
+        delete dates[key].isIncomplete;
+        delete dates[key].error;
+        reformattedEditedDates.push(dates[key]);
+      }
+    });
+    onChange(reformattedEditedDates, error ? error : errors.length ? errors[0] : '');
+  }, [dates]);
+
+  const handleChange = (eventDate: EventDate, key: string) => {
+    let editedDates: DateDict = _.clone(dates);
+    editedDates[key] = eventDate;
+    setDates(editedDates);
+    if (key === errorKey) {
+      setError('');
+    }
+  };
+
+  const handleDelete = (key: string) => {
+    const convertedDict: DateDict = _.clone(dates);
+    delete convertedDict[key];
+    setDates(convertedDict);
+    if (!Object.keys(convertedDict).length) {
+      const key = uuidv4();
+      setLastDateKey(lastDateKey);
+      convertedDict[key] = { start: '', end: '', isIncomplete: true };
+      setError('At least a date is required');
+      setErrorKey(key);
+    }
+    setDates(convertedDict);
+  };
+
+  const handleAdd = () => {
+    const convertedDict: DateDict = _.clone(dates);
+    if (!error) {
+      const key = uuidv4();
+      setLastDateKey(lastDateKey);
+      convertedDict[key] = { start: '', end: '', isIncomplete: true };
+      setError('At least a date is required');
+      setErrorKey(key);
+    }
+    setDates(convertedDict);
+  };
 
   return (
     <>
@@ -45,24 +108,11 @@ export default function DateRangeCollection(props: DateRangeCollection) {
           <div key={key} className={classes.dateRangeCollection}>
             <DateRange
               {...restProps}
+              isIncomplete={Boolean(eventDate.isIncomplete)}
               values={[eventDate.start, eventDate.end]}
-              onChange={eventDate => {
-                let editedDates = dates;
-                editedDates[key] = eventDate;
-                setDates(editedDates);
-
-                // Sending back the results
-                const reformattedEditedDates: Array<EventDate> = [];
-                const errors: Array<string> = [];
-                Object.keys(editedDates).forEach(key => {
-                  reformattedEditedDates.push(dates[key]);
-                  const error = dates[key].error;
-                  if (error) {
-                    errors.push(error);
-                  }
-                });
-                onChange(reformattedEditedDates, errors.length ? errors[0] : '');
-              }}
+              onChange={event => handleChange(event, key)}
+              onDelete={() => handleDelete(key)}
+              onAdd={() => handleAdd()}
             />
           </div>
         );

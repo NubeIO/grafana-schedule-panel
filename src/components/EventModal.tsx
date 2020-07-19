@@ -245,6 +245,7 @@ export default function EventModal(props: EventModalProps) {
                   {...defaultProps}
                   eventOutput={eventOutput}
                   onChange={(eventDates, error) => {
+                    setFieldValue('dates', eventDates);
                     if (error) {
                       setFieldError('dates', error);
                       forceUpdate();

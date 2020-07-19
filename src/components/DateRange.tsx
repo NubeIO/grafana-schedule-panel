@@ -5,7 +5,7 @@ import moment from 'moment-timezone';
 import DeleteIcon from '@material-ui/icons/Delete';
 import AddIcon from '@material-ui/icons/Add';
 import IconButton from '@material-ui/core/IconButton';
-import {EventDate} from "../types";
+import { EventDate } from '../types';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -33,6 +33,9 @@ const useStyles = makeStyles((theme: Theme) =>
 interface DateRangeProps {
   values: [string, string];
   onChange: (eventDate: EventDate) => void;
+  onDelete: () => void;
+  onAdd: () => void;
+  isIncomplete: boolean;
 }
 
 export default function DateRange(props: DateRangeProps) {
@@ -92,14 +95,30 @@ export default function DateRange(props: DateRangeProps) {
         }}
       />
       <div className={classes.buttonWrapper}>
-        <IconButton aria-label="add" className={classes.button}>
+        <IconButton
+          aria-label="add"
+          className={classes.button}
+          onClick={() => {
+            props.onAdd();
+          }}
+        >
           <AddIcon color="primary" fontSize="small" />
         </IconButton>
       </div>
       <div className={classes.buttonWrapper}>
-        <IconButton aria-label="delete" className={classes.button}>
-          <DeleteIcon color="secondary" fontSize="small" />
-        </IconButton>
+        {!props.isIncomplete ? (
+          <IconButton
+            aria-label="delete"
+            className={classes.button}
+            onClick={() => {
+              props.onDelete();
+            }}
+          >
+            <DeleteIcon color="secondary" fontSize="small" />
+          </IconButton>
+        ) : (
+          <div style={{ width: 41.5 }} />
+        )}
       </div>
     </div>
   );

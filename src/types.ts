@@ -20,6 +20,7 @@ export interface EventDate {
   start: string; // 2020-07-20T02:00:00.000Z
   end: string; // 2020-07-20T08:00:00.000Z
   error?: string;
+  isIncomplete?: boolean;
 }
 
 export interface Weekly {
