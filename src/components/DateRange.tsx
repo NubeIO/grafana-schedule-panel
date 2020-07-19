@@ -5,6 +5,7 @@ import moment from 'moment-timezone';
 import DeleteIcon from '@material-ui/icons/Delete';
 import AddIcon from '@material-ui/icons/Add';
 import IconButton from '@material-ui/core/IconButton';
+import {EventDate} from "../types";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -31,33 +32,35 @@ const useStyles = makeStyles((theme: Theme) =>
 
 interface DateRangeProps {
   values: [string, string];
-  onChange: ({ startDate, endDate }: { startDate: string; endDate: string }) => void;
+  onChange: (eventDate: EventDate) => void;
 }
 
 export default function DateRange(props: DateRangeProps) {
   const classes = useStyles();
-  const [startDate, setStartDate] = useState(props.values[0]);
-  const [endDate, setEndDate] = useState(props.values[1]);
+  const [start, setStart] = useState(props.values[0]);
+  const [end, setEnd] = useState(props.values[1]);
   const [error, setError] = useState(false);
 
   const handleStartDateChange = (e: any) => {
-    setStartDate(e.target.value);
-    if (!moment(e.target.value).isBefore(endDate)) {
+    setStart(e.target.value);
+    if (!moment(e.target.value).isBefore(end)) {
       setError(true);
+      props.onChange({ start: e.target.value, end, error: 'Invalid range' });
     } else {
       setError(false);
+      props.onChange({ start: e.target.value, end, error: '' });
     }
-    props.onChange({ startDate: e.target.value, endDate });
   };
 
   const handleEndDateChange = (e: any) => {
-    setEndDate(e.target.value);
-    if (!moment(e.target.value).isAfter(startDate)) {
+    setEnd(e.target.value);
+    if (!moment(e.target.value).isAfter(start)) {
       setError(true);
+      props.onChange({ start, end: e.target.value, error: 'Invalid range' });
     } else {
       setError(false);
+      props.onChange({ start, end: e.target.value, error: '' });
     }
-    props.onChange({ startDate, endDate: e.target.value });
   };
 
   return (
@@ -68,7 +71,7 @@ export default function DateRange(props: DateRangeProps) {
         id="datetime-local"
         label="Start Date"
         type="datetime-local"
-        value={startDate}
+        value={start}
         onChange={handleStartDateChange}
         error={error}
         InputLabelProps={{
@@ -81,7 +84,7 @@ export default function DateRange(props: DateRangeProps) {
         id="datetime-local"
         label="End Date"
         type="datetime-local"
-        value={endDate}
+        value={end}
         onChange={handleEndDateChange}
         error={error}
         InputLabelProps={{

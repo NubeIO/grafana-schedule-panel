@@ -17,8 +17,9 @@ export interface PanelOptions {
 }
 
 export interface EventDate {
-  start: string;
-  end: string;
+  start: string; // 2020-07-20T02:00:00.000Z
+  end: string; // 2020-07-20T08:00:00.000Z
+  error?: string;
 }
 
 export interface Weekly {
@@ -27,8 +28,8 @@ export interface Weekly {
   value: number | string;
   color: string;
   days: Array<string>;
-  start: string;
-  end: string;
+  start: string; // 1:00
+  end: string; // 2:00
 }
 
 export interface Event {

@@ -17,7 +17,7 @@ const useStyles = makeStyles(() =>
 
 interface DateRangeCollection {
   eventOutput: EventOutput;
-  onChange: (eventDates: Array<EventDate>) => void;
+  onChange: (eventDates: Array<EventDate>, error: string) => void;
 }
 
 const format = 'YYYY-MM-DDThh:mm';
@@ -46,17 +46,22 @@ export default function DateRangeCollection(props: DateRangeCollection) {
             <DateRange
               {...restProps}
               values={[eventDate.start, eventDate.end]}
-              onChange={({ startDate, endDate }) => {
+              onChange={eventDate => {
                 let editedDates = dates;
-                editedDates[key] = { start: startDate, end: endDate };
+                editedDates[key] = eventDate;
                 setDates(editedDates);
 
                 // Sending back the results
                 const reformattedEditedDates: Array<EventDate> = [];
-                Object.keys(dates).forEach(key => {
+                const errors: Array<string> = [];
+                Object.keys(editedDates).forEach(key => {
                   reformattedEditedDates.push(dates[key]);
+                  const error = dates[key].error;
+                  if (error) {
+                    errors.push(error);
+                  }
                 });
-                onChange(reformattedEditedDates);
+                onChange(reformattedEditedDates, errors.length ? errors[0] : '');
               }}
             />
           </div>

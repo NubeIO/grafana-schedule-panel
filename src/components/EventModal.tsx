@@ -1,4 +1,4 @@
-import React, { ChangeEvent } from 'react';
+import React, { ChangeEvent, useState } from 'react';
 import { EventOutput, Operation, PanelOptions, Event, Weekly } from '../types';
 
 import { createStyles, Dialog, DialogActions, DialogContent, DialogTitle, Theme } from '@material-ui/core';
@@ -104,17 +104,22 @@ const getValidationSchema = (options: PanelOptions, isWeekly: boolean) => {
   if (isWeekly) {
     validationSchema['days'] = Yup.array().min(1, 'Select at least a day');
   } else {
-    validationSchema['dates'] = Yup.array().min(1, 'At least a date');
+    validationSchema['dates'] = Yup.array().min(1);
   }
   return validationSchema;
 };
 
 export default function EventModal(props: EventModalProps) {
   const { isOpenModal, isWeekly, operation, eventOutput, onModalClose, options } = props;
+  const [value, setValue] = useState(0);
   const classes = useStyles();
   const handleDeleteEvent = () => {};
   const handleSubmit = (data: any) => {
     console.log(data);
+  };
+
+  const forceUpdate = () => {
+    setValue(value + 1);
   };
 
   return (
@@ -131,8 +136,17 @@ export default function EventModal(props: EventModalProps) {
         onSubmit={handleSubmit}
       >
         {formikProps => {
-          const { values, errors, touched, handleChange, handleBlur, setFieldValue, isValid } = formikProps;
-          console.log('errors', errors);
+          const {
+            values,
+            errors,
+            touched,
+            handleChange,
+            handleBlur,
+            setFieldValue,
+            isValid,
+            setErrors,
+            setFieldError,
+          } = formikProps;
           const defaultProps: any = {
             variant: 'outlined',
             size: 'small',
@@ -230,9 +244,17 @@ export default function EventModal(props: EventModalProps) {
                 <DateRangeCollection
                   {...defaultProps}
                   eventOutput={eventOutput}
-                  onChange={eventDates => {
-                    console.log('eventDates', eventDates);
+                  onChange={(eventDates, error) => {
+                    if (error) {
+                      setFieldError('dates', error);
+                      forceUpdate();
+                    } else {
+                      delete errors['dates'];
+                      setErrors(errors);
+                      forceUpdate();
+                    }
                   }}
+                  onBlur={() => {}}
                 />
               </div>
             );
