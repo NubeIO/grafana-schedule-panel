@@ -25,7 +25,8 @@ interface DateRangeCollection {
   onChange: (eventDates: Array<EventDate>, error: string) => void;
 }
 
-const format = 'YYYY-MM-DDThh:mm';
+export const DATE_FORMAT = 'YYYY-MM-DDThh:mm';
+
 
 export default function DateRangeCollection(props: DateRangeCollection) {
   const { eventOutput, onChange, ...restProps } = props;
@@ -38,7 +39,7 @@ export default function DateRangeCollection(props: DateRangeCollection) {
   useEffect(() => {
     let convertedDict: DateDict = {};
     eventOutput?.dates?.forEach(date => {
-      convertedDict[uuidv4()] = { start: moment(date.start).format(format), end: moment(date.end).format(format) };
+      convertedDict[uuidv4()] = { start: moment(date.start).format(DATE_FORMAT), end: moment(date.end).format(DATE_FORMAT) };
     });
     if (!Object.keys(convertedDict).length) {
       const key = uuidv4();

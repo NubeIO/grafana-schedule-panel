@@ -135,66 +135,65 @@ export default function ScheduleCalendar(props: IProps) {
   };
 
   return (
-    <>
-      <TimezoneToggle timezone={options.timezone}>
-        {(toggleTimezone, timezone, timezoneName) => (
-          <>
-            <div className={styles.title}>
-              <Chip
-                className={styles.item}
-                variant="outlined"
-                size="small"
-                label={`Timezone: ${timezoneName || 'UTC'}`}
-                onClick={toggleTimezone}
-                clickable
-              />
-              <div className={styles.blankSpace} />
-              <Chip
-                className={styles.item}
-                variant="outlined"
-                size="small"
-                avatar={<Avatar>+</Avatar>}
-                label="Weekly Event"
-                clickable
-                onClick={() => addEvent(true)}
-              />
-              <Chip
-                className={styles.item}
-                variant="outlined"
-                size="small"
-                avatar={<Avatar>+</Avatar>}
-                label="Event"
-                clickable
-                onClick={() => addEvent(false)}
-              />
-            </div>
-            <div className={styles.calendar}>
-              <CalendarHOC
-                events={eventCollection}
-                timezone={timezone}
-                startAccessorField="start"
-                endAccessorField="end"
-                onNavigate={onNavigate}
-                onSelectEvent={onSelectEvent}
-                eventPropGetter={eventStyleGetter}
-                localizer={staticLocalizer}
-                components={{ event: CustomEvent }}
-                defaultView="week"
-                date={visibleDate.toDate()}
-              />
-            </div>
-          </>
-        )}
-      </TimezoneToggle>
-      <EventModal
-        isOpenModal={isOpenModal}
-        isWeekly={isWeekly}
-        operation={operation}
-        eventOutput={eventOutput}
-        onModalClose={onModalClose}
-        options={options}
-      />
-    </>
+    <TimezoneToggle timezone={options.timezone}>
+      {(toggleTimezone, timezone, timezoneName) => (
+        <>
+          <div className={styles.title}>
+            <Chip
+              className={styles.item}
+              variant="outlined"
+              size="small"
+              label={`Timezone: ${timezoneName || 'UTC'}`}
+              onClick={toggleTimezone}
+              clickable
+            />
+            <div className={styles.blankSpace} />
+            <Chip
+              className={styles.item}
+              variant="outlined"
+              size="small"
+              avatar={<Avatar>+</Avatar>}
+              label="Weekly Event"
+              clickable
+              onClick={() => addEvent(true)}
+            />
+            <Chip
+              className={styles.item}
+              variant="outlined"
+              size="small"
+              avatar={<Avatar>+</Avatar>}
+              label="Event"
+              clickable
+              onClick={() => addEvent(false)}
+            />
+          </div>
+          <div className={styles.calendar}>
+            <CalendarHOC
+              events={eventCollection}
+              timezone={timezone}
+              startAccessorField="start"
+              endAccessorField="end"
+              onNavigate={onNavigate}
+              onSelectEvent={onSelectEvent}
+              eventPropGetter={eventStyleGetter}
+              localizer={staticLocalizer}
+              components={{ event: CustomEvent }}
+              defaultView="week"
+              date={visibleDate.toDate()}
+            />
+          </div>
+          <EventModal
+            isOpenModal={isOpenModal}
+            isWeekly={isWeekly}
+            operation={operation}
+            eventOutput={eventOutput}
+            onModalClose={onModalClose}
+            options={options}
+            timezone={timezone}
+          />
+        </>
+      )}
+    </TimezoneToggle>
   );
 }
 

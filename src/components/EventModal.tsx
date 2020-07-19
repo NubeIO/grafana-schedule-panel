@@ -1,5 +1,5 @@
 import React, { ChangeEvent, useState } from 'react';
-import { EventOutput, Operation, PanelOptions, Event, Weekly } from '../types';
+import { EventOutput, Operation, PanelOptions, Event, Weekly, EventDate } from '../types';
 
 import { createStyles, Dialog, DialogActions, DialogContent, DialogTitle, Theme } from '@material-ui/core';
 import { Form, Formik } from 'formik';
@@ -7,15 +7,18 @@ import * as Yup from 'yup';
 import Button from '@material-ui/core/Button';
 import Autocomplete from '@material-ui/lab/Autocomplete/Autocomplete';
 import TextField from '@material-ui/core/TextField/TextField';
-
-import { makeStyles } from '@material-ui/core/styles';
+import moment from 'moment';
 import { DAY_MAP } from '../utils';
 import Slider from '@material-ui/core/Slider';
 import Typography from '@material-ui/core/Typography';
 import ColorSelector from './renderProps/ColorSelector';
-import DateRangeCollection from './DateRangeCollection';
+import DateRangeCollection, { DATE_FORMAT } from './DateRangeCollection';
+import { convertTimeFromTimezone, convertWeekFromTimezoneToUTC } from './hoc/withTimezone';
+
+import { makeStyles } from '@material-ui/core/styles';
 
 const dayOptions = Object.values(DAY_MAP);
+const TIME_FORMAT = 'HH:mm';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -53,44 +56,40 @@ interface EventModalProps {
   eventOutput: EventOutput | null;
   onModalClose: () => void;
   options: PanelOptions;
+  timezone: string;
 }
 
-const getInitialValues = (
-  eventOutput: EventOutput | null,
-  operation: Operation,
-  options: PanelOptions,
-  isWeekly: boolean
-) => {
-  if (operation === 'add') {
-    return {
-      title: options.defaultTitle,
-      days: [],
-      startTime: '12:00',
-      endTime: '12:00',
-      dates: [],
-      value: options.min,
-      color: '',
-    };
-  } else {
+const getInitialValues = (eventOutput: EventOutput | null, options: PanelOptions, isWeekly: boolean) => {
+  if (eventOutput) {
     if (isWeekly) {
-      const event: Weekly = eventOutput?.backupEvent as Weekly;
+      const event: Weekly = eventOutput.backupEvent as Weekly;
       return {
         title: event.name,
-        days: event.days,
-        startTime: event.start,
-        endTime: event.end,
+        days: eventOutput.days,
+        start: moment(eventOutput.start).format(TIME_FORMAT),
+        end: moment(eventOutput.end).format(TIME_FORMAT),
         value: event.value,
         color: event.color,
       };
     } else {
-      const event: Event = eventOutput?.backupEvent as Event;
+      const event: Event = eventOutput.backupEvent as Event;
       return {
         title: event.name,
-        dates: event.dates,
+        dates: eventOutput.dates,
         value: event.value,
         color: event.color,
       };
     }
+  } else {
+    return {
+      title: options.defaultTitle,
+      days: [],
+      start: '12:00',
+      end: '12:00',
+      dates: [],
+      value: options.min,
+      color: '',
+    };
   }
 };
 
@@ -110,12 +109,23 @@ const getValidationSchema = (options: PanelOptions, isWeekly: boolean) => {
 };
 
 export default function EventModal(props: EventModalProps) {
-  const { isOpenModal, isWeekly, operation, eventOutput, onModalClose, options } = props;
+  const { isOpenModal, isWeekly, operation, eventOutput, onModalClose, options, timezone } = props;
   const [value, setValue] = useState(0);
   const classes = useStyles();
   const handleDeleteEvent = () => {};
+
   const handleSubmit = (data: any) => {
-    console.log(data);
+    if (isWeekly) {
+      data.days = convertWeekFromTimezoneToUTC(data.days, data.start, timezone);
+      data.start = convertTimeFromTimezone(moment(data.start, TIME_FORMAT), timezone).format(TIME_FORMAT);
+      data.end = convertTimeFromTimezone(moment(data.end, TIME_FORMAT), timezone).format(TIME_FORMAT);
+    } else {
+      data.dates = data.dates.map(({ start, end }: EventDate) => ({
+        start: convertTimeFromTimezone(moment(start), timezone).format(DATE_FORMAT),
+        end: convertTimeFromTimezone(moment(end), timezone).format(DATE_FORMAT),
+      }));
+    }
+    console.log('values', data);
   };
 
   const forceUpdate = () => {
@@ -131,7 +141,7 @@ export default function EventModal(props: EventModalProps) {
       open={isOpenModal}
     >
       <Formik
-        initialValues={getInitialValues(eventOutput, operation, options, isWeekly)}
+        initialValues={getInitialValues(eventOutput, options, isWeekly)}
         validationSchema={Yup.object(getValidationSchema(options, isWeekly))}
         onSubmit={handleSubmit}
       >
@@ -154,7 +164,7 @@ export default function EventModal(props: EventModalProps) {
             onBlur: (e: any) => handleBlur(e),
           };
 
-          const { title, days, startTime, endTime, value, color } = values;
+          const { title, days, start, end, value, color } = values;
 
           function renderTitle() {
             return (
@@ -181,7 +191,7 @@ export default function EventModal(props: EventModalProps) {
                   options={dayOptions}
                   getOptionLabel={(option: string) => option.toUpperCase()}
                   filterSelectedOptions
-                  value={days}
+                  value={days === undefined ? days : []}
                   renderInput={params => {
                     return (
                       <TextField
@@ -210,8 +220,8 @@ export default function EventModal(props: EventModalProps) {
                   {...defaultProps}
                   label="Start time"
                   type="time"
-                  name="startTime"
-                  value={startTime}
+                  name="start"
+                  value={start}
                   className={classes.textField}
                   InputLabelProps={{
                     shrink: true,
@@ -224,8 +234,8 @@ export default function EventModal(props: EventModalProps) {
                   {...defaultProps}
                   label="End time"
                   type="time"
-                  name="endTime"
-                  value={endTime}
+                  name="end"
+                  value={end}
                   className={classes.textField}
                   InputLabelProps={{
                     shrink: true,

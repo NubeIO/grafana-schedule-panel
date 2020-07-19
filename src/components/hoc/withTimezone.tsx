@@ -10,20 +10,6 @@ export const convertDateTimeToDate = (datetime: string, timezone: string) => {
   return new Date(m.year(), m.month(), m.date(), m.hour(), m.minute(), 0);
 };
 
-export const convertDateToDateTime = (date: string, timezone: string) => {
-  const dateM = moment.tz(date, timezone);
-  return moment.tz(
-    {
-      year: dateM.year(),
-      month: dateM.month(),
-      date: dateM.date(),
-      hour: dateM.hour(),
-      minute: dateM.minute(),
-    },
-    timezone
-  );
-};
-
 export const convertTimeFromTimezone = (dateM: moment.Moment, timezone: string) => {
   return moment
     .tz(
