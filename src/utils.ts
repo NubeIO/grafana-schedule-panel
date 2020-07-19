@@ -153,7 +153,8 @@ export function extractEvents(
             value: event.value,
             color: event.color,
             isWeekly: false,
-            event,
+            event: event,
+            backupEvent: event,
           });
         });
       } else {
@@ -169,7 +170,8 @@ export function extractEvents(
           days: convertWeekToUTC(event as Weekly),
           isWeekly: true,
           dayString,
-          event,
+          event: event,
+          backupEvent: event,
         });
       }
     }

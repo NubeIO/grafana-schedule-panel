@@ -1,5 +1,5 @@
 import React, { ChangeEvent } from 'react';
-import { EventOutput, Operation, PanelOptions } from '../types';
+import { EventOutput, Operation, PanelOptions, Event, Weekly } from '../types';
 
 import { createStyles, Dialog, DialogActions, DialogContent, DialogTitle, Theme } from '@material-ui/core';
 import { Form, Formik } from 'formik';
@@ -55,6 +55,60 @@ interface EventModalProps {
   options: PanelOptions;
 }
 
+const getInitialValues = (
+  eventOutput: EventOutput | null,
+  operation: Operation,
+  options: PanelOptions,
+  isWeekly: boolean
+) => {
+  if (operation === 'add') {
+    return {
+      title: options.defaultTitle,
+      days: [],
+      startTime: '12:00',
+      endTime: '12:00',
+      dates: [],
+      value: options.min,
+      color: '',
+    };
+  } else {
+    if (isWeekly) {
+      const event: Weekly = eventOutput?.backupEvent as Weekly;
+      return {
+        title: event.name,
+        days: event.days,
+        startTime: event.start,
+        endTime: event.end,
+        value: event.value,
+        color: event.color,
+      };
+    } else {
+      const event: Event = eventOutput?.backupEvent as Event;
+      return {
+        title: event.name,
+        dates: event.dates,
+        value: event.value,
+        color: event.color,
+      };
+    }
+  }
+};
+
+const getValidationSchema = (options: PanelOptions, isWeekly: boolean) => {
+  const validationSchema: any = {
+    title: Yup.string().required('Title is required'),
+    value: Yup.number()
+      .min(options.min, `Should be higher than ${options.min}`)
+      .max(options.max, `Should be lower than ${options.max}`),
+  };
+  if (isWeekly) {
+    validationSchema['days'] = Yup.array().min(1, 'Select at least a day');
+  } else {
+    validationSchema['dates'] = Yup.array().min(1, 'At least a date');
+  }
+  return validationSchema;
+};
+
 export default function EventModal(props: EventModalProps) {
   const { isOpenModal, isWeekly, operation, eventOutput, onModalClose, options } = props;
   const classes = useStyles();
@@ -72,25 +126,13 @@ export default function EventModal(props: EventModalProps) {
       open={isOpenModal}
     >
       <Formik
-        initialValues={{
-          title: options.defaultTitle,
-          days: [],
-          startTime: '12:00',
-          endTime: '12:00',
-          value: options.min,
-          color: '',
-        }}
-        validationSchema={Yup.object({
-          title: Yup.string().required('Title is required'),
-          days: Yup.array().min(1, 'Select at least a day'),
-          value: Yup.number()
-            .min(options.min, `Should be higher than ${options.min}`)
-            .max(options.max, `Should be lower than ${options.max}`),
-        })}
+        initialValues={getInitialValues(eventOutput, operation, options, isWeekly)}
+        validationSchema={Yup.object(getValidationSchema(options, isWeekly))}
         onSubmit={handleSubmit}
       >
         {formikProps => {
           const { values, errors, touched, handleChange, handleBlur, setFieldValue, isValid } = formikProps;
+          console.log('errors', errors);
           const defaultProps: any = {
             variant: 'outlined',
             size: 'small',
@@ -199,47 +241,46 @@ export default function EventModal(props: EventModalProps) {
           function renderValues() {
             return (
               <div className={classes.input}>
-                {options.hasPayload &&
-                  (options.inputType === 'number' ? (
-                    <TextField
+                {options.inputType === 'number' ? (
+                  <TextField
+                    {...defaultProps}
+                    label="Value"
+                    type="number"
+                    id="number-input"
+                    name="value"
+                    value={value}
+                    className={classes.textField}
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
+                    inputProps={{
+                      step: options.step,
+                      min: options.min,
+                      max: options.max,
+                    }}
+                    helperText={(touched.value && errors.value) || ''}
+                    error={touched.value && Boolean(errors.value)}
+                  />
+                ) : (
+                  <>
+                    <Typography gutterBottom>Value</Typography>
+                    <Slider
                       {...defaultProps}
-                      label="Value"
-                      type="number"
-                      id="number-input"
+                      id="slider"
                       name="value"
+                      min={options.min}
+                      max={options.max}
                       value={value}
-                      className={classes.textField}
-                      InputLabelProps={{
-                        shrink: true,
-                      }}
-                      inputProps={{
-                        step: options.step,
-                        min: options.min,
-                        max: options.max,
-                      }}
-                      helperText={(touched.value && errors.value) || ''}
-                      error={touched.value && Boolean(errors.value)}
+                      marks={[
+                        { value: options.min, label: options.min },
+                        { value: options.max, label: options.max },
+                      ]}
+                      valueLabelDisplay="auto"
+                      aria-labelledby="continuous-slider"
+                      onChange={(e, v) => setFieldValue('value', v)}
                     />
-                  ) : (
-                    <>
-                      <Typography gutterBottom>Value</Typography>
-                      <Slider
-                        {...defaultProps}
-                        id="slider"
-                        name="value"
-                        min={options.min}
-                        max={options.max}
-                        value={value}
-                        marks={[
-                          { value: options.min, label: options.min },
-                          { value: options.max, label: options.max },
-                        ]}
-                        valueLabelDisplay="auto"
-                        aria-labelledby="continuous-slider"
-                        onChange={(e, v) => setFieldValue('value', v)}
-                      />
-                    </>
-                  ))}
+                  </>
+                )}
               </div>
             );
           }
@@ -296,7 +337,7 @@ export default function EventModal(props: EventModalProps) {
                   {isWeekly && renderDays()}
                   {isWeekly && renderStartEndTime()}
                   {!isWeekly && renderEvents()}
-                  {renderValues()}
+                  {options.hasPayload && renderValues()}
                   {renderColor()}
                 </form>
               </DialogContent>
