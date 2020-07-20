@@ -6,9 +6,9 @@ export type Operation = 'add' | 'edit';
 export interface PanelOptions {
   defaultTitle: string;
   hasPayload: boolean;
-  min: number;
-  max: number;
-  step: number;
+  min?: number;
+  max?: number;
+  step?: number;
   inputType: InputType;
   allowOverlap: boolean;
   disableWeeklyEvent: boolean;

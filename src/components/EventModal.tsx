@@ -107,10 +107,12 @@ const getInitialValues = (eventOutput: EventOutput | null, options: PanelOptions
 const getValidationSchema = (options: PanelOptions, isWeekly: boolean) => {
   const validationSchema: any = {
     name: Yup.string().required('Title is required'),
-    value: Yup.number()
-      .min(options.min, `Should be higher than ${options.min}`)
-      .max(options.max, `Should be lower than ${options.max}`),
   };
+  if (options.min && options.max) {
+    validationSchema['value'] = Yup.number()
+      .min(options.min, `Should be higher than ${options.min}`)
+      .max(options.max, `Should be lower than ${options.max}`);
+  }
   if (isWeekly) {
     validationSchema['days'] = Yup.array().min(1, 'Select at least a day');
   } else {
@@ -243,7 +245,7 @@ export default function EventModal(props: EventModalProps) {
                     shrink: true,
                   }}
                   inputProps={{
-                    step: options.step * 60, // 1 min
+                    step: (options?.step || 1) * 60, // 1 min
                   }}
                 />
                 <TextField
@@ -257,7 +259,7 @@ export default function EventModal(props: EventModalProps) {
                     shrink: true,
                   }}
                   inputProps={{
-                    step: options.step * 60, // 1 min
+                    step: (options.step || 1) * 60, // 1 min
                   }}
                 />
               </div>
@@ -361,7 +363,7 @@ export default function EventModal(props: EventModalProps) {
                           shrink: true,
                         }}
                         inputProps={{
-                          step: options.step * 60, // 1 min
+                          step: (options.step || 1) * 60, // 1 min
                         }}
                         onChange={e => {
                           handleChangeFromSelector(e);

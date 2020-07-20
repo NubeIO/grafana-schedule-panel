@@ -99,6 +99,15 @@ export default function ScheduleCalendar(props: IProps) {
 
     eventsCollection = eventsCollection.concat(isolatedEvents, ...dayEventsCollection);
     setEventCollection(eventsCollection);
+
+    if (!options.hasPayload) {
+      setEventCollection(
+        eventsCollection.map(eventOutput => {
+          eventOutput.value = '';
+          return eventOutput;
+        })
+      );
+    }
     setIsRunning(false);
   };
 
