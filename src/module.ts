@@ -34,17 +34,17 @@ export const plugin = new PanelPlugin<PanelOptions>(SimplePanel).setPanelOptions
     })
     .addRadio({
       path: 'inputType',
-      defaultValue: 'number',
+      defaultValue: 'slider',
       name: 'Input Type',
       settings: {
         options: [
           {
-            value: 'number',
-            label: 'Number',
-          },
-          {
             value: 'slider',
             label: 'Slider',
+          },
+          {
+            value: 'number',
+            label: 'Number',
           },
         ],
       },
