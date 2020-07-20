@@ -4,6 +4,7 @@ import { EventOutput, Operation, PanelOptions, Event, Weekly, EventDate } from '
 import { createStyles, Dialog, DialogActions, DialogContent, DialogTitle, Theme } from '@material-ui/core';
 import { Form, Formik } from 'formik';
 import * as Yup from 'yup';
+import { v4 as uuidv4 } from 'uuid';
 import Button from '@material-ui/core/Button';
 import Autocomplete from '@material-ui/lab/Autocomplete/Autocomplete';
 import TextField from '@material-ui/core/TextField/TextField';
@@ -54,9 +55,10 @@ interface EventModalProps {
   isWeekly: boolean;
   operation: Operation;
   eventOutput: EventOutput | null;
-  onModalClose: () => void;
   options: PanelOptions;
   timezone: string;
+  onClose: () => void;
+  onSubmit: (event: Weekly | Event, id: string) => void;
 }
 
 const getInitialValues = (eventOutput: EventOutput | null, options: PanelOptions, isWeekly: boolean) => {
@@ -64,7 +66,7 @@ const getInitialValues = (eventOutput: EventOutput | null, options: PanelOptions
     if (isWeekly) {
       const event: Weekly = eventOutput.backupEvent as Weekly;
       return {
-        title: event.name,
+        name: event.name,
         days: eventOutput.days,
         start: moment(eventOutput.start).format(TIME_FORMAT),
         end: moment(eventOutput.end).format(TIME_FORMAT),
@@ -74,28 +76,36 @@ const getInitialValues = (eventOutput: EventOutput | null, options: PanelOptions
     } else {
       const event: Event = eventOutput.backupEvent as Event;
       return {
-        title: event.name,
+        name: event.name,
         dates: eventOutput.dates,
         value: event.value,
         color: event.color,
       };
     }
   } else {
-    return {
-      title: options.defaultTitle,
-      days: [],
-      start: '12:00',
-      end: '12:00',
-      dates: [],
-      value: options.min,
-      color: '',
-    };
+    if (isWeekly) {
+      return {
+        name: options.defaultTitle,
+        days: [],
+        start: '12:00',
+        end: '12:00',
+        value: options.min,
+        color: '',
+      };
+    } else {
+      return {
+        name: options.defaultTitle,
+        dates: [],
+        value: options.min,
+        color: '',
+      };
+    }
   }
 };
 
 const getValidationSchema = (options: PanelOptions, isWeekly: boolean) => {
   const validationSchema: any = {
-    title: Yup.string().required('Title is required'),
+    name: Yup.string().required('Title is required'),
     value: Yup.number()
       .min(options.min, `Should be higher than ${options.min}`)
       .max(options.max, `Should be lower than ${options.max}`),
@@ -109,7 +119,7 @@ const getValidationSchema = (options: PanelOptions, isWeekly: boolean) => {
 };
 
 export default function EventModal(props: EventModalProps) {
-  const { isOpenModal, isWeekly, operation, eventOutput, onModalClose, options, timezone } = props;
+  const { isOpenModal, isWeekly, operation, eventOutput, options, timezone, onClose, onSubmit } = props;
   const [value, setValue] = useState(0);
   const classes = useStyles();
   const handleDeleteEvent = () => {};
@@ -125,7 +135,7 @@ export default function EventModal(props: EventModalProps) {
         end: convertTimeFromTimezone(moment(end), timezone).format(DATE_FORMAT),
       }));
     }
-    console.log('values', data);
+    onSubmit(data, eventOutput?.id || uuidv4());
   };
 
   const forceUpdate = () => {
@@ -136,7 +146,7 @@ export default function EventModal(props: EventModalProps) {
     <Dialog
       fullWidth={true}
       maxWidth="sm"
-      onClose={onModalClose}
+      onClose={onClose}
       aria-labelledby="customized-dialog-title"
       open={isOpenModal}
     >
@@ -164,7 +174,7 @@ export default function EventModal(props: EventModalProps) {
             onBlur: (e: any) => handleBlur(e),
           };
 
-          const { title, days, start, end, value, color } = values;
+          const { name, days, start, end, value, color } = values;
 
           function renderTitle() {
             return (
@@ -173,10 +183,10 @@ export default function EventModal(props: EventModalProps) {
                   {...defaultProps}
                   name="title"
                   label="Title"
-                  value={title}
+                  value={name}
                   fullWidth
-                  helperText={(touched.title && errors.title) || ''}
-                  error={touched.title && Boolean(errors.title)}
+                  helperText={(touched.name && errors.name) || ''}
+                  error={touched.name && Boolean(errors.name)}
                 />
               </div>
             );
@@ -361,7 +371,7 @@ export default function EventModal(props: EventModalProps) {
 
           return (
             <Form>
-              <DialogTitle id="customized-dialog-title" onAbort={onModalClose}>
+              <DialogTitle id="customized-dialog-title" onAbort={onClose}>
                 {operation === 'add' ? 'Add' : 'Edit'} {isWeekly ? 'Weekly ' : ''}Event
               </DialogTitle>
               <DialogContent dividers>
@@ -375,7 +385,7 @@ export default function EventModal(props: EventModalProps) {
                 </form>
               </DialogContent>
               <DialogActions>
-                <Button variant="outlined" onClick={onModalClose}>
+                <Button variant="outlined" onClick={onClose}>
                   Close
                 </Button>
                 {operation === 'edit' && (

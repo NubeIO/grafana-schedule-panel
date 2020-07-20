@@ -8,7 +8,7 @@ import moment from 'moment-timezone';
 import withTimeZone from './hoc/withTimezone';
 import CustomEvent from './CustomEvent';
 import { DAY_MAP, extractEvents, getDaysArrayByMonth } from '../utils';
-import { EventOutput, Event, Weekly, PanelOptions, Operation } from '../types';
+import { EventOutput, Event, Weekly, PanelOptions, Operation, RawData } from '../types';
 import { DataFrame, Field } from '@grafana/data';
 import _ from 'lodash';
 
@@ -28,7 +28,7 @@ export default function ScheduleCalendar(props: IProps) {
 
   const staticLocalizer = momentLocalizer(moment);
 
-  const [extractedValue, setExtractedValue] = useState<{ events: any; weekly: any }>({ events: {}, weekly: {} });
+  const [extractedValue, setExtractedValue] = useState<RawData>({ events: {}, weekly: {} });
   const [eventCollection, setEventCollection] = useState<Array<EventOutput>>([]);
   const [visibleDate, setVisibleDate] = useState(moment());
   const [isOpenModal, setIsOpenModal] = useState(false);
@@ -109,11 +109,23 @@ export default function ScheduleCalendar(props: IProps) {
     setIsOpenModal(false);
   };
 
-  const onSelectEvent = (event: EventOutput) => {
+  const onSelectEvent = (eventOutput: EventOutput) => {
     setOperation('edit');
-    setIsWeekly(event.isWeekly);
-    setEventOutput(event);
+    setIsWeekly(eventOutput.isWeekly);
+    setEventOutput(eventOutput);
     setIsOpenModal(true);
+  };
+
+  const handleModalSubmit = (event: Weekly | Event, id: string) => {
+    console.log('event', event, id);
+    const output: RawData = extractedValue;
+    if (isWeekly) {
+      output.weekly[id] = event;
+    } else {
+      output.events[id] = event;
+    }
+    setIsOpenModal(false);
+    console.log('output', output);
   };
 
   const onNavigate = (visibleDate: any) => {
@@ -187,9 +199,10 @@ export default function ScheduleCalendar(props: IProps) {
             isWeekly={isWeekly}
             operation={operation}
             eventOutput={eventOutput}
-            onModalClose={onModalClose}
             options={options}
             timezone={timezone}
+            onClose={onModalClose}
+            onSubmit={handleModalSubmit}
           />
         </>
       )}

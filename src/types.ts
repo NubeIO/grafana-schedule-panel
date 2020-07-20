@@ -60,3 +60,8 @@ export interface EventOutput {
   days?: Array<moment.Moment>;
   dayString?: string;
 }
+
+export interface RawData {
+  events: any;
+  weekly: any;
+}
