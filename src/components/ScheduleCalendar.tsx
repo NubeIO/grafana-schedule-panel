@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import TimezoneToggle from './renderProps/TimezoneToggle';
-import { stylesFactory } from '@grafana/ui';
+import { Spinner, stylesFactory } from '@grafana/ui';
 import { css } from 'emotion';
 import { Avatar, Chip } from '@material-ui/core';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
@@ -37,6 +37,7 @@ export default function ScheduleCalendar(props: IProps) {
   const [isWeekly, setIsWeekly] = useState(false);
   const [eventOutput, setEventOutput] = useState<EventOutput | null>(null);
   const [operation, setOperation] = useState<Operation>('add');
+  const [isRunning, setIsRunning] = useState(false);
 
   useEffect(() => {
     const series: DataFrame[] = data?.series;
@@ -98,6 +99,7 @@ export default function ScheduleCalendar(props: IProps) {
 
     eventsCollection = eventsCollection.concat(isolatedEvents, ...dayEventsCollection);
     setEventCollection(eventsCollection);
+    setIsRunning(false);
   };
 
   const addEvent = (isWeekly: boolean) => {
@@ -119,7 +121,7 @@ export default function ScheduleCalendar(props: IProps) {
   };
 
   const syncOnMqttServer = (output: string) => {
-    setIsOpenModal(false);
+    setIsRunning(true);
     if (!_client.current) {
       return;
     }
@@ -129,6 +131,7 @@ export default function ScheduleCalendar(props: IProps) {
     topics.forEach((topic: string) => {
       _client.current.publish(topic, output, { retain: true });
     });
+    setIsOpenModal(false);
   };
 
   const handleModalSubmit = (event: Weekly | Event, id: string) => {
@@ -176,67 +179,74 @@ export default function ScheduleCalendar(props: IProps) {
   };
 
   return (
-    <TimezoneToggle timezone={options.timezone}>
-      {(toggleTimezone, timezone, timezoneName) => (
-        <>
-          <div className={styles.title}>
-            <Chip
-              className={styles.item}
-              variant="outlined"
-              size="small"
-              label={`Timezone: ${timezoneName || 'UTC'}`}
-              onClick={toggleTimezone}
-              clickable
-            />
-            <div className={styles.blankSpace} />
-            <Chip
-              className={styles.item}
-              variant="outlined"
-              size="small"
-              avatar={<Avatar>+</Avatar>}
-              label="Weekly Event"
-              clickable
-              onClick={() => addEvent(true)}
-            />
-            <Chip
-              className={styles.item}
-              variant="outlined"
-              size="small"
-              avatar={<Avatar>+</Avatar>}
-              label="Event"
-              clickable
-              onClick={() => addEvent(false)}
-            />
-          </div>
-          <div className={styles.calendar}>
-            <CalendarHOC
-              events={eventCollection}
+    <>
+      <TimezoneToggle timezone={options.timezone}>
+        {(toggleTimezone, timezone, timezoneName) => (
+          <>
+            <div className={styles.title}>
+              <Chip
+                className={styles.item}
+                variant="outlined"
+                size="small"
+                label={`Timezone: ${timezoneName || 'UTC'}`}
+                onClick={toggleTimezone}
+                clickable
+              />
+              <div className={styles.blankSpace} />
+              <Chip
+                className={styles.item}
+                variant="outlined"
+                size="small"
+                avatar={<Avatar>+</Avatar>}
+                label="Weekly Event"
+                clickable
+                onClick={() => addEvent(true)}
+              />
+              <Chip
+                className={styles.item}
+                variant="outlined"
+                size="small"
+                avatar={<Avatar>+</Avatar>}
+                label="Event"
+                clickable
+                onClick={() => addEvent(false)}
+              />
+            </div>
+            <div className={styles.calendar}>
+              <CalendarHOC
+                events={eventCollection}
+                timezone={timezone}
+                startAccessorField="start"
+                endAccessorField="end"
+                onNavigate={onNavigate}
+                onSelectEvent={onSelectEvent}
+                eventPropGetter={eventStyleGetter}
+                localizer={staticLocalizer}
+                components={{ event: CustomEvent }}
+                defaultView="week"
+                date={visibleDate.toDate()}
+              />
+            </div>
+            <EventModal
+              isOpenModal={isOpenModal}
+              isWeekly={isWeekly}
+              operation={operation}
+              eventOutput={eventOutput}
+              options={options}
               timezone={timezone}
-              startAccessorField="start"
-              endAccessorField="end"
-              onNavigate={onNavigate}
-              onSelectEvent={onSelectEvent}
-              eventPropGetter={eventStyleGetter}
-              localizer={staticLocalizer}
-              components={{ event: CustomEvent }}
-              defaultView="week"
-              date={visibleDate.toDate()}
+              onClose={onModalClose}
+              onSubmit={handleModalSubmit}
+              onDelete={handleModalDelete}
             />
-          </div>
-          <EventModal
-            isOpenModal={isOpenModal}
-            isWeekly={isWeekly}
-            operation={operation}
-            eventOutput={eventOutput}
-            options={options}
-            timezone={timezone}
-            onClose={onModalClose}
-            onSubmit={handleModalSubmit}
-            onDelete={handleModalDelete}
-          />
-        </>
+          </>
+        )}
+      </TimezoneToggle>
+      {isRunning && (
+        <div className={styles.spinner}>
+          <Spinner size={12} />
+        </div>
       )}
-    </TimezoneToggle>
+    </>
   );
 }
 
@@ -258,6 +268,11 @@ const getStyles = stylesFactory(() => {
     `,
     calendar: css`
       height: calc(100% - 30px);
+    `,
+    spinner: css`
+      position: absolute;
+      top: -32px;
+      right: -2px;
     `,
   };
 });

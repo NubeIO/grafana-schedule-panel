@@ -88,8 +88,8 @@ const getInitialValues = (eventOutput: EventOutput | null, options: PanelOptions
       return {
         name: options.defaultTitle,
         days: [],
-        start: '12:00',
-        end: '12:00',
+        start: '00:00',
+        end: '01:00',
         value: options.min,
         color: '',
       };
