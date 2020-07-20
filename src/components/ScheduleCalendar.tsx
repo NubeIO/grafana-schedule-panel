@@ -20,12 +20,13 @@ interface IProps {
   options: PanelOptions;
 }
 
+const CalendarHOC = withTimeZone(Calendar);
+
 export default function ScheduleCalendar(props: IProps) {
   const { data, options } = props;
   const styles = getStyles();
 
   const staticLocalizer = momentLocalizer(moment);
-  const CalendarHOC = withTimeZone(Calendar);
 
   const [extractedValue, setExtractedValue] = useState<{ events: any; weekly: any }>({ events: {}, weekly: {} });
   const [eventCollection, setEventCollection] = useState<Array<EventOutput>>([]);
@@ -94,7 +95,6 @@ export default function ScheduleCalendar(props: IProps) {
     }
 
     eventsCollection = eventsCollection.concat(isolatedEvents, ...dayEventsCollection);
-    console.log('eventsCollection', eventsCollection);
     setEventCollection(eventsCollection);
   };
 

@@ -54,8 +54,8 @@ interface IProps {
 export default function withTimeZone(Calendar: any) {
   return class extends Component<IProps> {
     accessor = (event: object, field: string, timezone: string) => {
-      const end = accessor(event, field);
-      return convertDateTimeToDate(end, timezone);
+      const value = accessor(event, field);
+      return convertDateTimeToDate(value, timezone);
     };
 
     static defaultProps = {
