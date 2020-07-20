@@ -118,6 +118,19 @@ export default function ScheduleCalendar(props: IProps) {
     setIsOpenModal(true);
   };
 
+  const syncOnMqttServer = (output: string) => {
+    setIsOpenModal(false);
+    if (!_client.current) {
+      return;
+    }
+    if (!_client.current.connected) {
+      _client.current.reconnect();
+    }
+    topics.forEach((topic: string) => {
+      _client.current.publish(topic, output, { retain: true });
+    });
+  };
+
   const handleModalSubmit = (event: Weekly | Event, id: string) => {
     const output: RawData = _.cloneDeep(extractedValue) || {};
     if (isWeekly) {
@@ -131,16 +144,17 @@ export default function ScheduleCalendar(props: IProps) {
       }
       output.events[id] = event;
     }
-    setIsOpenModal(false);
-    if (!_client.current) {
-      return;
+    syncOnMqttServer(JSON.stringify(output));
+  };
+
+  const handleModalDelete = (id: string) => {
+    const output: RawData = _.cloneDeep(extractedValue) || {};
+    if (isWeekly) {
+      delete output.weekly[id];
+    } else {
+      delete output.events[id];
     }
-    if (!_client.current.connected) {
-      _client.current.reconnect();
-    }
-    topics.forEach((topic: string) => {
-      _client.current.publish(topic, JSON.stringify(output), { retain: true });
-    });
+    syncOnMqttServer(JSON.stringify(output));
   };
 
   const onNavigate = (visibleDate: any) => {
@@ -218,6 +232,7 @@ export default function ScheduleCalendar(props: IProps) {
             timezone={timezone}
             onClose={onModalClose}
             onSubmit={handleModalSubmit}
+            onDelete={handleModalDelete}
           />
         </>
       )}

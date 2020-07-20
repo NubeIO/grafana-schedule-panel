@@ -59,6 +59,7 @@ interface EventModalProps {
   timezone: string;
   onClose: () => void;
   onSubmit: (event: Weekly | Event, id: string) => void;
+  onDelete: (id: string) => void;
 }
 
 const getInitialValues = (eventOutput: EventOutput | null, options: PanelOptions, isWeekly: boolean) => {
@@ -119,10 +120,14 @@ const getValidationSchema = (options: PanelOptions, isWeekly: boolean) => {
 };
 
 export default function EventModal(props: EventModalProps) {
-  const { isOpenModal, isWeekly, operation, eventOutput, options, timezone, onClose, onSubmit } = props;
+  const { isOpenModal, isWeekly, operation, eventOutput, options, timezone, onClose, onSubmit, onDelete } = props;
   const [value, setValue] = useState(0);
   const classes = useStyles();
-  const handleDeleteEvent = () => {};
+  const handleDeleteEvent = () => {
+    if (eventOutput?.id) {
+      onDelete(eventOutput?.id);
+    }
+  };
 
   const handleSubmit = (data: any) => {
     if (isWeekly) {
