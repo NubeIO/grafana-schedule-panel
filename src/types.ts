@@ -57,7 +57,7 @@ export interface EventOutput {
   event: Weekly | Event;
   backupEvent: Weekly | Event;
   dates?: Array<EventDate>;
-  days?: Array<moment.Moment>;
+  days?: Array<moment.Moment> | Array<string>; // Array<string> when even got selected
   dayString?: string;
 }
 

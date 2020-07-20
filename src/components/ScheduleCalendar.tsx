@@ -5,12 +5,12 @@ import { css } from 'emotion';
 import { Avatar, Chip } from '@material-ui/core';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment-timezone';
+import _ from 'lodash';
 import withTimeZone from './hoc/withTimezone';
 import CustomEvent from './CustomEvent';
 import { DAY_MAP, extractEvents, getDaysArrayByMonth } from '../utils';
 import { EventOutput, Event, Weekly, PanelOptions, Operation, RawData } from '../types';
 import { DataFrame, Field } from '@grafana/data';
-import _ from 'lodash';
 
 import 'react-big-calendar/lib/sass/styles.scss';
 import EventModal from './EventModal';
@@ -117,8 +117,7 @@ export default function ScheduleCalendar(props: IProps) {
   };
 
   const handleModalSubmit = (event: Weekly | Event, id: string) => {
-    console.log('event', event, id);
-    const output: RawData = extractedValue;
+    const output: RawData = { ...extractedValue };
     if (isWeekly) {
       output.weekly[id] = event;
     } else {

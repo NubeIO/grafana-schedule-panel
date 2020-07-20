@@ -175,6 +175,7 @@ export default function EventModal(props: EventModalProps) {
           };
 
           const { name, days, start, end, value, color } = values;
+          let parsedDates = days as Array<string>;
 
           function renderTitle() {
             return (
@@ -201,7 +202,7 @@ export default function EventModal(props: EventModalProps) {
                   options={dayOptions}
                   getOptionLabel={(option: string) => option.toUpperCase()}
                   filterSelectedOptions
-                  value={days === undefined ? days : []}
+                  value={parsedDates}
                   renderInput={params => {
                     return (
                       <TextField
