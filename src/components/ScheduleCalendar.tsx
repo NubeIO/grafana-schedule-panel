@@ -210,6 +210,7 @@ export default function ScheduleCalendar(props: IProps) {
                 label="Weekly Event"
                 clickable
                 onClick={() => addEvent(true)}
+                disabled={options.disableWeeklyEvent}
               />
               <Chip
                 className={styles.item}
@@ -219,6 +220,7 @@ export default function ScheduleCalendar(props: IProps) {
                 label="Event"
                 clickable
                 onClick={() => addEvent(false)}
+                disabled={options.disableEvent}
               />
             </div>
             <div className={styles.calendar}>

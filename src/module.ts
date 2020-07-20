@@ -50,17 +50,12 @@ export const plugin = new PanelPlugin<PanelOptions>(SimplePanel).setPanelOptions
       },
     })
     .addBooleanSwitch({
-      path: 'allowOverlap',
-      name: 'Allow Overlap',
-      defaultValue: false,
-    })
-    .addBooleanSwitch({
-      path: 'hasDisableWeeklyEvent',
+      path: 'disableWeeklyEvent',
       name: 'Disable Weekly Event',
       defaultValue: false,
     })
     .addBooleanSwitch({
-      path: 'hasDisableEvent',
+      path: 'disableEvent',
       name: 'Disable Event',
       defaultValue: false,
     })

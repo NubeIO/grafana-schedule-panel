@@ -10,7 +10,6 @@ export interface PanelOptions {
   max?: number;
   step?: number;
   inputType: InputType;
-  allowOverlap: boolean;
   disableWeeklyEvent: boolean;
   disableEvent: boolean;
   timezone: string;
