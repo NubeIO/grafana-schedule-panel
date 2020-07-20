@@ -119,15 +119,19 @@ export default function ScheduleCalendar(props: IProps) {
   };
 
   const handleModalSubmit = (event: Weekly | Event, id: string) => {
-    const output: RawData = _.cloneDeep(extractedValue);
+    const output: RawData = _.cloneDeep(extractedValue) || {};
     if (isWeekly) {
+      if (!output.weekly) {
+        output['weekly'] = {};
+      }
       output.weekly[id] = event;
     } else {
+      if (!output.events) {
+        output['events'] = {};
+      }
       output.events[id] = event;
     }
     setIsOpenModal(false);
-    console.log('output', output);
-
     if (!_client.current) {
       return;
     }
@@ -135,7 +139,7 @@ export default function ScheduleCalendar(props: IProps) {
       _client.current.reconnect();
     }
     topics.forEach((topic: string) => {
-      _client.current.publish(topic, output);
+      _client.current.publish(topic, JSON.stringify(output), { retain: true });
     });
   };
 

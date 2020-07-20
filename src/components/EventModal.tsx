@@ -8,7 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import Button from '@material-ui/core/Button';
 import Autocomplete from '@material-ui/lab/Autocomplete/Autocomplete';
 import TextField from '@material-ui/core/TextField/TextField';
-import moment from 'moment';
+import moment from 'moment-timezone';
 import { DAY_MAP } from '../utils';
 import Slider from '@material-ui/core/Slider';
 import Typography from '@material-ui/core/Typography';
@@ -182,7 +182,7 @@ export default function EventModal(props: EventModalProps) {
               <div className={classes.input}>
                 <TextField
                   {...defaultProps}
-                  name="title"
+                  name="name"
                   label="Title"
                   value={name}
                   fullWidth
