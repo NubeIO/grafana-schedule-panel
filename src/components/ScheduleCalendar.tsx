@@ -16,6 +16,8 @@ import 'react-big-calendar/lib/sass/styles.scss';
 import EventModal from './EventModal';
 
 interface IProps {
+  _client: any;
+  topics: string[];
   data: any;
   options: PanelOptions;
 }
@@ -23,7 +25,7 @@ interface IProps {
 const CalendarHOC = withTimeZone(Calendar);
 
 export default function ScheduleCalendar(props: IProps) {
-  const { data, options } = props;
+  const { _client, topics, data, options } = props;
   const styles = getStyles();
 
   const staticLocalizer = momentLocalizer(moment);
@@ -117,7 +119,7 @@ export default function ScheduleCalendar(props: IProps) {
   };
 
   const handleModalSubmit = (event: Weekly | Event, id: string) => {
-    const output: RawData = { ...extractedValue };
+    const output: RawData = _.cloneDeep(extractedValue);
     if (isWeekly) {
       output.weekly[id] = event;
     } else {
@@ -125,6 +127,16 @@ export default function ScheduleCalendar(props: IProps) {
     }
     setIsOpenModal(false);
     console.log('output', output);
+
+    if (!_client.current) {
+      return;
+    }
+    if (!_client.current.connected) {
+      _client.current.reconnect();
+    }
+    topics.forEach((topic: string) => {
+      _client.current.publish(topic, output);
+    });
   };
 
   const onNavigate = (visibleDate: any) => {
