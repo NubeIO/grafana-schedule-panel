@@ -15,7 +15,7 @@ import { DataFrame, Field } from '@grafana/data';
 import 'react-big-calendar/lib/sass/styles.scss';
 import EventModal from './EventModal';
 
-interface IProps {
+interface Props {
   _client: any;
   topics: string[];
   data: any;
@@ -24,14 +24,14 @@ interface IProps {
 
 const CalendarHOC = withTimeZone(Calendar);
 
-export default function ScheduleCalendar(props: IProps) {
+export default function ScheduleCalendar(props: Props) {
   const { _client, topics, data, options } = props;
   const styles = getStyles();
 
   const staticLocalizer = momentLocalizer(moment);
 
   const [extractedValue, setExtractedValue] = useState<RawData>({ events: {}, weekly: {} });
-  const [eventCollection, setEventCollection] = useState<Array<EventOutput>>([]);
+  const [eventCollection, setEventCollection] = useState<EventOutput[]>([]);
   const [visibleDate, setVisibleDate] = useState(moment());
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [isWeekly, setIsWeekly] = useState(false);
@@ -62,7 +62,7 @@ export default function ScheduleCalendar(props: IProps) {
       return;
     }
     const { events, weekly } = extractedValue;
-    let eventsCollection: Array<EventOutput> = [];
+    let eventsCollection: EventOutput[] = [];
 
     const isolatedEvents = extractEvents(events);
 

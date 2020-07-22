@@ -27,7 +27,7 @@ export interface Weekly {
   name: string;
   value: number | string;
   color: string;
-  days: Array<string>;
+  days: string[];
   start: string; // 1:00
   end: string; // 2:00
 }
@@ -37,7 +37,7 @@ export interface Event {
   name: string;
   value: number | string;
   color: string;
-  dates: Array<EventDate>;
+  dates: EventDate[];
 }
 
 export interface ExtractionOption {
@@ -55,8 +55,8 @@ export interface EventOutput {
   isWeekly: boolean;
   event: Weekly | Event;
   backupEvent: Weekly | Event;
-  dates?: Array<EventDate>;
-  days?: Array<moment.Moment> | Array<string>; // Array<string> when even got selected
+  dates?: EventDate[];
+  days?: moment.Moment[] | string[]; // string[] when even got selected
   dayString?: string;
 }
 

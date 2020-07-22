@@ -191,7 +191,7 @@ export default function EventModal(props: EventModalProps) {
           };
 
           const { name, days, start, end, inputDates, value, color } = values;
-          let parsedDates = days as Array<string>;
+          let parsedDates = days as string[];
 
           function renderTitle() {
             return (

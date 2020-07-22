@@ -29,7 +29,7 @@ export const convertTimeFromTimezone = (dateM: moment.Moment, timezone: string) 
     .utc();
 };
 
-export const convertWeekFromTimezoneToUTC = (days: Array<string>, start: string, timezone: string) => {
+export const convertWeekFromTimezoneToUTC = (days: string[], start: string, timezone: string) => {
   return enumerateDaysBetweenDates(moment().startOf('week'), moment().endOf('week'), true, true)
     .map(el => getStartAndEndWithTimezone(el, start, timezone))
     .filter(day => days.includes(DAY_MAP[day.day()]))
@@ -41,8 +41,8 @@ export const convertWeekFromTimezoneToUTC = (days: Array<string>, start: string,
     );
 };
 
-interface IProps {
-  events: Array<EventOutput>;
+interface Props {
+  events: EventOutput[];
   timezone: string;
   startAccessorField: string;
   endAccessorField: string;
@@ -56,7 +56,7 @@ interface IProps {
 }
 
 export default function withTimeZone(Calendar: any) {
-  return class extends Component<IProps> {
+  return class extends Component<Props> {
     accessor = (event: object, field: string, timezone: string) => {
       const value = accessor(event, field);
       return convertDateTimeToDate(value, timezone);
@@ -87,7 +87,7 @@ export default function withTimeZone(Calendar: any) {
           }: {
             start: string;
             end: string;
-            days: Array<moment.Moment>;
+            days: moment.Moment[];
             event: any;
           }) => {
             const { dates } = event;

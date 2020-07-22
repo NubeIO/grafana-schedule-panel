@@ -5,7 +5,7 @@ import { ExtractionOption, Weekly, Event, EventOutput } from './types';
  * Gets the list of dates that would be visible in calendar view with dates from
  * previous and next month, that lies in the week of starting and ending day.
  * @param {number|string} [visibleDate] Date of the month whose output is required
- * @return {Array<moment>}
+ * @return {moment.Moment[]}
  */
 export function getDaysArrayByMonth(visibleDate: moment.Moment) {
   const start = visibleDate
@@ -39,15 +39,15 @@ export const DAY_MAP: { [index: number]: string } = {
  * @param {number|string} [endDate] - Input date, output doesn't include this day by default
  * @param {boolean} [inclusiveStart = false] - If true adds startDate to output
  * @param {boolean} [inclusiveEnd = false] - If true adds endDate to output
- * @return {Array<moment>}
+ * @return {moment[]}
  */
 export function enumerateDaysBetweenDates(
   startDate: moment.Moment,
   endDate: moment.Moment,
-  inclusiveStart: boolean = false,
-  inclusiveEnd: boolean = false
+  inclusiveStart = false,
+  inclusiveEnd = false
 ) {
-  const dates = [];
+  const dates: moment.Moment[] = [];
 
   const currDate = startDate.clone().startOf('day');
   const lastDate = endDate.clone().startOf('day');
@@ -119,7 +119,7 @@ function getStartAndEndDate(
   return { startDate, endDate };
 }
 
-export const convertWeekToUTC = (event: Weekly): Array<moment.Moment> => {
+export const convertWeekToUTC = (event: Weekly): moment.Moment[] => {
   const { start, days } = event;
   return enumerateDaysBetweenDates(moment().startOf('week'), moment().endOf('week'), true, true)
     .map(el => getUTCFromStartAndEnd(el.utc(), start))
@@ -130,13 +130,10 @@ export const convertWeekToUTC = (event: Weekly): Array<moment.Moment> => {
  * Processes the data from API to input for calendar.
  * @param {Object.<string, Weekly|Event>} events - Dict of events where key represents the id
  * @param {ExtractionOption} options - Options used while extracting data from event
- * @return {Array<EventOutput>}
+ * @return {EventOutput[]}
  */
-export function extractEvents(
-  events: { [id: string]: Weekly | Event },
-  options?: ExtractionOption
-): Array<EventOutput> {
-  const eventsCollection = Array<EventOutput>();
+export function extractEvents(events: { [id: string]: Weekly | Event }, options?: ExtractionOption): EventOutput[] {
+  const eventsCollection: EventOutput[] = [];
   for (const eventId in events) {
     if (events[eventId]) {
       const event = events[eventId];

@@ -20,8 +20,8 @@ interface DateDict {
 }
 
 interface DateRangeCollection {
-  inputDates: Array<EventDate>;
-  onChange: (eventDates: Array<EventDate>, error: string) => void;
+  inputDates: EventDate[];
+  onChange: (eventDates: EventDate[], error: string) => void;
 }
 
 export default function DateRangeCollection(props: DateRangeCollection) {
@@ -46,8 +46,8 @@ export default function DateRangeCollection(props: DateRangeCollection) {
   }, [inputDates]);
 
   useEffect(() => {
-    const reformattedEditedDates: Array<EventDate> = [];
-    const errors: Array<string> = [];
+    const reformattedEditedDates: EventDate[] = [];
+    const errors: string[] = [];
     Object.keys(dates).forEach(key => {
       const error = dates[key].error;
       if (error) {

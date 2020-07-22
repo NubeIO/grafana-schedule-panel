@@ -1,12 +1,12 @@
 import React, { useEffect, useState, MouseEvent } from 'react';
 import moment from 'moment-timezone';
 
-interface IProps {
+interface Props {
   timezone: string;
   children?: (toggleTimezone: (event: MouseEvent) => void, timezone: string, timezoneName: string) => void;
 }
 
-const defaultProps: IProps = {
+const defaultProps: Props = {
   timezone: 'UTC',
 };
 
