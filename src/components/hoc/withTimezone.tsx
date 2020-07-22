@@ -10,6 +10,10 @@ export const convertDateTimeToDate = (datetime: string, timezone: string) => {
   return new Date(m.year(), m.month(), m.date(), m.hour(), m.minute(), 0);
 };
 
+export const convertTimezoneFromUtc = (date: string, timezone: string) => {
+  return moment.tz(moment.utc(date), timezone);
+};
+
 export const convertTimeFromTimezone = (dateM: moment.Moment, timezone: string) => {
   return moment
     .tz(
@@ -98,12 +102,7 @@ export default function withTimeZone(Calendar: any) {
                       .toLowerCase()
                   )
                 : [],
-              dates: dates
-                ? dates.map(({ start: s, end: e }: { start: any; end: any }) => ({
-                    start: convertDateTimeToDate(s, timezone),
-                    end: convertDateTimeToDate(e, timezone),
-                  }))
-                : [],
+              dates: dates,
               start: start ? convertDateTimeToDate(start, timezone) : undefined,
               end: end ? convertDateTimeToDate(end, timezone) : undefined,
             });

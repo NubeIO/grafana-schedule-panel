@@ -13,13 +13,14 @@ import { DAY_MAP } from '../utils';
 import Slider from '@material-ui/core/Slider';
 import Typography from '@material-ui/core/Typography';
 import ColorSelector from './renderProps/ColorSelector';
-import DateRangeCollection, { DATE_FORMAT } from './DateRangeCollection';
-import { convertTimeFromTimezone, convertWeekFromTimezoneToUTC } from './hoc/withTimezone';
+import { convertTimeFromTimezone, convertTimezoneFromUtc, convertWeekFromTimezoneToUTC } from './hoc/withTimezone';
 
 import { makeStyles } from '@material-ui/core/styles';
+import DateRangeCollection from './DateRangeCollection';
 
 const dayOptions = Object.values(DAY_MAP);
 const TIME_FORMAT = 'HH:mm';
+export const DATE_FORMAT = 'YYYY-MM-DDTHH:mm';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -62,7 +63,12 @@ interface EventModalProps {
   onDelete: (id: string) => void;
 }
 
-const getInitialValues = (eventOutput: EventOutput | null, options: PanelOptions, isWeekly: boolean) => {
+const getInitialValues = (
+  eventOutput: EventOutput | null,
+  options: PanelOptions,
+  isWeekly: boolean,
+  timezone: string
+) => {
   if (eventOutput) {
     if (isWeekly) {
       const event: Weekly = eventOutput.backupEvent as Weekly;
@@ -78,7 +84,10 @@ const getInitialValues = (eventOutput: EventOutput | null, options: PanelOptions
       const event: Event = eventOutput.backupEvent as Event;
       return {
         name: event.name,
-        dates: eventOutput.dates,
+        inputDates: eventOutput?.dates?.map(date => ({
+          start: convertTimezoneFromUtc(date.start, timezone).format(DATE_FORMAT),
+          end: convertTimezoneFromUtc(date.end, timezone).format(DATE_FORMAT),
+        })),
         value: event.value,
         color: event.color,
       };
@@ -158,7 +167,7 @@ export default function EventModal(props: EventModalProps) {
       open={isOpenModal}
     >
       <Formik
-        initialValues={getInitialValues(eventOutput, options, isWeekly)}
+        initialValues={getInitialValues(eventOutput, options, isWeekly, timezone)}
         validationSchema={Yup.object(getValidationSchema(options, isWeekly))}
         onSubmit={handleSubmit}
       >
@@ -181,7 +190,7 @@ export default function EventModal(props: EventModalProps) {
             onBlur: (e: any) => handleBlur(e),
           };
 
-          const { name, days, start, end, value, color } = values;
+          const { name, days, start, end, inputDates, value, color } = values;
           let parsedDates = days as Array<string>;
 
           function renderTitle() {
@@ -271,7 +280,7 @@ export default function EventModal(props: EventModalProps) {
               <div className={classes.input}>
                 <DateRangeCollection
                   {...defaultProps}
-                  eventOutput={eventOutput}
+                  inputDates={inputDates}
                   onChange={(eventDates, error) => {
                     setFieldValue('dates', eventDates);
                     if (error) {

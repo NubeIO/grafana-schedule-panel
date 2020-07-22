@@ -101,7 +101,7 @@ export function getUTCFromStartAndEnd(baseDate: moment.Moment, time: string): mo
 }
 
 /**
- * @param {Weekly|Event} event - Get Start and end date from data according to options
+ * @param {Weekly} event - Get Start and end date from data according to options
  * @param {ExtractionOption} options - Options used while extracting data from event
  * @return {{startDate: (moment.Moment), endDate: (moment.Moment)}}
  */
@@ -147,8 +147,8 @@ export function extractEvents(
           const { start, end } = date;
           eventsCollection.push({
             id: eventId,
-            start: moment(start).toDate(),
-            end: moment(end).toDate(),
+            start: moment.utc(start).toDate(),
+            end: moment.utc(end).toDate(),
             title: event.name,
             value: event.value,
             color: event.color,

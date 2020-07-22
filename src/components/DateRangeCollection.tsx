@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import DateRange from './DateRange';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
-import { EventDate, EventOutput } from '../types';
-import moment from 'moment-timezone';
+import { EventDate } from '../types';
 import { v4 as uuidv4 } from 'uuid';
 import _ from 'lodash';
 
@@ -21,15 +20,12 @@ interface DateDict {
 }
 
 interface DateRangeCollection {
-  eventOutput: EventOutput;
+  inputDates: Array<EventDate>;
   onChange: (eventDates: Array<EventDate>, error: string) => void;
 }
 
-export const DATE_FORMAT = 'YYYY-MM-DDThh:mm';
-
-
 export default function DateRangeCollection(props: DateRangeCollection) {
-  const { eventOutput, onChange, ...restProps } = props;
+  const { inputDates = [], onChange, ...restProps } = props;
   const [dates, setDates] = useState<DateDict>({});
   const [lastDateKey, setLastDateKey] = useState('');
   const [errorKey, setErrorKey] = useState('');
@@ -38,8 +34,8 @@ export default function DateRangeCollection(props: DateRangeCollection) {
 
   useEffect(() => {
     let convertedDict: DateDict = {};
-    eventOutput?.dates?.forEach(date => {
-      convertedDict[uuidv4()] = { start: moment(date.start).format(DATE_FORMAT), end: moment(date.end).format(DATE_FORMAT) };
+    inputDates.forEach(date => {
+      convertedDict[uuidv4()] = date;
     });
     if (!Object.keys(convertedDict).length) {
       const key = uuidv4();
@@ -47,7 +43,7 @@ export default function DateRangeCollection(props: DateRangeCollection) {
       convertedDict[key] = { start: '', end: '', isIncomplete: true };
     }
     setDates(convertedDict);
-  }, [eventOutput?.dates]);
+  }, [inputDates]);
 
   useEffect(() => {
     const reformattedEditedDates: Array<EventDate> = [];
