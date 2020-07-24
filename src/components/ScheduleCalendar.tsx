@@ -58,10 +58,7 @@ export default function ScheduleCalendar(props: Props) {
   }, [extractedValue, visibleDate]);
 
   const updateEvents = () => {
-    if (_.isEmpty(extractedValue)) {
-      return;
-    }
-    const { events, weekly } = extractedValue;
+    const { events = {}, weekly = {} } = extractedValue || {};
     let eventsCollection: EventOutput[] = [];
 
     const isolatedEvents = extractEvents(events);
