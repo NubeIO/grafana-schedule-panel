@@ -16,6 +16,7 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
 
   const [topics, setTopics] = useState<string[]>([]);
   const [dataSources, setDataSources] = useState([] as any);
+  const [isRunning, setIsRunning] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   const theme = useTheme();
   const palletType = theme.isDark ? 'dark' : 'light';
@@ -97,15 +98,22 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
       )}
     >
       <ThemeProvider theme={materialTheme}>
-        <ScheduleCalendar _client={_client} topics={topics} data={data} options={options} />
+        <ScheduleCalendar
+          _client={_client}
+          topics={topics}
+          data={data}
+          isRunning={isRunning}
+          options={options}
+          setIsRunning={setIsRunning}
+        />
       </ThemeProvider>
+      {isRunning && <div className={styles.overlay} />}
       {(isConnected && <div className={styles.greenDot} />) || <div className={styles.redDot} />}
     </div>
   );
 };
 
 const dot = css`
-  @extend dot;
   position: absolute;
   top: -32px;
   left: -2px;
@@ -125,6 +133,22 @@ const getStyles = stylesFactory(() => {
       position: absolute;
       top: 0;
       left: 0;
+    `,
+    overlay: css`
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+
+      background: black;
+      background: rgba(0, 0, 0, 0.3);
+
+      filter: blur(4px);
+      -o-filter: blur(4px);
+      -ms-filter: blur(4px);
+      -moz-filter: blur(4px);
+      -webkit-filter: blur(4px);
     `,
     textBox: css`
       position: absolute;

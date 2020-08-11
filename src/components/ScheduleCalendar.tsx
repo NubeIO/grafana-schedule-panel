@@ -20,12 +20,14 @@ interface Props {
   topics: string[];
   data: any;
   options: PanelOptions;
+  isRunning: boolean;
+  setIsRunning: any;
 }
 
 const CalendarHOC = withTimeZone(Calendar);
 
 export default function ScheduleCalendar(props: Props) {
-  const { _client, topics, data, options } = props;
+  const { _client, topics, data, options, isRunning, setIsRunning } = props;
   const styles = getStyles();
 
   const staticLocalizer = momentLocalizer(moment);
@@ -37,7 +39,6 @@ export default function ScheduleCalendar(props: Props) {
   const [isWeekly, setIsWeekly] = useState(false);
   const [eventOutput, setEventOutput] = useState<EventOutput | null>(null);
   const [operation, setOperation] = useState<Operation>('add');
-  const [isRunning, setIsRunning] = useState(false);
 
   useEffect(() => {
     const series: DataFrame[] = data?.series;
