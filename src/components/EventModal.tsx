@@ -84,6 +84,7 @@ const getInitialValues = (
       const event: Event = eventOutput.backupEvent as Event;
       return {
         name: event.name,
+        dates: [],
         inputDates: eventOutput?.dates?.map(date => ({
           start: convertTimezoneFromUtc(date.start, timezone).format(DATE_FORMAT),
           end: convertTimezoneFromUtc(date.end, timezone).format(DATE_FORMAT),
@@ -106,6 +107,7 @@ const getInitialValues = (
       return {
         name: options.defaultTitle,
         dates: [],
+        inputDates: [],
         value: options.min,
         color: '',
       };
@@ -286,8 +288,8 @@ export default function EventModal(props: EventModalProps) {
                     if (error) {
                       setFieldError('dates', error);
                       forceUpdate();
-                    } else {
-                      delete errors['dates'];
+                    } else if (errors.dates != null) {
+                      delete errors.dates;
                       setErrors(errors);
                       forceUpdate();
                     }

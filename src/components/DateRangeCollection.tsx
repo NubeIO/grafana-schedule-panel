@@ -25,7 +25,7 @@ interface DateRangeCollection {
 }
 
 export default function DateRangeCollection(props: DateRangeCollection) {
-  const { inputDates = [], onChange, ...restProps } = props;
+  const { inputDates, onChange, ...restProps } = props;
   const [dates, setDates] = useState<DateDict>({});
   const [lastDateKey, setLastDateKey] = useState('');
   const [errorKey, setErrorKey] = useState('');
@@ -43,7 +43,7 @@ export default function DateRangeCollection(props: DateRangeCollection) {
       convertedDict[key] = { start: '', end: '', isIncomplete: true };
     }
     setDates(convertedDict);
-  }, [inputDates]);
+  }, inputDates);
 
   useEffect(() => {
     const reformattedEditedDates: EventDate[] = [];
@@ -74,7 +74,6 @@ export default function DateRangeCollection(props: DateRangeCollection) {
   const handleDelete = (key: string) => {
     const convertedDict: DateDict = _.clone(dates);
     delete convertedDict[key];
-    setDates(convertedDict);
     if (!Object.keys(convertedDict).length) {
       const key = uuidv4();
       setLastDateKey(lastDateKey);
