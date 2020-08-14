@@ -3,7 +3,8 @@ import { ExtractionOption, Weekly, Event, EventOutput } from './types';
 
 /**
  * Gets the list of dates that would be visible in calendar view with dates from
- * previous and next month, that lies in the week of starting and ending day.
+ * previous and next month, that lies in the week of starting-1 and ending+1 day.
+ * Here we are including starting-1 and ending+1 day to include all timezone dates on this range.
  * @param {number|string} [visibleDate] Date of the month whose output is required
  * @return {moment.Moment[]}
  */
@@ -11,11 +12,13 @@ export function getDaysArrayByMonth(visibleDate: moment.Moment) {
   const start = visibleDate
     .clone()
     .startOf('month')
-    .startOf('week');
+    .endOf('week')
+    .add(-1, 'day');
   const end = visibleDate
     .clone()
     .endOf('month')
-    .endOf('week');
+    .endOf('week')
+    .add(1, 'day');
   return enumerateDaysBetweenDates(start, end, true, true);
 }
 
