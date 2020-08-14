@@ -107,7 +107,14 @@ const getInitialValues = (
       return {
         name: options.defaultTitle,
         dates: [],
-        inputDates: [],
+        inputDates: [
+          {
+            start: moment().format(DATE_FORMAT),
+            end: moment()
+              .add(1, 'hour')
+              .format(DATE_FORMAT),
+          },
+        ],
         value: options.min,
         color: '',
       };
@@ -189,7 +196,6 @@ export default function EventModal(props: EventModalProps) {
             variant: 'outlined',
             size: 'small',
             onChange: (e: any) => handleChange(e),
-            onBlur: (e: any) => handleBlur(e),
           };
 
           const { name, days, start, end, inputDates, value, color } = values;
