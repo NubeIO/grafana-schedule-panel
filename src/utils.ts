@@ -11,11 +11,9 @@ import { ExtractionOption, Weekly, Event, EventOutput } from './types';
 export function getDaysArrayByMonth(visibleDate: moment.Moment) {
   const start = visibleDate
     .clone()
-    .startOf('month')
-    .endOf('week')
+    .startOf('week')
     .add(-1, 'day');
-  const end = visibleDate
-    .clone()
+  const end = moment(visibleDate)
     .endOf('month')
     .endOf('week')
     .add(1, 'day');
