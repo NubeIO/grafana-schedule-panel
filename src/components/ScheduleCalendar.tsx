@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import TimezoneToggle from './renderProps/TimezoneToggle';
-import { Spinner, stylesFactory } from '@grafana/ui';
-import { css } from 'emotion';
+import { Spinner } from '@grafana/ui';
 import { Avatar, Chip } from '@material-ui/core';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment-timezone';
@@ -14,6 +13,7 @@ import { DataFrame, Field } from '@grafana/data';
 
 import 'react-big-calendar/lib/sass/styles.scss';
 import EventModal from './EventModal';
+import { makeStyles } from '@material-ui/core/styles';
 
 interface Props {
   _client: any;
@@ -28,7 +28,7 @@ const CalendarHOC = withTimeZone(Calendar);
 
 export default function ScheduleCalendar(props: Props) {
   const { _client, topics, data, options, isRunning, setIsRunning } = props;
-  const styles = getStyles();
+  const classes = useStyles();
 
   const staticLocalizer = momentLocalizer(moment);
 
@@ -190,18 +190,18 @@ export default function ScheduleCalendar(props: Props) {
       <TimezoneToggle timezone={options.timezone}>
         {(toggleTimezone, timezone, timezoneName) => (
           <>
-            <div className={styles.title}>
+            <div className={classes.title}>
               <Chip
-                className={styles.item}
+                className={classes.item}
                 variant="outlined"
                 size="small"
                 label={`Timezone: ${timezoneName || 'UTC'}`}
                 onClick={toggleTimezone}
                 clickable
               />
-              <div className={styles.blankSpace} />
+              <div className={classes.blankSpace} />
               <Chip
-                className={styles.item}
+                className={classes.item}
                 variant="outlined"
                 size="small"
                 avatar={<Avatar>+</Avatar>}
@@ -211,7 +211,7 @@ export default function ScheduleCalendar(props: Props) {
                 disabled={options.disableWeeklyEvent}
               />
               <Chip
-                className={styles.item}
+                className={classes.item}
                 variant="outlined"
                 size="small"
                 avatar={<Avatar>+</Avatar>}
@@ -221,7 +221,7 @@ export default function ScheduleCalendar(props: Props) {
                 disabled={options.disableEvent}
               />
             </div>
-            <div className={styles.calendar}>
+            <div className={classes.calendar}>
               <CalendarHOC
                 events={eventCollection}
                 timezone={timezone}
@@ -251,7 +251,7 @@ export default function ScheduleCalendar(props: Props) {
         )}
       </TimezoneToggle>
       {isRunning && (
-        <div className={styles.spinner}>
+        <div className={classes.spinner}>
           <Spinner size={12} />
         </div>
       )}
@@ -259,29 +259,27 @@ export default function ScheduleCalendar(props: Props) {
   );
 }
 
-const getStyles = stylesFactory(() => {
-  return {
-    title: css`
-      display: flex;
-      flex-wrap: wrap;
-      margin-bottom: 4px;
-    `,
-    item: css`
-      flex-grow: 0;
-      &:last-child {
-        margin-left: 4px;
-      }
-    `,
-    blankSpace: css`
-      flex-grow: 1;
-    `,
-    calendar: css`
-      height: calc(100% - 30px);
-    `,
-    spinner: css`
-      position: absolute;
-      top: -32px;
-      right: -2px;
-    `,
-  };
+const useStyles = makeStyles({
+  title: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    marginBottom: '4px',
+  },
+  item: {
+    flexGrow: 0,
+    '&:last-child': {
+      marginLeft: '4px',
+    },
+  },
+  blankSpace: {
+    flexGrow: 1,
+  },
+  calendar: {
+    height: 'calc(100% - 30px)',
+  },
+  spinner: {
+    position: 'absolute',
+    top: '-32px',
+    right: '-2px',
+  },
 });
