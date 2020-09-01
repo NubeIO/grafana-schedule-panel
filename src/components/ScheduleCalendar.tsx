@@ -13,7 +13,7 @@ import { DataFrame, Field } from '@grafana/data';
 
 import 'react-big-calendar/lib/sass/styles.scss';
 import EventModal from './EventModal';
-import { makeStyles } from '@material-ui/core/styles';
+import { makeStyles, ThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 
 interface Props {
   _client: any;
@@ -186,7 +186,7 @@ export default function ScheduleCalendar(props: Props) {
   };
 
   return (
-    <>
+    <ThemeProvider theme={createMuiTheme({})}>
       <TimezoneToggle timezone={options.timezone}>
         {(toggleTimezone, timezone, timezoneName) => (
           <>
@@ -255,7 +255,7 @@ export default function ScheduleCalendar(props: Props) {
           <Spinner size={12} />
         </div>
       )}
-    </>
+    </ThemeProvider>
   );
 }
 
