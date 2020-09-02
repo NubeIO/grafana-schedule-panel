@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { PanelProps } from '@grafana/data';
+import { DataFrame, Field, PanelProps } from '@grafana/data';
 import { PanelOptions } from 'types';
 import { css, cx } from 'emotion';
 import { stylesFactory, useTheme } from '@grafana/ui';
@@ -15,6 +15,7 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
   let _client: any = useRef(null);
 
   const [topics, setTopics] = useState<string[]>([]);
+  const [value, setValue] = useState<any>({});
   const [dataSources, setDataSources] = useState([] as any);
   const [isRunning, setIsRunning] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
@@ -22,6 +23,19 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
   const palletType = theme.isDark ? 'dark' : 'light';
   const mainPrimaryColor = theme.isDark ? blue[500] : blue[900];
   const mainSecondaryColor = theme.isDark ? red[500] : red[900];
+
+  useEffect(() => {
+    const series: DataFrame[] = data?.series;
+    const fields: Field[] = (series && series.length && series[0]?.fields) || [];
+    const index = fields.map((field: Field) => field.name).indexOf('value');
+    if (index !== -1) {
+      const values = fields[index].values;
+      if (values && values.length) {
+        setValue(values.get(values.length - 1));
+      }
+    }
+    setIsRunning(false);
+  }, [data]);
 
   useEffect(() => {
     const targets: any[] = data?.request?.targets || [];
@@ -101,7 +115,7 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
         <ScheduleCalendar
           _client={_client}
           topics={topics}
-          data={data}
+          value={value}
           isRunning={isRunning}
           options={options}
           setIsRunning={setIsRunning}

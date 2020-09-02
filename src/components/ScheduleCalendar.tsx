@@ -9,7 +9,6 @@ import withTimeZone from './hoc/withTimezone';
 import CustomEvent from './CustomEvent';
 import { DAY_MAP, extractEvents, getDaysArrayByMonth } from '../utils';
 import { EventOutput, Event, Weekly, PanelOptions, Operation, RawData } from '../types';
-import { DataFrame, Field } from '@grafana/data';
 
 import 'react-big-calendar/lib/sass/styles.scss';
 import EventModal from './EventModal';
@@ -18,7 +17,7 @@ import { makeStyles, ThemeProvider, createMuiTheme } from '@material-ui/core/sty
 interface Props {
   _client: any;
   topics: string[];
-  data: any;
+  value: any;
   options: PanelOptions;
   isRunning: boolean;
   setIsRunning: any;
@@ -27,12 +26,11 @@ interface Props {
 const CalendarHOC = withTimeZone(Calendar);
 
 export default function ScheduleCalendar(props: Props) {
-  const { _client, topics, data, options, isRunning, setIsRunning } = props;
+  const { _client, topics, value, options, isRunning, setIsRunning } = props;
   const classes = useStyles();
 
   const staticLocalizer = momentLocalizer(moment);
 
-  const [extractedValue, setExtractedValue] = useState<RawData>({ events: {}, weekly: {} });
   const [eventCollection, setEventCollection] = useState<EventOutput[]>([]);
   const [visibleDate, setVisibleDate] = useState(moment());
   const [isOpenModal, setIsOpenModal] = useState(false);
@@ -41,25 +39,11 @@ export default function ScheduleCalendar(props: Props) {
   const [operation, setOperation] = useState<Operation>('add');
 
   useEffect(() => {
-    const series: DataFrame[] = data?.series;
-    const fields: Field[] = (series && series.length && series[0]?.fields) || [];
-    const index = fields.map((field: Field) => field.name).indexOf('value');
-    let value: any = {};
-    if (index !== -1) {
-      const values = fields[index].values;
-      if (values && values.length) {
-        value = values.get(values.length - 1);
-      }
-    }
-    setExtractedValue(value);
-  }, [data]);
-
-  useEffect(() => {
     updateEvents();
-  }, [extractedValue, visibleDate]);
+  }, [value, visibleDate]);
 
   const updateEvents = () => {
-    const { events = {}, weekly = {} } = extractedValue || {};
+    const { events = {}, weekly = {} } = value || {};
     let eventsCollection: EventOutput[] = [];
 
     const isolatedEvents = extractEvents(events);
@@ -142,7 +126,7 @@ export default function ScheduleCalendar(props: Props) {
   };
 
   const handleModalSubmit = (event: Weekly | Event, id: string) => {
-    const output: RawData = _.cloneDeep(extractedValue) || {};
+    const output: RawData = _.cloneDeep(value) || {};
     if (isWeekly) {
       if (!output.weekly) {
         output['weekly'] = {};
@@ -158,7 +142,7 @@ export default function ScheduleCalendar(props: Props) {
   };
 
   const handleModalDelete = (id: string) => {
-    const output: RawData = _.cloneDeep(extractedValue) || {};
+    const output: RawData = _.cloneDeep(value) || {};
     if (isWeekly) {
       delete output.weekly[id];
     } else {
