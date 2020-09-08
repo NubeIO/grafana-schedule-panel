@@ -379,9 +379,6 @@ export default function EventModal(props: EventModalProps) {
                         InputLabelProps={{
                           shrink: true,
                         }}
-                        inputProps={{
-                          step: (options.step || 1) * 60, // 1 min
-                        }}
                         onChange={e => {
                           handleChangeFromSelector(e);
                           handleChange(e);

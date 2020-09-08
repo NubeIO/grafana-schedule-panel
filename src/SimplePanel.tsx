@@ -61,13 +61,8 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
         .then(res => {
           if (res.meta.id === 'nubeio-mqtt-data-source') {
             // @ts-ignore
-            const { protocol = 'ws', host, port = 9001, authentication, username, password } = res;
-            const options: any = { host, port, protocol };
-            if (authentication) {
-              options.username = username;
-              options.password = password;
-            }
-            _client.current = mqtt.connect(options);
+            const { mqttOptions } = res;
+            _client.current = mqtt.connect(mqttOptions);
             _client.current.on('connect', () => {
               setIsConnected(true);
             });
