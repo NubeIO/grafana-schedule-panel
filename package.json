@@ -1,6 +1,6 @@
 {
   "name": "nubeio-schedule",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "It's a panel for scheduling events.",
   "scripts": {
     "build": "grafana-toolkit plugin:build",
@@ -9,7 +9,7 @@
     "watch": "grafana-toolkit plugin:dev --watch"
   },
   "repository": "https://github.com/NubeIO/grafana-schedule-panel",
-  "author": "RaiBnod",
+  "author": "Nube iO",
   "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/NubeIO/grafana-schedule-panel/issues",
