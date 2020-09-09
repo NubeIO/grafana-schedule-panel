@@ -9,7 +9,7 @@
     "watch": "grafana-toolkit plugin:dev --watch"
   },
   "repository": "https://github.com/NubeIO/grafana-schedule-panel",
-  "author": "RaiBnod",
+  "author": "Nube iO",
   "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/NubeIO/grafana-schedule-panel/issues",
