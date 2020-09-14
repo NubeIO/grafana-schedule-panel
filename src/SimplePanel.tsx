@@ -29,7 +29,11 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
     if (index !== -1) {
       const values = fields[index].values;
       if (values && values.length) {
-        setValue(values.get(values.length - 1));
+        const val = values.get(values.length - 1);
+        // Ignore `null`, it will send when there is no message got from MQTT and while un-subscribing
+        if (val !== null) {
+          setValue(values.get(values.length - 1));
+        }
       }
     }
     setIsRunning(false);
