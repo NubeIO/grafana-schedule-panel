@@ -6,7 +6,6 @@ import { stylesFactory, useTheme } from '@grafana/ui';
 import ScheduleCalendar from './components/ScheduleCalendar';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core';
 import { blue, red } from '@material-ui/core/colors';
-import * as mqtt from 'mqtt';
 import { getDataSourceSrv } from '@grafana/runtime';
 
 interface Props extends PanelProps<PanelOptions> {}
@@ -18,7 +17,6 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
   const [value, setValue] = useState<any>({});
   const [dataSources, setDataSources] = useState([] as any);
   const [isRunning, setIsRunning] = useState(false);
-  const [isConnected, setIsConnected] = useState(false);
   const theme = useTheme();
   const palletType = theme.isDark ? 'dark' : 'light';
   const mainPrimaryColor = theme.isDark ? blue[500] : blue[900];
@@ -51,9 +49,6 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
   }, [data]);
 
   useEffect(() => {
-    if (_client.current) {
-      _client.current.end();
-    }
     for (const dataSource of dataSources) {
       let match = false;
       getDataSourceSrv()
@@ -61,11 +56,8 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
         .then(res => {
           if (res.meta.id === 'nubeio-mqtt-data-source') {
             // @ts-ignore
-            const { mqttOptions } = res;
-            _client.current = mqtt.connect(mqttOptions);
-            _client.current.on('connect', () => {
-              setIsConnected(true);
-            });
+            const { client } = res;
+            _client = client;
             match = true;
           }
         });
@@ -74,14 +66,6 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
       }
     }
   }, [dataSources]);
-
-  useEffect(() => {
-    return () => {
-      if (_client.current) {
-        _client.current.end();
-      }
-    };
-  }, []);
 
   const materialTheme = createMuiTheme({
     palette: {
@@ -117,21 +101,9 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
         />
       </ThemeProvider>
       {isRunning && <div className={styles.overlay} />}
-      {(isConnected && <div className={styles.greenDot} />) || <div className={styles.redDot} />}
     </div>
   );
 };
-
-const dot = css`
-  position: absolute;
-  top: -32px;
-  left: -2px;
-  margin: 2px;
-  height: 12px;
-  width: 12px;
-  border-radius: 50%;
-  display: inline-block;
-`;
 
 const getStyles = stylesFactory(() => {
   return {
@@ -164,24 +136,6 @@ const getStyles = stylesFactory(() => {
       bottom: 0;
       left: 0;
       padding: 10px;
-    `,
-    redDot: css`
-      ${dot};
-      background: radial-gradient(
-          circle farthest-corner at 33% 33%,
-          rgba(242, 0, 0, 0.85) 0%,
-          rgba(150, 20, 20, 0.85) 80%
-        ),
-        radial-gradient(circle farthest-corner at 45% 45%, rgba(0, 0, 0, 0) 50%, #000000 80%);
-    `,
-    greenDot: css`
-      ${dot};
-      background: radial-gradient(
-          circle farthest-corner at 33% 33%,
-          rgba(77, 197, 21, 0.6) 0%,
-          rgba(96, 183, 56, 1) 80%
-        ),
-        radial-gradient(circle farthest-corner at 45% 45%, rgba(50, 99, 28, 0) 50%, #418522 80%);
     `,
   };
 });
