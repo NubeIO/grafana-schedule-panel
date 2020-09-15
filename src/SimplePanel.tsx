@@ -75,7 +75,7 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
           if (res.meta.id === 'nubeio-mqtt-data-source') {
             // @ts-ignore
             const { client } = res;
-            _client = client;
+            _client.current = client;
             match = true;
           }
         });
