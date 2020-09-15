@@ -116,7 +116,7 @@ export default function ScheduleCalendar(props: Props) {
     if (!_client.current) {
       return;
     }
-    if (!_client.current.connected) {
+    if (_client.current.disconnected) {
       _client.current.reconnect();
     }
     topics.forEach((topic: string) => {
