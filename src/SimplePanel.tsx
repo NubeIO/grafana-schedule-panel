@@ -14,6 +14,7 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
   let _client: any = useRef(null);
 
   const [topics, setTopics] = useState<string[]>([]);
+  const [writable, setWritable] = useState(false);
   const [value, setValue] = useState<any>({});
   const [dataSources, setDataSources] = useState([] as any);
   const [isRunning, setIsRunning] = useState(false);
@@ -21,6 +22,19 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
   const palletType = theme.isDark ? 'dark' : 'light';
   const mainPrimaryColor = theme.isDark ? blue[500] : blue[900];
   const mainSecondaryColor = theme.isDark ? red[500] : red[900];
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const orgResponse = await fetch('/api/org');
+        const org = await orgResponse.json();
+        const userOrgsResponse = await fetch('/api/user/orgs');
+        const userOrgs = await userOrgsResponse.json();
+        const currentUserOrg = userOrgs.find((userOrg: any) => userOrg.orgId === org.id);
+        setWritable(currentUserOrg.role !== 'Viewer');
+      } catch (e) {}
+    })();
+  }, []);
 
   useEffect(() => {
     const series: DataFrame[] = data?.series;
@@ -104,7 +118,8 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
           setIsRunning={setIsRunning}
         />
       </ThemeProvider>
-      {isRunning && <div className={styles.overlay} />}
+      {isRunning && <div className={styles.overlayRunning} />}
+      {!writable && <div className={styles.overlay} />}
     </div>
   );
 };
@@ -119,7 +134,7 @@ const getStyles = stylesFactory(() => {
       top: 0;
       left: 0;
     `,
-    overlay: css`
+    overlayRunning: css`
       position: absolute;
       top: 0;
       left: 0;
@@ -134,6 +149,14 @@ const getStyles = stylesFactory(() => {
       -ms-filter: blur(4px);
       -moz-filter: blur(4px);
       -webkit-filter: blur(4px);
+    `,
+    overlay: css`
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      transparent: 100%;
     `,
     textBox: css`
       position: absolute;
