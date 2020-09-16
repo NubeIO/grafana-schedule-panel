@@ -109,7 +109,7 @@ export default function withTimeZone(Calendar: any) {
           }),
       };
 
-      return <Calendar {...bigCalendarProps} showMultiDayTimes />;
+      return <Calendar {...bigCalendarProps} views={['month', 'week', 'day']} showMultiDayTimes />;
     }
   };
 }
