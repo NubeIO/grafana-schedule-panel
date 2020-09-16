@@ -169,8 +169,8 @@ export default function EventModal(props: EventModalProps) {
 
   return (
     <Dialog
-      fullWidth={true}
-      maxWidth="sm"
+      fullWidth={false}
+      maxWidth="md"
       onClose={onClose}
       aria-labelledby="customized-dialog-title"
       open={isOpenModal}
