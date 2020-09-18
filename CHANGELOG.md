@@ -1,5 +1,13 @@
 # Changelog
 
+## [v1.0.0-rc3](https://github.com/NubeIO/grafana-schedule-panel/tree/v1.0.0-rc3) (2020-09-16)
+
+[Full Changelog](https://github.com/NubeIO/grafana-schedule-panel/compare/v1.0.0-rc2...v1.0.0-rc3)
+
+**Merged pull requests:**
+
+- Create release candidate for v1.0.0 \(v1.0.0-rc3\) [\#5](https://github.com/NubeIO/grafana-schedule-panel/pull/5) ([RaiBnod](https://github.com/RaiBnod))
+
 ## [v1.0.0-rc2](https://github.com/NubeIO/grafana-schedule-panel/tree/v1.0.0-rc2) (2020-09-15)
 
 [Full Changelog](https://github.com/NubeIO/grafana-schedule-panel/compare/v1.0.0-rc1...v1.0.0-rc2)
