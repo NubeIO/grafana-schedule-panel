@@ -16,7 +16,7 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
   const [topics, setTopics] = useState<string[]>([]);
   // TODO: revert back
   // const [writable, setWritable] = useState(false);
-  const [writable] = useState(false);
+  const [writable] = useState(true);
   const [value, setValue] = useState<any>({});
   const [dataSources, setDataSources] = useState([] as any);
   const [isRunning, setIsRunning] = useState(false);
