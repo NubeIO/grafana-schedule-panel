@@ -14,7 +14,9 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
   let _client: any = useRef(null);
 
   const [topics, setTopics] = useState<string[]>([]);
-  const [writable, setWritable] = useState(false);
+  // TODO: revert back
+  // const [writable, setWritable] = useState(false);
+  const [writable] = useState(false);
   const [value, setValue] = useState<any>({});
   const [dataSources, setDataSources] = useState([] as any);
   const [isRunning, setIsRunning] = useState(false);
@@ -23,6 +25,8 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
   const mainPrimaryColor = theme.isDark ? blue[500] : blue[900];
   const mainSecondaryColor = theme.isDark ? red[500] : red[900];
 
+  /*
+  TODO: revert back
   useEffect(() => {
     (async () => {
       try {
@@ -34,7 +38,7 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
         setWritable(currentUserOrg.role !== 'Viewer');
       } catch (e) {}
     })();
-  }, []);
+  }, []);*/
 
   useEffect(() => {
     const series: DataFrame[] = data?.series;
