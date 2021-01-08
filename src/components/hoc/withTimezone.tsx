@@ -83,13 +83,18 @@ export default function withTimeZone(Calendar: any) {
             end,
             days,
             event,
+            isHoliday,
             ...restProps
           }: {
             start: string;
             end: string;
             days: moment.Moment[];
             event: any;
+            isHoliday?: boolean;
           }) => {
+            if (isHoliday) {
+              return;
+            }
             const { dates } = event;
             onSelectEvent({
               ...restProps,

@@ -216,32 +216,50 @@ function getHoliday(year: number, holiday: HolidayPayload): string {
  * @param year
  * @param holidays
  */
-function formatHolidays(year: number, holidays: HolidayPayload[]) {
-  const holidayEventCommonConfig = {
-    color: teal[500],
-  };
-
+function formatHolidays(year: number, holidays: HolidayPayload[]): HolidayEvent[] {
   return holidays.map((holiday: HolidayPayload, index: number) => {
     const date = getHoliday(year, holiday);
+    const start = new Date(date).setHours(0, 0, 0, 0);
+    const end = new Date(date).setHours(23, 59, 59, 999);
+
     return {
-      ...holiday,
       date,
+      end: end,
+      start: start,
       isHoliday: true,
-      end: date,
-      start: date,
+      color: teal[500],
       title: holiday.title,
       id: `id_${index}_${year}_${holiday.month}_${holiday.day}`,
-      ...holidayEventCommonConfig,
     };
   });
 }
 
 /**
  * Append list of holidays for a period of 5 years.
- * @returns HolidayEvent[]
+ * @returns {HolidayEvent[]}
  */
 export function getHolidayEvents(): HolidayEvent[] {
   return getYearRange(new Date().getFullYear())
     .map((year: number) => formatHolidays(year, holidays))
     .flat();
+}
+
+/**
+ * Check if today is a holiday
+ * @returns {boolean}
+ */
+export function isTodayHoliday(): Boolean {
+  const today = new Date();
+
+  const hasOffDays = holidays.map(holiday => {
+    const date = new Date(getHoliday(today.getFullYear(), holiday));
+
+    return (
+      date.getDate() === today.getDate() &&
+      date.getMonth() === today.getMonth() &&
+      date.getFullYear() === today.getFullYear()
+    );
+  });
+
+  return hasOffDays.some(val => val);
 }
