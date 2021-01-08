@@ -6,9 +6,9 @@ import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment-timezone';
 import _cloneDeep from 'lodash/cloneDeep';
 import withTimeZone from './hoc/withTimezone';
-import withCalendarHolidays from './hoc/withCalendarHolidays'
+import withCalendarHolidays from './hoc/withCalendarHolidays';
 import CustomEvent from './CustomEvent';
-import { DAY_MAP, extractEvents, getDaysArrayByMonth } from '../utils';
+import { DAY_MAP, extractEvents, getDaysArrayByMonth, isTodayHoliday } from '../utils';
 import { EventOutput, Event, Weekly, PanelOptions, Operation, RawData } from '../types';
 
 import EventModal from './EventModal';
@@ -17,6 +17,7 @@ import { ScheduleName } from '../scheduleName/scheduleName.model';
 import * as scheduleActions from '../scheduleName/scheduleName.action';
 import * as scheduleNameService from '../scheduleName/scheduleName.service';
 import { makeStyles, ThemeProvider, createMuiTheme } from '@material-ui/core/styles';
+import red from '@material-ui/core/colors/red';
 import flowRight from 'lodash/flowRight';
 
 interface Props {
@@ -43,6 +44,7 @@ export default function ScheduleCalendar(props: Props) {
   const [isWeekly, setIsWeekly] = useState(false);
   const [eventOutput, setEventOutput] = useState<EventOutput | null>(null);
   const [operation, setOperation] = useState<Operation>('add');
+  const isHoliday = isTodayHoliday();
 
   useEffect(() => {
     updateEvents();
@@ -218,6 +220,7 @@ export default function ScheduleCalendar(props: Props) {
                 clickable
               />
               <div className={classes.blankSpace} />
+              {isHoliday && <Chip className={`${classes.item} ${classes.holiday}`} size="small" variant="outlined" label="Holiday" />}
               <Chip
                 className={classes.item}
                 variant="outlined"
@@ -287,9 +290,14 @@ const useStyles = makeStyles({
   },
   item: {
     flexGrow: 0,
+    marginRight: '4px',
     '&:last-child': {
-      marginLeft: '4px',
+      marginLeft: '0px',
     },
+  },
+  holiday: {
+    color: red[500],
+    borderColor: red[500],
   },
   blankSpace: {
     flexGrow: 1,

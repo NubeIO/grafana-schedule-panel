@@ -17,6 +17,7 @@ const useStyles = makeStyles({
   holiday: {
     '& span': {
       fontWeight: 'normal',
+      fontSize: 12,
     }
   },
   event: {
@@ -27,7 +28,7 @@ const useStyles = makeStyles({
 const CustomEvent = (props: Props) => {
   const classes = useStyles();
   const isHoliday = props?.event?.isHoliday;
-  console.log(props);
+
   return  (
     <div className={isHoliday ? classes.holiday : classes.event}>
       <span className={classes.title}>{props.title}</span>
