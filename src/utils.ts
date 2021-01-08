@@ -1,5 +1,8 @@
 import moment from 'moment-timezone';
-import { ExtractionOption, Weekly, Event, EventOutput } from './types';
+import teal from '@material-ui/core/colors/teal';
+import { ExtractionOption, Weekly, Event, EventOutput, HolidayEvent, HolidayPayload } from './types';
+
+import holidays from './constants/holidays.json';
 
 /**
  * Gets the list of dates that would be visible in calendar view with dates from
@@ -175,4 +178,70 @@ export function extractEvents(events: { [id: string]: Weekly | Event }, options?
     }
   }
   return eventsCollection;
+}
+
+/**
+ *
+ * @example
+ * getYearRange(2021)
+ * [2019, 2020, 2021, 2022, 2023]
+ * @param currentYear
+ */
+function getYearRange(currentYear: number): number[] {
+  const years = [];
+  const maxYears = 5;
+  let yearCount = -2;
+
+  for (let i = 1; i <= maxYears; i++) {
+    years.push(currentYear + yearCount);
+    yearCount = yearCount + 1;
+  }
+
+  return years;
+}
+
+/**
+ *
+ * @param year
+ * @param holiday
+ */
+function getHoliday(year: number, holiday: HolidayPayload): string {
+  return `${year}-${holiday.month}-${holiday.day}`;
+}
+
+/**
+ * @example
+ * formatHolidays(2021, [{"title": "New Year", "day": 1, "month": 1}])
+ * [{title: "New Year", day: 1, month: 1, date: '2021-1-1', end:'2021-1-1', start: '2021-1-1', id: 'id_1_2021_1_1 }]
+ * @param year
+ * @param holidays
+ */
+function formatHolidays(year: number, holidays: HolidayPayload[]) {
+  const holidayEventCommonConfig = {
+    color: teal[500],
+  };
+
+  return holidays.map((holiday: HolidayPayload, index: number) => {
+    const date = getHoliday(year, holiday);
+    return {
+      ...holiday,
+      date,
+      isHoliday: true,
+      end: date,
+      start: date,
+      title: holiday.title,
+      id: `id_${index}_${year}_${holiday.month}_${holiday.day}`,
+      ...holidayEventCommonConfig,
+    };
+  });
+}
+
+/**
+ * Append list of holidays for a period of 5 years.
+ * @returns HolidayEvent[]
+ */
+export function getHolidayEvents(): HolidayEvent[] {
+  return getYearRange(new Date().getFullYear())
+    .map((year: number) => formatHolidays(year, holidays))
+    .flat();
 }

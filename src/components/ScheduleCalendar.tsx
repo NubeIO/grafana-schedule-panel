@@ -6,6 +6,7 @@ import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment-timezone';
 import _cloneDeep from 'lodash/cloneDeep';
 import withTimeZone from './hoc/withTimezone';
+import withCalendarHolidays from './hoc/withCalendarHolidays'
 import CustomEvent from './CustomEvent';
 import { DAY_MAP, extractEvents, getDaysArrayByMonth } from '../utils';
 import { EventOutput, Event, Weekly, PanelOptions, Operation, RawData } from '../types';
@@ -16,6 +17,7 @@ import { ScheduleName } from '../scheduleName/scheduleName.model';
 import * as scheduleActions from '../scheduleName/scheduleName.action';
 import * as scheduleNameService from '../scheduleName/scheduleName.service';
 import { makeStyles, ThemeProvider, createMuiTheme } from '@material-ui/core/styles';
+import flowRight from 'lodash/flowRight';
 
 interface Props {
   _client: any;
@@ -26,7 +28,7 @@ interface Props {
   setIsRunning: any;
 }
 
-const CalendarHOC = withTimeZone(Calendar);
+const CalendarHOC = flowRight(withTimeZone, withCalendarHolidays)(Calendar);
 
 export default function ScheduleCalendar(props: Props) {
   const { _client, topics, value, options, isRunning, setIsRunning } = props;

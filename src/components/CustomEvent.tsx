@@ -1,21 +1,40 @@
 import React from 'react';
+import { makeStyles } from '@material-ui/core';
 
 interface Props {
   event: any;
   title: string;
+  isHoliday?: boolean;
 }
 
-/**
- * It will helps to display `title` as well as the `value` on BigCalender
- */
-export default class CustomEvent extends React.Component<Props> {
-  render() {
-    return (
-      <div>
-        <span style={{ fontWeight: 'bold' }}>{this.props.title}</span>
-        {this.props.title && <br />}
-        <span style={{ fontSize: 10 }}>{this.props.event.value}</span>
-      </div>
-    );
+const useStyles = makeStyles({
+  title: {
+    fontWeight: 500,
+  },
+  value: {
+    fontSize: 10,
+  },
+  holiday: {
+    '& span': {
+      fontWeight: 'normal',
+    }
+  },
+  event: {
+    opacity: 1
   }
+})
+
+const CustomEvent = (props: Props) => {
+  const classes = useStyles();
+  const isHoliday = props?.event?.isHoliday;
+  console.log(props);
+  return  (
+    <div className={isHoliday ? classes.holiday : classes.event}>
+      <span className={classes.title}>{props.title}</span>
+      {props.title && <br />}
+      <span className={classes.value}>{props.event.value}</span>
+    </div>
+  );
 }
+
+export default CustomEvent;
