@@ -32,6 +32,19 @@ export interface Weekly {
   end: string; // 2:00
 }
 
+export interface HolidayPayload {
+  title: string,
+  month: string | number,
+  day: string| number,
+}
+
+export interface HolidayEvent {
+  color: string,
+  title: string,
+  start: string,
+  end: string,
+}
+
 export interface Event {
   id: string;
   name: string;
