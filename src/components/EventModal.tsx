@@ -1,15 +1,17 @@
 import React, { ChangeEvent, useState } from 'react';
 import { EventOutput, Operation, PanelOptions, Event, Weekly, EventDate } from '../types';
 
-import { createStyles, Dialog, DialogActions, DialogContent, DialogTitle, Theme } from '@material-ui/core';
-import { Form, Formik } from 'formik';
 import * as Yup from 'yup';
 import { v4 as uuidv4 } from 'uuid';
-import Button from '@material-ui/core/Button';
-import Autocomplete from '@material-ui/lab/Autocomplete/Autocomplete';
-import TextField from '@material-ui/core/TextField/TextField';
 import moment from 'moment-timezone';
+import { Form, Formik } from 'formik';
+import Button from '@material-ui/core/Button';
+import TextField from '@material-ui/core/TextField/TextField';
+import Autocomplete, { createFilterOptions } from '@material-ui/lab/Autocomplete/Autocomplete';
+import { Theme, Dialog, DialogTitle, createStyles, DialogContent, DialogActions } from '@material-ui/core';
+
 import { DAY_MAP } from '../utils';
+import DeleteButton from './DeleteButton';
 import Slider from '@material-ui/core/Slider';
 import Typography from '@material-ui/core/Typography';
 import ColorSelector from './renderProps/ColorSelector';
@@ -17,10 +19,14 @@ import { convertTimeFromTimezone, convertTimezoneFromUtc, convertWeekFromTimezon
 
 import { makeStyles } from '@material-ui/core/styles';
 import DateRangeCollection from './DateRangeCollection';
+import { ScheduleName } from 'scheduleName/scheduleName.model';
+import * as scheduleNameActions from 'scheduleName/scheduleName.action';
 
 const dayOptions = Object.values(DAY_MAP);
 const TIME_FORMAT = 'HH:mm';
 export const DATE_FORMAT = 'YYYY-MM-DDTHH:mm';
+
+const autoCompleteFilter = createFilterOptions<ScheduleName>();
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -33,6 +39,14 @@ const useStyles = makeStyles((theme: Theme) =>
     textField: {
       marginRight: theme.spacing(2),
       width: 175,
+    },
+    listbox: {
+      '& .schedule-name-listitem': {
+        width: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+      },
     },
     colorPreview: {
       marginRight: '8px',
@@ -58,10 +72,75 @@ interface EventModalProps {
   eventOutput: EventOutput | null;
   options: PanelOptions;
   timezone: string;
+  scheduleNames: ScheduleName[];
   onClose: () => void;
   onSubmit: (event: Weekly | Event, id: string) => void;
   onDelete: (id: string) => void;
+  onUpdateScheduleName: (action: string, value: string) => void;
 }
+
+const getAddEventInitialValues = (options: PanelOptions, isWeekly = false) => {
+  if (isWeekly) {
+    return {
+      name: options.defaultTitle,
+      days: [],
+      start: '00:00',
+      end: '01:00',
+      eventNames: [{ name: options.defaultTitle }],
+      value: options.min,
+      color: '',
+    };
+  }
+
+  return {
+    name: options.defaultTitle,
+    dates: [],
+    eventNames: [{ name: options.defaultTitle }],
+    inputDates: [
+      {
+        start: moment().format(DATE_FORMAT),
+        end: moment()
+          .add(1, 'hour')
+          .format(DATE_FORMAT),
+      },
+    ],
+    value: options.min,
+    color: '',
+  };
+};
+
+const getEditEventInitialValues = (
+  eventOutput: EventOutput,
+  options: PanelOptions,
+  isWeekly: boolean,
+  timezone: string
+) => {
+  if (isWeekly) {
+    const event: Weekly = eventOutput.backupEvent as Weekly;
+
+    return {
+      name: event.name,
+      days: eventOutput.days,
+      start: moment(eventOutput.start).format(TIME_FORMAT),
+      end: moment(eventOutput.end).format(TIME_FORMAT),
+      value: event.value,
+      color: event.color,
+    };
+  }
+
+  const event: Event = eventOutput.backupEvent as Event;
+
+  return {
+    name: event.name,
+    dates: [],
+    inputDates: eventOutput?.dates?.map(date => ({
+      start: convertTimezoneFromUtc(date.start, timezone).format(DATE_FORMAT),
+      end: convertTimezoneFromUtc(date.end, timezone).format(DATE_FORMAT),
+    })),
+    value: event.value,
+    color: event.color,
+  };
+};
 
 const getInitialValues = (
   eventOutput: EventOutput | null,
@@ -69,57 +148,9 @@ const getInitialValues = (
   isWeekly: boolean,
   timezone: string
 ) => {
-  if (eventOutput) {
-    if (isWeekly) {
-      const event: Weekly = eventOutput.backupEvent as Weekly;
-      return {
-        name: event.name,
-        days: eventOutput.days,
-        start: moment(eventOutput.start).format(TIME_FORMAT),
-        end: moment(eventOutput.end).format(TIME_FORMAT),
-        value: event.value,
-        color: event.color,
-      };
-    } else {
-      const event: Event = eventOutput.backupEvent as Event;
-      return {
-        name: event.name,
-        dates: [],
-        inputDates: eventOutput?.dates?.map(date => ({
-          start: convertTimezoneFromUtc(date.start, timezone).format(DATE_FORMAT),
-          end: convertTimezoneFromUtc(date.end, timezone).format(DATE_FORMAT),
-        })),
-        value: event.value,
-        color: event.color,
-      };
-    }
-  } else {
-    if (isWeekly) {
-      return {
-        name: options.defaultTitle,
-        days: [],
-        start: '00:00',
-        end: '01:00',
-        value: options.min,
-        color: '',
-      };
-    } else {
-      return {
-        name: options.defaultTitle,
-        dates: [],
-        inputDates: [
-          {
-            start: moment().format(DATE_FORMAT),
-            end: moment()
-              .add(1, 'hour')
-              .format(DATE_FORMAT),
-          },
-        ],
-        value: options.min,
-        color: '',
-      };
-    }
-  }
+  return eventOutput
+    ? getEditEventInitialValues(eventOutput, options, isWeekly, timezone)
+    : getAddEventInitialValues(options, isWeekly);
 };
 
 const getValidationSchema = (options: PanelOptions, isWeekly: boolean) => {
@@ -140,7 +171,19 @@ const getValidationSchema = (options: PanelOptions, isWeekly: boolean) => {
 };
 
 export default function EventModal(props: EventModalProps) {
-  const { isOpenModal, isWeekly, operation, eventOutput, options, timezone, onClose, onSubmit, onDelete } = props;
+  const {
+    options,
+    isWeekly,
+    timezone,
+    operation,
+    isOpenModal,
+    eventOutput,
+    scheduleNames,
+    onClose,
+    onSubmit,
+    onDelete,
+    onUpdateScheduleName,
+  } = props;
   const [value, setValue] = useState(0);
   const classes = useStyles();
   const handleDeleteEvent = () => {
@@ -165,6 +208,13 @@ export default function EventModal(props: EventModalProps) {
 
   const forceUpdate = () => {
     setValue(value + 1);
+  };
+
+  const renderScheduleDeleteButton = (id: string | null) => {
+    if (id == null) {
+      return null;
+    }
+    return <DeleteButton stopPropagation={true} onClick={() => onUpdateScheduleName('DELETE', id)} />;
   };
 
   return (
@@ -201,17 +251,80 @@ export default function EventModal(props: EventModalProps) {
           const { name, days, start, end, inputDates, value, color } = values;
           let parsedDates = days as string[];
 
-          function renderTitle() {
+          function renderEventNames() {
             return (
               <div className={classes.input}>
-                <TextField
-                  {...defaultProps}
-                  name="name"
-                  label="Title"
+                <Autocomplete
+                  className={classes.input}
+                  selectOnFocus
+                  clearOnBlur
+                  handleHomeEndKeys
+                  options={scheduleNames}
+                  openOnFocus={true}
+                  classes={{
+                    listbox: classes.listbox,
+                  }}
+                  getOptionLabel={(option: any) => {
+                    // Value selected with enter, right from the input
+                    if (typeof option === 'string') {
+                      return option;
+                    }
+                    // Add "xxx" option created dynamically
+                    if (option.inputValue) {
+                      return option.inputValue || '';
+                    }
+                    // Regular option
+                    return option.name || '';
+                  }}
+                  renderOption={(option: any) => (
+                    <div className="schedule-name-listitem">
+                      <span>{option.name}</span>
+                      <span>{option.button}</span>
+                    </div>
+                  )}
+                  freeSolo
+                  renderInput={params => {
+                    return (
+                      <TextField
+                        {...params}
+                        name="name"
+                        label="Title"
+                        size="small"
+                        variant="outlined"
+                        error={touched.name && Boolean(errors.name)}
+                        helperText={(touched.name && errors.name) || ''}
+                      />
+                    );
+                  }}
                   value={name}
-                  fullWidth
-                  helperText={(touched.name && errors.name) || ''}
-                  error={touched.name && Boolean(errors.name)}
+                  onChange={(event, newValue: any) => {
+                    if (!newValue) {
+                      setFieldValue('name', null);
+                    } else if (typeof newValue === 'string') {
+                      onUpdateScheduleName(scheduleNameActions.CREATE_SCHEDULE_NAME, newValue);
+                      setFieldValue('name', newValue);
+                    } else if (newValue && newValue.inputValue) {
+                      onUpdateScheduleName(scheduleNameActions.CREATE_SCHEDULE_NAME, newValue.inputValue);
+                      setFieldValue('name', newValue.inputValue);
+                    } else if (newValue && newValue.name) {
+                      setFieldValue('name', newValue.name);
+                    }
+                  }}
+                  filterOptions={(options, params) => {
+                    let filtered: any = autoCompleteFilter(options, params).map(val => ({
+                      ...val,
+                      button: renderScheduleDeleteButton(val.id),
+                    }));
+                    if (params.inputValue !== '') {
+                      const newOption = {
+                        name: `Add ${params.inputValue}`,
+                        inputValue: params.inputValue,
+                        id: null,
+                      };
+                      filtered = filtered.concat(newOption);
+                    }
+                    return filtered;
+                  }}
                 />
               </div>
             );
@@ -398,7 +511,7 @@ export default function EventModal(props: EventModalProps) {
               </DialogTitle>
               <DialogContent dividers>
                 <form>
-                  {renderTitle()}
+                  {renderEventNames()}
                   {isWeekly && renderDays()}
                   {isWeekly && renderStartEndTime()}
                   {!isWeekly && renderEvents()}

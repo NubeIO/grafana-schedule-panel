@@ -4,14 +4,17 @@ import { Spinner } from '@grafana/ui';
 import { Avatar, Chip } from '@material-ui/core';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment-timezone';
-import _ from 'lodash';
+import _cloneDeep from 'lodash/cloneDeep';
 import withTimeZone from './hoc/withTimezone';
 import CustomEvent from './CustomEvent';
 import { DAY_MAP, extractEvents, getDaysArrayByMonth } from '../utils';
 import { EventOutput, Event, Weekly, PanelOptions, Operation, RawData } from '../types';
 
-import 'react-big-calendar/lib/sass/styles.scss';
 import EventModal from './EventModal';
+import 'react-big-calendar/lib/sass/styles.scss';
+import { ScheduleName } from '../scheduleName/scheduleName.model';
+import * as scheduleActions from '../scheduleName/scheduleName.action';
+import * as scheduleNameService from '../scheduleName/scheduleName.service';
 import { makeStyles, ThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 
 interface Props {
@@ -32,6 +35,7 @@ export default function ScheduleCalendar(props: Props) {
   const staticLocalizer = momentLocalizer(moment);
 
   const [eventCollection, setEventCollection] = useState<EventOutput[]>([]);
+  const [scheduleNameCollection, setScheduleNameCollection] = useState<ScheduleName[]>([]);
   const [visibleDate, setVisibleDate] = useState(moment());
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [isWeekly, setIsWeekly] = useState(false);
@@ -42,8 +46,25 @@ export default function ScheduleCalendar(props: Props) {
     updateEvents();
   }, [value, visibleDate]);
 
+  const updateScheduleName = (action: string, value: string): any => {
+    switch (action) {
+      case scheduleActions.CREATE_SCHEDULE_NAME:
+        if (scheduleNameCollection.find((scheduleName: ScheduleName) => scheduleName.name === value)) {
+          return null;
+        }
+        const scheduleName = scheduleNameService.create(value);
+        setScheduleNameCollection(scheduleNameCollection.concat(scheduleName));
+        return scheduleName;
+
+      case scheduleActions.DELETE_SCHEDULE_NAME:
+        const filteredList = scheduleNameCollection.filter(item => item.id !== value);
+        setScheduleNameCollection(filteredList);
+        break;
+    }
+  };
+
   const updateEvents = () => {
-    const { events = {}, weekly = {} } = value || {};
+    const { events = {}, weekly = {}, scheduleNames = [] } = value || {};
     let eventsCollection: EventOutput[] = [];
 
     const isolatedEvents = extractEvents(events);
@@ -81,6 +102,10 @@ export default function ScheduleCalendar(props: Props) {
 
     eventsCollection = eventsCollection.concat(isolatedEvents, ...dayEventsCollection);
     setEventCollection(eventsCollection);
+
+    if (scheduleNames.length !== scheduleNameCollection.length) {
+      setScheduleNameCollection(scheduleNames);
+    }
 
     if (!options.hasPayload) {
       setEventCollection(
@@ -126,7 +151,7 @@ export default function ScheduleCalendar(props: Props) {
   };
 
   const handleModalSubmit = (event: Weekly | Event, id: string) => {
-    const output: RawData = _.cloneDeep(value) || {};
+    const output: RawData = _cloneDeep(value) || {};
     if (isWeekly) {
       if (!output.weekly) {
         output['weekly'] = {};
@@ -138,11 +163,18 @@ export default function ScheduleCalendar(props: Props) {
       }
       output.events[id] = event;
     }
+    const newScheduleName = updateScheduleName(scheduleActions.CREATE_SCHEDULE_NAME, event.name);
+
+    if (newScheduleName) {
+      output.scheduleNames = scheduleNameCollection.concat(newScheduleName);
+    } else {
+      output.scheduleNames = scheduleNameCollection;
+    }
     syncOnMqttServer(JSON.stringify(output));
   };
 
   const handleModalDelete = (id: string) => {
-    const output: RawData = _.cloneDeep(value) || {};
+    const output: RawData = _cloneDeep(value) || {};
     if (isWeekly) {
       delete output.weekly[id];
     } else {
@@ -222,6 +254,8 @@ export default function ScheduleCalendar(props: Props) {
             </div>
             <EventModal
               isOpenModal={isOpenModal}
+              scheduleNames={scheduleNameCollection}
+              onUpdateScheduleName={updateScheduleName}
               isWeekly={isWeekly}
               operation={operation}
               eventOutput={eventOutput}
