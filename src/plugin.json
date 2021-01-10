@@ -10,8 +10,8 @@
     },
     "keywords": ["schedule", "events"],
     "logos": {
-      "small": "img/logo.svg",
-      "large": "img/logo.svg"
+      "small": "assets/img/logo.svg",
+      "large": "assets/img/logo.svg"
     },
     "links": [
       {

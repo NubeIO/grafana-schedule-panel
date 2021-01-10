@@ -1,6 +1,5 @@
-import { ScheduleName } from './scheduleName.model';
-
 import { v4 as uuidv4 } from 'uuid';
+import { ScheduleName } from './scheduleName.model';
 
 export function create(name: string, inputValue = ''): ScheduleName {
   return {

@@ -248,7 +248,7 @@ export function getHolidayEvents(): HolidayEvent[] {
  * Check if today is a holiday
  * @returns {boolean}
  */
-export function isTodayHoliday(): Boolean {
+export function isTodayHoliday(): boolean {
   const today = new Date();
 
   const hasOffDays = holidays.map(holiday => {

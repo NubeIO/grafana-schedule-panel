@@ -19,8 +19,8 @@ import { convertTimeFromTimezone, convertTimezoneFromUtc, convertWeekFromTimezon
 
 import { makeStyles } from '@material-ui/core/styles';
 import DateRangeCollection from './DateRangeCollection';
-import { ScheduleName } from 'scheduleName/scheduleName.model';
-import * as scheduleNameActions from 'scheduleName/scheduleName.action';
+import { ScheduleName } from 'components/scheduleName/scheduleName.model';
+import * as scheduleNameActions from 'components/scheduleName/scheduleName.action';
 
 const dayOptions = Object.values(DAY_MAP);
 const TIME_FORMAT = 'HH:mm';
@@ -214,7 +214,12 @@ export default function EventModal(props: EventModalProps) {
     if (id == null) {
       return null;
     }
-    return <DeleteButton stopPropagation={true} onClick={() => onUpdateScheduleName(scheduleNameActions.DELETE_SCHEDULE_NAME, id)} />;
+    return (
+      <DeleteButton
+        stopPropagation={true}
+        onClick={() => onUpdateScheduleName(scheduleNameActions.DELETE_SCHEDULE_NAME, id)}
+      />
+    );
   };
 
   return (

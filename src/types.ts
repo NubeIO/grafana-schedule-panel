@@ -35,7 +35,7 @@ export interface Weekly {
 export interface HolidayPayload {
   title: string;
   month: string | number;
-  day: string| number;
+  day: string | number;
 }
 
 export interface HolidayEvent {
