@@ -214,7 +214,7 @@ export default function EventModal(props: EventModalProps) {
     if (id == null) {
       return null;
     }
-    return <DeleteButton stopPropagation={true} onClick={() => onUpdateScheduleName('DELETE', id)} />;
+    return <DeleteButton stopPropagation={true} onClick={() => onUpdateScheduleName(scheduleNameActions.DELETE_SCHEDULE_NAME, id)} />;
   };
 
   return (
