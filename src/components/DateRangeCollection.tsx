@@ -3,7 +3,7 @@ import DateRange from './DateRange';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import { EventDate } from '../types';
 import { v4 as uuidv4 } from 'uuid';
-import _ from 'lodash';
+import _clone from 'lodash/clone';
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -63,7 +63,7 @@ export default function DateRangeCollection(props: DateRangeCollection) {
   }, [dates]);
 
   const handleChange = (eventDate: EventDate, key: string) => {
-    let editedDates: DateDict = _.clone(dates);
+    let editedDates: DateDict = _clone(dates);
     editedDates[key] = eventDate;
     setDates(editedDates);
     if (key === errorKey) {
@@ -72,7 +72,7 @@ export default function DateRangeCollection(props: DateRangeCollection) {
   };
 
   const handleDelete = (key: string) => {
-    const convertedDict: DateDict = _.clone(dates);
+    const convertedDict: DateDict = _clone(dates);
     delete convertedDict[key];
     if (!Object.keys(convertedDict).length) {
       const key = uuidv4();
@@ -85,7 +85,7 @@ export default function DateRangeCollection(props: DateRangeCollection) {
   };
 
   const handleAdd = () => {
-    const convertedDict: DateDict = _.clone(dates);
+    const convertedDict: DateDict = _clone(dates);
     if (!error) {
       const key = uuidv4();
       setLastDateKey(lastDateKey);

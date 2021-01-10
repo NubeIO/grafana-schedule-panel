@@ -63,4 +63,5 @@ export interface EventOutput {
 export interface RawData {
   events: any;
   weekly: any;
+  scheduleNames: any;
 }
