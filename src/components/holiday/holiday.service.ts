@@ -44,11 +44,14 @@ interface HolidayDTO {
   value: number;
 }
 
-export function transformYearlyEvent(event: HolidayDTO): HolidayOutputEvent {
+export function transformYearlyEvent(event: HolidayDTO, selectedYear: number): HolidayOutputEvent {
   const start = new Date(event.date);
   start.setHours(0, 0, 0, 0);
+  start.setFullYear(selectedYear);
   const end = new Date(event.date);
   end.setHours(23, 59, 59, 999);
+  end.setFullYear(selectedYear);
+
   return {
     ...event,
     end: end,
@@ -58,6 +61,10 @@ export function transformYearlyEvent(event: HolidayDTO): HolidayOutputEvent {
   };
 }
 
-export function getHolidayEvents(yearly: any = {}): HolidayOutputEvent[] {
-  return Object.keys(yearly).map(key => transformYearlyEvent(yearly[key]));
+export function getHolidayEvents(yearly: any = {}, selectedDate: string): HolidayOutputEvent[] {
+  const sDate = new Date(selectedDate);
+  const selectedYear = sDate.getFullYear();
+
+  return Object.keys(yearly)
+    .map(key => transformYearlyEvent(yearly[key], selectedYear))
 }
