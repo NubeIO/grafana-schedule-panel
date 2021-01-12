@@ -11,11 +11,11 @@ interface Props {
   step: any;
   value: number | number[];
   label: string;
-  inputType: string;
+  inputType?: string;
   touched: any;
   errors: any;
   name: string;
-  onChange: (e: any) => void | undefined;
+  onChange: any;
 }
 
 function SliderValueField(props: Props) {
@@ -44,8 +44,8 @@ function SliderValueField(props: Props) {
               max: max,
             }}
             onChange={onChange}
-            helperText={(touched.value && errors.value) || ''}
-            error={touched.value && Boolean(errors.value)}
+            helperText={(touched[name] && errors[name]) || ''}
+            error={touched[name] && Boolean(errors[name])}
           />
         </div>
       );

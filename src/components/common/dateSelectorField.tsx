@@ -8,21 +8,29 @@ interface Props {
   name: string;
   value: any;
   onChange: any;
+  errors: any;
+  touched: any;
 }
 function DateSelectorField(props: Props) {
-  const { label, name, value, onChange } = props;
+  const { label, name, value, onChange, errors, touched } = props;
   const classes = fieldStyle();
   return (
     <div className={classes.input}>
       <DatePicker
-        size="small"
-        name={name}
-        inputVariant="outlined"
         fullWidth
+        name={name}
+        openTo="month"
+        inputProps={{ readOnly: false }}
+        views={['year', 'month', 'date']}
+        disabled={false}
+        helperText={(touched[name] && errors[name]) || ''}
+        error={touched[name] && Boolean(errors[name])}
+        size="small"
         label={label}
-        variant="inline"
         value={value}
+        variant="inline"
         onChange={onChange}
+        inputVariant="outlined"
       />
     </div>
   );

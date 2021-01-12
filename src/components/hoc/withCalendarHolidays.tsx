@@ -1,11 +1,12 @@
 import React from 'react';
-import { EventOutput } from 'types';
-import { getHolidayEvents } from 'utils';
+import { EventOutput, RawData } from 'types';
+import * as holidayService from 'components/holiday/holiday.service';
 
 interface Props {
   events: EventOutput[];
   timezone: string;
   startAccessorField: string;
+  value: RawData;
   endAccessorField: string;
   onNavigate: (visibleDate: any) => void;
   onSelectEvent: (event: EventOutput) => void;
@@ -17,7 +18,7 @@ interface Props {
 }
 
 const withCalendarHolidays = (ComposedComponent: any) => (props: Props) => {
-  const holidays = getHolidayEvents();
+  const holidays = holidayService.getHolidayEvents(props.value.yearly);
 
   return <ComposedComponent {...props} events={[...props.events, ...holidays]} />;
 };

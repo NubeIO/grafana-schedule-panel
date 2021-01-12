@@ -69,6 +69,7 @@ export interface EventOutput {
   value: number | string;
   color: string;
   isWeekly: boolean;
+  isYearly?: boolean;
   event: Weekly | Event;
   backupEvent: Weekly | Event;
   dates?: EventDate[];
@@ -80,4 +81,5 @@ export interface RawData {
   events: any;
   weekly: any;
   scheduleNames: any;
+  yearly: any;
 }

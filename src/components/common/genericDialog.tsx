@@ -11,7 +11,7 @@ function GenericDialog(props: any) {
 
   return (
     <Dialog
-      maxWidth="sm"
+      maxWidth="md"
       fullWidth={false}
       onClose={props.onClose}
       open={props.open}

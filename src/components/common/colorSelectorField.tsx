@@ -6,7 +6,7 @@ import fieldStyle from './fieldStyle';
 interface Props {
   name: string;
   value: string | undefined;
-  onChange: (e: any) => Date;
+  onChange: (e: any) => void;
 }
 
 function ColorSelectorField(props: Props) {

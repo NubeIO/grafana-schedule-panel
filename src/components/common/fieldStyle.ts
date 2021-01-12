@@ -10,7 +10,7 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     textField: {
       marginRight: theme.spacing(2),
-      width: 175,
+      minWidth: 175,
     },
     listbox: {
       '& .schedule-name-listitem': {
