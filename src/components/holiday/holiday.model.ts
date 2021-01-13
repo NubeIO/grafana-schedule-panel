@@ -5,8 +5,6 @@ export interface Holiday {
   name: string;
   date: string | Date | DateTime;
   color: string;
-  day?: number | string;
-  month?: number | string;
   value: number;
 }
 
@@ -15,8 +13,6 @@ export interface HolidayOutputEvent {
   name: string;
   date: string | Date | DateTime;
   color: string;
-  day?: number | string;
-  month?: number | string;
   value: number | string;
   isYearly?: boolean;
   start: Date;

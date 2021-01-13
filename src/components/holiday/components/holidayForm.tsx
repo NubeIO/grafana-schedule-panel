@@ -2,31 +2,62 @@ import React from 'react';
 import { Form, Formik } from 'formik';
 import Button from '@material-ui/core/Button';
 import DialogTitle from '@material-ui/core/DialogTitle';
+
+import { PanelOptions, RawData } from 'types';
+import DeleteButton from 'components/DeleteButton';
 import { Holiday } from 'components/holiday/holiday.model';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
-
-import { PanelOptions, RawData } from 'types';
-import TextField from 'components/common/textField';
 import ColorSelectorField from '../../common/colorSelectorField';
 import SliderValueField from 'components/common/sliderValueField';
 import DateSelectorField from 'components/common/dateSelectorField';
 import * as holidayService from 'components/holiday/holiday.service';
 import holidayFormValidation from 'components/holiday/holiday.validation';
+import CreatableSelectField from 'components/common/creatableSelectField';
+import { createFilterOptions } from '@material-ui/lab/useAutocomplete';
+import { ScheduleName } from 'components/scheduleName/scheduleName.model';
+import * as scheduleNameActions from 'components/scheduleName/scheduleName.action';
 
 interface Props {
   id: string;
   dialogTitle: string;
   isAddForm: boolean | undefined;
   initialValues: any;
-  onSubmit: (holiday: Holiday) => void;
+  onSubmit: (holiday: any) => void;
   onDelete: (e: any) => void;
   onClose: () => void;
   options: PanelOptions;
+  scheduleNames: ScheduleName[];
+  updateScheduleName: (action: string, value: string) => void;
 }
 
+const autoCompleteFilter = createFilterOptions<ScheduleName>();
+
 function HolidayFormUi(props: Props) {
-  const { id, dialogTitle, isAddForm, initialValues, onSubmit, onClose, onDelete, options } = props;
+  const {
+    id,
+    dialogTitle,
+    isAddForm,
+    initialValues,
+    onSubmit,
+    onClose,
+    onDelete,
+    options,
+    updateScheduleName,
+    scheduleNames,
+  } = props;
+
+  const renderScheduleDeleteButton = (id: string | null) => {
+    if (id == null) {
+      return null;
+    }
+    return (
+      <DeleteButton
+        stopPropagation={true}
+        onClick={() => updateScheduleName(scheduleNameActions.DELETE_SCHEDULE_NAME, id)}
+      />
+    );
+  };
 
   return (
     <Formik initialValues={initialValues} validationSchema={holidayFormValidation(options)} onSubmit={onSubmit}>
@@ -35,13 +66,28 @@ function HolidayFormUi(props: Props) {
           <DialogTitle id={id}>{dialogTitle}</DialogTitle>
           <DialogContent>
             <form>
-              <TextField
+              <CreatableSelectField
+                options={scheduleNames}
                 name="name"
                 label="Title"
-                onChange={e => setFieldValue('name', e.target.value)}
                 value={values.name}
                 touched={touched}
                 errors={errors}
+                listItemButton={renderScheduleDeleteButton}
+                autoCompleteFilter={autoCompleteFilter}
+                onChange={(e: any, newValue: any) => {
+                  if (!newValue) {
+                    setFieldValue('name', null);
+                  } else if (typeof newValue === 'string') {
+                    updateScheduleName(scheduleNameActions.CREATE_SCHEDULE_NAME, newValue);
+                    setFieldValue('name', newValue);
+                  } else if (newValue && newValue.inputValue) {
+                    updateScheduleName(scheduleNameActions.CREATE_SCHEDULE_NAME, newValue.inputValue);
+                    setFieldValue('name', newValue.inputValue);
+                  } else if (newValue && newValue.name) {
+                    setFieldValue('name', newValue.name);
+                  }
+                }}
               />
               <DateSelectorField
                 name="date"
@@ -121,19 +167,22 @@ interface HolidayFormProps {
   onClose: () => void;
   onEdit: () => void;
   options: PanelOptions;
+  scheduleNames: ScheduleName[];
+  updateScheduleName: (action: string, value: string) => void;
 }
 
 function HolidayForm(props: HolidayFormProps) {
   function handleCreateHoliday(values: any) {
-    const newHoliday = holidayService.create(values.name, values.color, values.date, values.value);
+    const newHoliday = holidayService.getHolidayInstance(null, values.name, values.color, values.date, values.value);
     const updatedData = holidayService.updateData(newHoliday, props.value);
     props.syncData(updatedData);
     props.closeGenericDialog();
   }
 
   function handleUpdateHoliday(id: string, holiday: Holiday) {
-    const updatedHoliday = holidayService.updateData({ id, ...holiday }, props.value);
-    props.syncData(updatedHoliday);
+    const { name, color, date, value } = holiday;
+    const updatedHoliday = holidayService.getHolidayInstance(id, name, color, date, value);
+    props.syncData(holidayService.updateData(updatedHoliday, props.value));
     props.closeGenericDialog();
   }
 
@@ -149,6 +198,7 @@ function HolidayForm(props: HolidayFormProps) {
     }
     handleUpdateHoliday(props.holiday.id, values);
   }
+
   const initialFormValues = getInitialFormValues(props.isAddForm, props.holiday);
 
   return (

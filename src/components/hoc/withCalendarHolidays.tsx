@@ -14,11 +14,11 @@ interface Props {
   localizer: any;
   components: any;
   defaultView: string;
-  date: string | Date;
+  date: string;
 }
 
 const withCalendarHolidays = (ComposedComponent: any) => (props: Props) => {
-  const holidays = holidayService.getHolidayEvents(props.value.yearly, props.date);
+  const holidays = holidayService.getHolidayEvents(props.value.yearly, props.date, props.timezone);
 
   return <ComposedComponent {...props} events={[...props.events, ...holidays]} />;
 };

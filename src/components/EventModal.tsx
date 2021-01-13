@@ -76,7 +76,7 @@ interface EventModalProps {
   onClose: () => void;
   onSubmit: (event: Weekly | Event, id: string) => void;
   onDelete: (id: string) => void;
-  onUpdateScheduleName: (action: string, value: string) => void;
+  updateScheduleName: (action: string, value: string) => void;
 }
 
 const getAddEventInitialValues = (options: PanelOptions, isWeekly = false) => {
@@ -182,7 +182,7 @@ export default function EventModal(props: EventModalProps) {
     onClose,
     onSubmit,
     onDelete,
-    onUpdateScheduleName,
+    updateScheduleName,
   } = props;
   const [value, setValue] = useState(0);
   const classes = useStyles();
@@ -217,7 +217,7 @@ export default function EventModal(props: EventModalProps) {
     return (
       <DeleteButton
         stopPropagation={true}
-        onClick={() => onUpdateScheduleName(scheduleNameActions.DELETE_SCHEDULE_NAME, id)}
+        onClick={() => updateScheduleName(scheduleNameActions.DELETE_SCHEDULE_NAME, id)}
       />
     );
   };
@@ -306,10 +306,10 @@ export default function EventModal(props: EventModalProps) {
                     if (!newValue) {
                       setFieldValue('name', null);
                     } else if (typeof newValue === 'string') {
-                      onUpdateScheduleName(scheduleNameActions.CREATE_SCHEDULE_NAME, newValue);
+                      updateScheduleName(scheduleNameActions.CREATE_SCHEDULE_NAME, newValue);
                       setFieldValue('name', newValue);
                     } else if (newValue && newValue.inputValue) {
-                      onUpdateScheduleName(scheduleNameActions.CREATE_SCHEDULE_NAME, newValue.inputValue);
+                      updateScheduleName(scheduleNameActions.CREATE_SCHEDULE_NAME, newValue.inputValue);
                       setFieldValue('name', newValue.inputValue);
                     } else if (newValue && newValue.name) {
                       setFieldValue('name', newValue.name);

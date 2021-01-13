@@ -1,23 +1,14 @@
 import { RawData } from 'types';
 import { v4 as uuidv4 } from 'uuid';
 import { Holiday, HolidayOutputEvent } from './holiday.model';
+import moment from 'moment-timezone';
 
-export function extractDay(date: any): string | number {
-  return date.day();
-}
-
-export function extractMonth(date: any): string | number {
-  return date.month();
-}
-
-export function create(name: string, color: string, date: any, value: number): Holiday {
+export function getHolidayInstance(id: string | null, name: string, color: string, date: any, value: number): Holiday {
   return {
-    id: uuidv4(),
+    id: id ? id : uuidv4(),
     name,
     color,
-    date: date.toDate(),
-    day: extractDay(date),
-    month: extractMonth(date), // Month is zero indexed in JS
+    date: typeof date === 'string' ? date : date.format('MM-DD'),
     value,
   };
 }
@@ -37,20 +28,20 @@ export function updateData(holiday: Holiday, data: RawData) {
 interface HolidayDTO {
   color: string;
   date: string;
-  day: number;
   id: string;
-  month: number;
   name: string;
   value: number;
 }
 
-export function transformYearlyEvent(event: HolidayDTO, selectedYear: number): HolidayOutputEvent {
-  const start = new Date(event.date);
-  start.setHours(0, 0, 0, 0);
-  start.setFullYear(selectedYear);
-  const end = new Date(event.date);
-  end.setHours(23, 59, 59, 999);
-  end.setFullYear(selectedYear);
+export function transformYearlyEvent(event: HolidayDTO, selectedYear: number, timezone: string): HolidayOutputEvent {
+  const start = moment
+    .tz(selectedYear.toString().concat('-', event.date), timezone)
+    .startOf('day')
+    .toDate();
+  const end = moment
+    .tz(selectedYear.toString().concat('-', event.date), timezone)
+    .endOf('day')
+    .toDate();
 
   return {
     ...event,
@@ -61,10 +52,13 @@ export function transformYearlyEvent(event: HolidayDTO, selectedYear: number): H
   };
 }
 
-export function getHolidayEvents(yearly: any = {}, selectedDate: string): HolidayOutputEvent[] {
+export const convertDateTimeToDate = (datetime: string, timezone: string) => {
+  const m = moment.tz(datetime, timezone);
+  return new Date(m.year(), m.month(), m.date(), 0, 0, 0);
+};
+
+export function getHolidayEvents(yearly: any = {}, selectedDate: string, timezone: string): HolidayOutputEvent[] {
   const sDate = new Date(selectedDate);
   const selectedYear = sDate.getFullYear();
-
-  return Object.keys(yearly)
-    .map(key => transformYearlyEvent(yearly[key], selectedYear))
+  return Object.keys(yearly).map(key => transformYearlyEvent(yearly[key], selectedYear, timezone));
 }

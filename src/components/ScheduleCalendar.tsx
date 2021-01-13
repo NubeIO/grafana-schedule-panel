@@ -16,13 +16,13 @@ import CustomEvent from './CustomEvent';
 import withTimeZone from './hoc/withTimezone';
 import { DIALOG_NAMES } from '../constants/dialogNames';
 import withGenericDialog from './hoc/withGenericDialog';
+import withScheduleNames from './hoc/withScheduleNames';
 import TimezoneToggle from './renderProps/TimezoneToggle';
+import withCalendarHolidays from './hoc/withCalendarHolidays';
 import { ScheduleName } from './scheduleName/scheduleName.model';
 import * as scheduleActions from './scheduleName/scheduleName.action';
-import * as scheduleNameService from './scheduleName/scheduleName.service';
 import { DAY_MAP, extractEvents, getDaysArrayByMonth } from '../utils';
 import { EventOutput, Event, Weekly, PanelOptions, Operation, RawData } from '../types';
-import withCalendarHolidays from './hoc/withCalendarHolidays';
 
 interface Props {
   _client: any;
@@ -33,6 +33,8 @@ interface Props {
   options: PanelOptions;
   syncData: Function;
   openGenericDialog?: Function;
+  scheduleNames: ScheduleName[];
+  updateScheduleName: (action: string, value: string) => void;
 }
 
 const CalendarHOC = flowRight(withTimeZone, withCalendarHolidays)(Calendar);
@@ -52,7 +54,6 @@ function ScheduleCalendar(props: Props) {
   const staticLocalizer = momentLocalizer(moment);
 
   const [eventCollection, setEventCollection] = useState<EventOutput[]>([]);
-  const [scheduleNameCollection, setScheduleNameCollection] = useState<ScheduleName[]>([]);
   const [visibleDate, setVisibleDate] = useState(moment());
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [isWeekly, setIsWeekly] = useState(false);
@@ -63,25 +64,8 @@ function ScheduleCalendar(props: Props) {
     updateEvents();
   }, [value, visibleDate]);
 
-  const updateScheduleName = (action: string, value: string): any => {
-    switch (action) {
-      case scheduleActions.CREATE_SCHEDULE_NAME:
-        if (scheduleNameCollection.find((scheduleName: ScheduleName) => scheduleName.name === value)) {
-          return null;
-        }
-        const scheduleName = scheduleNameService.create(value);
-        setScheduleNameCollection(scheduleNameCollection.concat(scheduleName));
-        return scheduleName;
-
-      case scheduleActions.DELETE_SCHEDULE_NAME:
-        const filteredList = scheduleNameCollection.filter(item => item.id !== value);
-        setScheduleNameCollection(filteredList);
-        break;
-    }
-  };
-
   const updateEvents = () => {
-    const { events = {}, weekly = {}, scheduleNames = [] } = value || {};
+    const { events = {}, weekly = {} } = value || {};
     let eventsCollection: EventOutput[] = [];
 
     const isolatedEvents = extractEvents(events);
@@ -117,12 +101,7 @@ function ScheduleCalendar(props: Props) {
       }
     }
     eventsCollection = eventsCollection.concat(isolatedEvents, ...dayEventsCollection);
-    // eventsCollection.push(...yearlyEvents);
     setEventCollection(eventsCollection);
-
-    if (scheduleNames.length !== scheduleNameCollection.length) {
-      setScheduleNameCollection(scheduleNames);
-    }
 
     if (!options.hasPayload) {
       setEventCollection(
@@ -171,7 +150,7 @@ function ScheduleCalendar(props: Props) {
   };
 
   const handleModalSubmit = (event: Weekly | Event, id: string) => {
-    const output: RawData = _cloneDeep(value) || {};
+    let output: RawData = _cloneDeep(value) || {};
     if (isWeekly) {
       if (!output.weekly) {
         output['weekly'] = {};
@@ -183,13 +162,7 @@ function ScheduleCalendar(props: Props) {
       }
       output.events[id] = event;
     }
-    const newScheduleName = updateScheduleName(scheduleActions.CREATE_SCHEDULE_NAME, event.name);
-
-    if (newScheduleName) {
-      output.scheduleNames = scheduleNameCollection.concat(newScheduleName);
-    } else {
-      output.scheduleNames = scheduleNameCollection;
-    }
+    output.scheduleNames = props.updateScheduleName(scheduleActions.CREATE_SCHEDULE_NAME, event.name);
     syncOnMqttServer(JSON.stringify(output));
   };
 
@@ -284,8 +257,8 @@ function ScheduleCalendar(props: Props) {
             </div>
             <EventModal
               isOpenModal={isOpenModal}
-              scheduleNames={scheduleNameCollection}
-              onUpdateScheduleName={updateScheduleName}
+              scheduleNames={props.scheduleNames}
+              updateScheduleName={props.updateScheduleName}
               isWeekly={isWeekly}
               operation={operation}
               eventOutput={eventOutput}
@@ -337,9 +310,9 @@ const useStyles = makeStyles({
   },
 });
 
-const ScheduleCalendarHoc = withGenericDialog(ScheduleCalendar);
+const ScheduleCalendarHoc = flowRight(withScheduleNames, withGenericDialog)(ScheduleCalendar);
 
-export default function(props: Props) {
+export default function(props: any) {
   return (
     <AppContainer>
       <ScheduleCalendarHoc {...props} />

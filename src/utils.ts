@@ -1,8 +1,5 @@
 import moment from 'moment-timezone';
-import teal from '@material-ui/core/colors/teal';
-import { ExtractionOption, Weekly, Event, EventOutput, HolidayEvent, HolidayPayload } from './types';
-
-import holidays from './constants/holidays.json';
+import { ExtractionOption, Weekly, Event, EventOutput } from './types';
 
 /**
  * Gets the list of dates that would be visible in calendar view with dates from
@@ -178,88 +175,4 @@ export function extractEvents(events: { [id: string]: Weekly | Event }, options?
     }
   }
   return eventsCollection;
-}
-
-/**
- *
- * @example
- * getYearRange(2021)
- * [2019, 2020, 2021, 2022, 2023]
- * @param currentYear
- */
-function getYearRange(currentYear: number): number[] {
-  const years = [];
-  const maxYears = 5;
-  let yearCount = -2;
-
-  for (let i = 1; i <= maxYears; i++) {
-    years.push(currentYear + yearCount);
-    yearCount = yearCount + 1;
-  }
-
-  return years;
-}
-
-/**
- *
- * @param year
- * @param holiday
- */
-function getHoliday(year: number, holiday: HolidayPayload): string {
-  return `${year}-${holiday.month}-${holiday.day}`;
-}
-
-/**
- * @example
- * formatHolidays(2021, [{"title": "New Year", "day": 1, "month": 1}])
- * [{title: "New Year", day: 1, month: 1, date: '2021-1-1', end:'2021-1-1', start: '2021-1-1', id: 'id_1_2021_1_1 }]
- * @param year
- * @param holidays
- */
-function formatHolidays(year: number, holidays: HolidayPayload[]): HolidayEvent[] {
-  return holidays.map((holiday: HolidayPayload, index: number) => {
-    const date = getHoliday(year, holiday);
-    const start = new Date(date).setHours(0, 0, 0, 0);
-    const end = new Date(date).setHours(23, 59, 59, 999);
-
-    return {
-      date,
-      end: end,
-      start: start,
-      isHoliday: true,
-      color: teal[500],
-      title: holiday.title,
-      id: `id_${index}_${year}_${holiday.month}_${holiday.day}`,
-    };
-  });
-}
-
-/**
- * Append list of holidays for a period of 5 years.
- * @returns {HolidayEvent[]}
- */
-export function getHolidayEvents(): HolidayEvent[] {
-  return getYearRange(new Date().getFullYear())
-    .map((year: number) => formatHolidays(year, holidays))
-    .flat();
-}
-
-/**
- * Check if today is a holiday
- * @returns {boolean}
- */
-export function isTodayHoliday(): boolean {
-  const today = new Date();
-
-  const hasOffDays = holidays.map(holiday => {
-    const date = new Date(getHoliday(today.getFullYear(), holiday));
-
-    return (
-      date.getDate() === today.getDate() &&
-      date.getMonth() === today.getMonth() &&
-      date.getFullYear() === today.getFullYear()
-    );
-  });
-
-  return hasOffDays.some(val => val);
 }
