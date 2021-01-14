@@ -262,7 +262,7 @@ export default function EventModal(props: EventModalProps) {
                 <Autocomplete
                   className={classes.input}
                   selectOnFocus
-                  clearOnBlur
+                  clearOnBlur={true}
                   handleHomeEndKeys
                   options={scheduleNames}
                   openOnFocus={true}

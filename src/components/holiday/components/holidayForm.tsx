@@ -1,5 +1,6 @@
 import React from 'react';
 import { Form, Formik } from 'formik';
+import _cloneDeep from 'lodash/cloneDeep';
 import Button from '@material-ui/core/Button';
 import DialogTitle from '@material-ui/core/DialogTitle';
 
@@ -172,17 +173,17 @@ interface HolidayFormProps {
 }
 
 function HolidayForm(props: HolidayFormProps) {
-  function handleCreateHoliday(values: any) {
+  function handleCreateHoliday(values: any, output: RawData) {
     const newHoliday = holidayService.getHolidayInstance(null, values.name, values.color, values.date, values.value);
-    const updatedData = holidayService.updateData(newHoliday, props.value);
+    const updatedData = holidayService.updateData(newHoliday, output);
     props.syncData(updatedData);
     props.closeGenericDialog();
   }
 
-  function handleUpdateHoliday(id: string, holiday: Holiday) {
+  function handleUpdateHoliday(id: string, holiday: Holiday, output: RawData) {
     const { name, color, date, value } = holiday;
     const updatedHoliday = holidayService.getHolidayInstance(id, name, color, date, value);
-    props.syncData(holidayService.updateData(updatedHoliday, props.value));
+    props.syncData(holidayService.updateData(updatedHoliday, output));
     props.closeGenericDialog();
   }
 
@@ -193,10 +194,12 @@ function HolidayForm(props: HolidayFormProps) {
   }
 
   function onSubmit(values: Holiday) {
+    let output: RawData = _cloneDeep(props.value) || {};
+    output.scheduleNames = props.updateScheduleName(scheduleNameActions.CREATE_SCHEDULE_NAME, values.name);
     if (props.isAddForm) {
-      return handleCreateHoliday(values);
+      return handleCreateHoliday(values, output);
     }
-    handleUpdateHoliday(props.holiday.id, values);
+    handleUpdateHoliday(props.holiday.id, values, output);
   }
 
   const initialFormValues = getInitialFormValues(props.isAddForm, props.holiday);

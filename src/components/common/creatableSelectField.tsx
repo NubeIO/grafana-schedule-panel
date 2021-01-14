@@ -23,7 +23,7 @@ function CreatableSelectField(props: Props) {
       <Autocomplete
         className={classes.input}
         selectOnFocus
-        clearOnBlur
+        clearOnBlur={true}
         handleHomeEndKeys
         options={options}
         openOnFocus={true}
