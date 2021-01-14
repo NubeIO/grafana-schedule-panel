@@ -20,7 +20,6 @@ import withScheduleNames from './hoc/withScheduleNames';
 import TimezoneToggle from './renderProps/TimezoneToggle';
 import withCalendarHolidays from './hoc/withCalendarHolidays';
 import { ScheduleName } from './scheduleName/scheduleName.model';
-import * as scheduleActions from './scheduleName/scheduleName.action';
 import { DAY_MAP, extractEvents, getDaysArrayByMonth } from '../utils';
 import { EventOutput, Event, Weekly, PanelOptions, Operation, RawData } from '../types';
 
@@ -162,7 +161,6 @@ function ScheduleCalendar(props: Props) {
       }
       output.events[id] = event;
     }
-    output.scheduleNames = props.updateScheduleName(scheduleActions.CREATE_SCHEDULE_NAME, event.name);
     syncOnMqttServer(JSON.stringify(output));
   };
 

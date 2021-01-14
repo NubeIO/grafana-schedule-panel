@@ -195,7 +195,6 @@ function HolidayForm(props: HolidayFormProps) {
 
   function onSubmit(values: Holiday) {
     let output: RawData = _cloneDeep(props.value) || {};
-    output.scheduleNames = props.updateScheduleName(scheduleNameActions.CREATE_SCHEDULE_NAME, values.name);
     if (props.isAddForm) {
       return handleCreateHoliday(values, output);
     }

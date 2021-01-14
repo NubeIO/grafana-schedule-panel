@@ -29,18 +29,28 @@ const withScheduleNames = (ComposedComponent: any) => (props: Props) => {
     }
   }, [props.value]);
 
+  const syncScheduleNames = (scheduleNames: ScheduleName[]) => {
+    const data = _cloneDeep(props.value);
+    data.scheduleNames = scheduleNames;
+    props.syncData(data);
+  };
+
   const updateScheduleName = (action: string, value: string): any => {
     switch (action) {
       case scheduleActions.CREATE_SCHEDULE_NAME:
         if (scheduleNameCollection.find((scheduleName: ScheduleName) => scheduleName.name === value)) {
-          return _cloneDeep(scheduleNameCollection);
+          syncScheduleNames(scheduleNameCollection);
+          return;
         }
         const scheduleName = scheduleNameService.create(value);
         const newScheduleNames = scheduleNameCollection.concat(scheduleName);
-        setScheduleNameCollection(newScheduleNames);
-        return _cloneDeep(newScheduleNames);
+        syncScheduleNames(newScheduleNames);
+        break;
       case scheduleActions.DELETE_SCHEDULE_NAME:
         const filteredList = scheduleNameCollection.filter(item => item.id !== value);
+        const data = _cloneDeep(props.value);
+        data.scheduleNames = filteredList;
+        props.syncData(data);
         setScheduleNameCollection(filteredList);
         break;
     }
