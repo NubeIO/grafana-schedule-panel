@@ -97,6 +97,30 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
     },
   });
 
+  const syncData = (data: any) => {
+    const output = JSON.stringify(data);
+    const publishSuccessTopics: string[] = [];
+    setIsRunning(true);
+    if (!_client.current) {
+      return;
+    }
+    if (_client.current.disconnected) {
+      _client.current.reconnect();
+    }
+
+    topics.forEach((topic: string) => {
+      _client.current.publish(topic, output, { retain: true });
+      isAllTopicPublished(topic);
+    });
+
+    function isAllTopicPublished(topicName: string) {
+      publishSuccessTopics.push(topicName);
+      if (publishSuccessTopics.every(val => topics.indexOf(val) > -1)) {
+        setIsRunning(false);
+      }
+    }
+  };
+
   const styles = getStyles();
   return (
     <div
@@ -111,6 +135,7 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
       <ThemeProvider theme={materialTheme}>
         <ScheduleCalendar
           _client={_client}
+          syncData={syncData}
           topics={topics}
           value={value}
           isRunning={isRunning}

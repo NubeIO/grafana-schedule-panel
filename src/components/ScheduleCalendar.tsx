@@ -1,41 +1,58 @@
 import React, { useEffect, useState } from 'react';
-import TimezoneToggle from './renderProps/TimezoneToggle';
+import moment from 'moment-timezone';
 import { Spinner } from '@grafana/ui';
+import flowRight from 'lodash/flowRight';
+import _cloneDeep from 'lodash/cloneDeep';
+import MomentUitls from '@date-io/moment';
+import red from '@material-ui/core/colors/red';
 import { Avatar, Chip } from '@material-ui/core';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
-import moment from 'moment-timezone';
-import _cloneDeep from 'lodash/cloneDeep';
-import withTimeZone from './hoc/withTimezone';
+import { MuiPickersUtilsProvider } from '@material-ui/pickers';
+import { makeStyles, ThemeProvider, createMuiTheme } from '@material-ui/core/styles';
+
+import 'react-big-calendar/lib/sass/styles.scss';
+import EventModal from './EventModal';
 import CustomEvent from './CustomEvent';
+import withTimeZone from './hoc/withTimezone';
+import { DIALOG_NAMES } from '../constants/dialogNames';
+import withGenericDialog from './hoc/withGenericDialog';
+import withScheduleNames from './hoc/withScheduleNames';
+import TimezoneToggle from './renderProps/TimezoneToggle';
+import withCalendarHolidays from './hoc/withCalendarHolidays';
+import { ScheduleName } from './scheduleName/scheduleName.model';
 import { DAY_MAP, extractEvents, getDaysArrayByMonth } from '../utils';
 import { EventOutput, Event, Weekly, PanelOptions, Operation, RawData } from '../types';
 
-import EventModal from './EventModal';
-import 'react-big-calendar/lib/sass/styles.scss';
-import { ScheduleName } from '../scheduleName/scheduleName.model';
-import * as scheduleActions from '../scheduleName/scheduleName.action';
-import * as scheduleNameService from '../scheduleName/scheduleName.service';
-import { makeStyles, ThemeProvider, createMuiTheme } from '@material-ui/core/styles';
-
 interface Props {
   _client: any;
-  topics: string[];
   value: any;
-  options: PanelOptions;
-  isRunning: boolean;
+  topics: string[];
   setIsRunning: any;
+  isRunning: boolean;
+  options: PanelOptions;
+  syncData: Function;
+  openGenericDialog?: Function;
+  scheduleNames: ScheduleName[];
+  updateScheduleName: (action: string, value: string) => void;
 }
 
-const CalendarHOC = withTimeZone(Calendar);
+const CalendarHOC = flowRight(withTimeZone, withCalendarHolidays)(Calendar);
 
-export default function ScheduleCalendar(props: Props) {
-  const { _client, topics, value, options, isRunning, setIsRunning } = props;
+function AppContainer(props: any) {
+  return (
+    <ThemeProvider theme={createMuiTheme({})}>
+      <MuiPickersUtilsProvider utils={MomentUitls}>{props.children}</MuiPickersUtilsProvider>
+    </ThemeProvider>
+  );
+}
+
+function ScheduleCalendar(props: Props) {
+  const { _client, topics, value, options, isRunning, setIsRunning, openGenericDialog = (f: any) => f } = props;
   const classes = useStyles();
 
   const staticLocalizer = momentLocalizer(moment);
 
   const [eventCollection, setEventCollection] = useState<EventOutput[]>([]);
-  const [scheduleNameCollection, setScheduleNameCollection] = useState<ScheduleName[]>([]);
   const [visibleDate, setVisibleDate] = useState(moment());
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [isWeekly, setIsWeekly] = useState(false);
@@ -46,25 +63,8 @@ export default function ScheduleCalendar(props: Props) {
     updateEvents();
   }, [value, visibleDate]);
 
-  const updateScheduleName = (action: string, value: string): any => {
-    switch (action) {
-      case scheduleActions.CREATE_SCHEDULE_NAME:
-        if (scheduleNameCollection.find((scheduleName: ScheduleName) => scheduleName.name === value)) {
-          return null;
-        }
-        const scheduleName = scheduleNameService.create(value);
-        setScheduleNameCollection(scheduleNameCollection.concat(scheduleName));
-        return scheduleName;
-
-      case scheduleActions.DELETE_SCHEDULE_NAME:
-        const filteredList = scheduleNameCollection.filter(item => item.id !== value);
-        setScheduleNameCollection(filteredList);
-        break;
-    }
-  };
-
   const updateEvents = () => {
-    const { events = {}, weekly = {}, scheduleNames = [] } = value || {};
+    const { events = {}, weekly = {} } = value || {};
     let eventsCollection: EventOutput[] = [];
 
     const isolatedEvents = extractEvents(events);
@@ -99,17 +99,12 @@ export default function ScheduleCalendar(props: Props) {
         dayEventsCollection.push(dayEvents);
       }
     }
-
     eventsCollection = eventsCollection.concat(isolatedEvents, ...dayEventsCollection);
     setEventCollection(eventsCollection);
 
-    if (scheduleNames.length !== scheduleNameCollection.length) {
-      setScheduleNameCollection(scheduleNames);
-    }
-
     if (!options.hasPayload) {
       setEventCollection(
-        eventsCollection.map(eventOutput => {
+        eventsCollection.map((eventOutput: any) => {
           eventOutput.value = '';
           return eventOutput;
         })
@@ -130,6 +125,9 @@ export default function ScheduleCalendar(props: Props) {
   };
 
   const onSelectEvent = (eventOutput: EventOutput) => {
+    if (eventOutput.isYearly) {
+      return openGenericDialog(DIALOG_NAMES.editHolidayDialog, { holiday: eventOutput });
+    }
     setOperation('edit');
     setIsWeekly(eventOutput.isWeekly);
     setEventOutput(eventOutput);
@@ -151,7 +149,7 @@ export default function ScheduleCalendar(props: Props) {
   };
 
   const handleModalSubmit = (event: Weekly | Event, id: string) => {
-    const output: RawData = _cloneDeep(value) || {};
+    let output: RawData = _cloneDeep(value) || {};
     if (isWeekly) {
       if (!output.weekly) {
         output['weekly'] = {};
@@ -162,13 +160,6 @@ export default function ScheduleCalendar(props: Props) {
         output['events'] = {};
       }
       output.events[id] = event;
-    }
-    const newScheduleName = updateScheduleName(scheduleActions.CREATE_SCHEDULE_NAME, event.name);
-
-    if (newScheduleName) {
-      output.scheduleNames = scheduleNameCollection.concat(newScheduleName);
-    } else {
-      output.scheduleNames = scheduleNameCollection;
     }
     syncOnMqttServer(JSON.stringify(output));
   };
@@ -202,7 +193,7 @@ export default function ScheduleCalendar(props: Props) {
   };
 
   return (
-    <ThemeProvider theme={createMuiTheme({})}>
+    <>
       <TimezoneToggle timezone={options.timezone}>
         {(toggleTimezone, timezone, timezoneName) => (
           <>
@@ -216,6 +207,15 @@ export default function ScheduleCalendar(props: Props) {
                 clickable
               />
               <div className={classes.blankSpace} />
+              <Chip
+                className={classes.item}
+                variant="outlined"
+                size="small"
+                avatar={<Avatar>+</Avatar>}
+                label="Holiday"
+                clickable
+                onClick={() => openGenericDialog(DIALOG_NAMES.holidayDialog, { isAddForm: true })}
+              />
               <Chip
                 className={classes.item}
                 variant="outlined"
@@ -239,6 +239,7 @@ export default function ScheduleCalendar(props: Props) {
             </div>
             <div className={classes.calendar}>
               <CalendarHOC
+                value={value}
                 events={eventCollection}
                 timezone={timezone}
                 startAccessorField="start"
@@ -254,8 +255,8 @@ export default function ScheduleCalendar(props: Props) {
             </div>
             <EventModal
               isOpenModal={isOpenModal}
-              scheduleNames={scheduleNameCollection}
-              onUpdateScheduleName={updateScheduleName}
+              scheduleNames={props.scheduleNames}
+              updateScheduleName={props.updateScheduleName}
               isWeekly={isWeekly}
               operation={operation}
               eventOutput={eventOutput}
@@ -273,7 +274,7 @@ export default function ScheduleCalendar(props: Props) {
           <Spinner size={12} />
         </div>
       )}
-    </ThemeProvider>
+    </>
   );
 }
 
@@ -285,9 +286,14 @@ const useStyles = makeStyles({
   },
   item: {
     flexGrow: 0,
+    marginRight: '4px',
     '&:last-child': {
-      marginLeft: '4px',
+      marginLeft: '0px',
     },
+  },
+  holiday: {
+    color: red[500],
+    borderColor: red[500],
   },
   blankSpace: {
     flexGrow: 1,
@@ -296,8 +302,18 @@ const useStyles = makeStyles({
     height: 'calc(100% - 30px)',
   },
   spinner: {
-    position: 'absolute',
     top: '-32px',
     right: '-2px',
+    position: 'absolute',
   },
 });
+
+const ScheduleCalendarHoc = flowRight(withScheduleNames, withGenericDialog)(ScheduleCalendar);
+
+export default function(props: any) {
+  return (
+    <AppContainer>
+      <ScheduleCalendarHoc {...props} />
+    </AppContainer>
+  );
+}

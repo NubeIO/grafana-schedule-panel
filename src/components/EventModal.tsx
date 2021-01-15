@@ -19,8 +19,8 @@ import { convertTimeFromTimezone, convertTimezoneFromUtc, convertWeekFromTimezon
 
 import { makeStyles } from '@material-ui/core/styles';
 import DateRangeCollection from './DateRangeCollection';
-import { ScheduleName } from 'scheduleName/scheduleName.model';
-import * as scheduleNameActions from 'scheduleName/scheduleName.action';
+import { ScheduleName } from 'components/scheduleName/scheduleName.model';
+import * as scheduleNameActions from 'components/scheduleName/scheduleName.action';
 
 const dayOptions = Object.values(DAY_MAP);
 const TIME_FORMAT = 'HH:mm';
@@ -76,7 +76,7 @@ interface EventModalProps {
   onClose: () => void;
   onSubmit: (event: Weekly | Event, id: string) => void;
   onDelete: (id: string) => void;
-  onUpdateScheduleName: (action: string, value: string) => void;
+  updateScheduleName: (action: string, value: string) => void;
 }
 
 const getAddEventInitialValues = (options: PanelOptions, isWeekly = false) => {
@@ -182,7 +182,7 @@ export default function EventModal(props: EventModalProps) {
     onClose,
     onSubmit,
     onDelete,
-    onUpdateScheduleName,
+    updateScheduleName,
   } = props;
   const [value, setValue] = useState(0);
   const classes = useStyles();
@@ -214,7 +214,12 @@ export default function EventModal(props: EventModalProps) {
     if (id == null) {
       return null;
     }
-    return <DeleteButton stopPropagation={true} onClick={() => onUpdateScheduleName(scheduleNameActions.DELETE_SCHEDULE_NAME, id)} />;
+    return (
+      <DeleteButton
+        stopPropagation={true}
+        onClick={() => updateScheduleName(scheduleNameActions.DELETE_SCHEDULE_NAME, id)}
+      />
+    );
   };
 
   return (
@@ -257,7 +262,7 @@ export default function EventModal(props: EventModalProps) {
                 <Autocomplete
                   className={classes.input}
                   selectOnFocus
-                  clearOnBlur
+                  clearOnBlur={true}
                   handleHomeEndKeys
                   options={scheduleNames}
                   openOnFocus={true}
@@ -301,10 +306,10 @@ export default function EventModal(props: EventModalProps) {
                     if (!newValue) {
                       setFieldValue('name', null);
                     } else if (typeof newValue === 'string') {
-                      onUpdateScheduleName(scheduleNameActions.CREATE_SCHEDULE_NAME, newValue);
+                      updateScheduleName(scheduleNameActions.CREATE_SCHEDULE_NAME, newValue);
                       setFieldValue('name', newValue);
                     } else if (newValue && newValue.inputValue) {
-                      onUpdateScheduleName(scheduleNameActions.CREATE_SCHEDULE_NAME, newValue.inputValue);
+                      updateScheduleName(scheduleNameActions.CREATE_SCHEDULE_NAME, newValue.inputValue);
                       setFieldValue('name', newValue.inputValue);
                     } else if (newValue && newValue.name) {
                       setFieldValue('name', newValue.name);

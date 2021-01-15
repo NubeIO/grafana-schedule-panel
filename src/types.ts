@@ -32,6 +32,22 @@ export interface Weekly {
   end: string; // 2:00
 }
 
+export interface HolidayPayload {
+  title: string;
+  month: string | number;
+  day: string | number;
+}
+
+export interface HolidayEvent {
+  color: string;
+  title: string;
+  start: number;
+  end: number;
+  date: string;
+  isHoliday: boolean;
+  id: string;
+}
+
 export interface Event {
   id: string;
   name: string;
@@ -53,6 +69,7 @@ export interface EventOutput {
   value: number | string;
   color: string;
   isWeekly: boolean;
+  isYearly?: boolean;
   event: Weekly | Event;
   backupEvent: Weekly | Event;
   dates?: EventDate[];
@@ -64,4 +81,5 @@ export interface RawData {
   events: any;
   weekly: any;
   scheduleNames: any;
+  yearly: any;
 }

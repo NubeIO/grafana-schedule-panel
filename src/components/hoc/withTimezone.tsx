@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import { accessor } from 'react-big-calendar/lib/utils/accessors';
 import moment from 'moment-timezone';
 import { DAY_MAP, enumerateDaysBetweenDates, getStartAndEndWithTimezone } from 'utils';
-import { EventOutput } from '../../types';
+import { EventOutput, RawData } from '../../types';
 
 export const convertDateTimeToDate = (datetime: string, timezone: string) => {
   const m = moment.tz(datetime, timezone);
@@ -53,6 +53,7 @@ interface Props {
   components: any;
   defaultView: string;
   date?: string | Date;
+  value: RawData;
 }
 
 export default function withTimeZone(Calendar: any) {
@@ -83,13 +84,24 @@ export default function withTimeZone(Calendar: any) {
             end,
             days,
             event,
+            isHoliday,
             ...restProps
           }: {
             start: string;
             end: string;
             days: moment.Moment[];
             event: any;
+            isHoliday?: boolean;
           }) => {
+            if (isHoliday) {
+              return onSelectEvent({
+                ...restProps,
+                ...event,
+                isYearly: true,
+                start: start ? convertDateTimeToDate(start, timezone) : undefined,
+                end: end ? convertDateTimeToDate(end, timezone) : undefined,
+              });
+            }
             const { dates } = event;
             onSelectEvent({
               ...restProps,
