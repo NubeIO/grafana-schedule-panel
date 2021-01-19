@@ -30,7 +30,7 @@ const withScheduleNames = (ComposedComponent: any) => (props: Props) => {
   }, [props.value]);
 
   const syncScheduleNames = (scheduleNames: ScheduleName[]) => {
-    const data = _cloneDeep(props.value);
+    const data = _cloneDeep(props.value) || {};
     data.scheduleNames = scheduleNames;
     props.syncData(data);
   };
