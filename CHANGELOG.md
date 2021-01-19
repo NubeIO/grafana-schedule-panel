@@ -1,5 +1,30 @@
 # Changelog
 
+## [Unreleased](https://github.com/NubeIO/grafana-schedule-panel/tree/HEAD)
+
+[Full Changelog](https://github.com/NubeIO/grafana-schedule-panel/compare/v1.0.0-rc6...HEAD)
+
+**Implemented enhancements:**
+
+- gsp-10 \#time 5h add/edit event title to select and creatable dropdown [\#12](https://github.com/NubeIO/grafana-schedule-panel/pull/12) ([sanjevShakya](https://github.com/sanjevShakya))
+
+**Closed issues:**
+
+- Add holiday/recurring [\#11](https://github.com/NubeIO/grafana-schedule-panel/issues/11)
+- Addin dropdown for user to pre select the event name [\#10](https://github.com/NubeIO/grafana-schedule-panel/issues/10)
+
+**Merged pull requests:**
+
+- GSP-11 Add Holiday in Calendar [\#14](https://github.com/NubeIO/grafana-schedule-panel/pull/14) ([sanjevShakya](https://github.com/sanjevShakya))
+
+## [v1.0.0-rc6](https://github.com/NubeIO/grafana-schedule-panel/tree/v1.0.0-rc6) (2020-09-22)
+
+[Full Changelog](https://github.com/NubeIO/grafana-schedule-panel/compare/v1.0.0-rc5...v1.0.0-rc6)
+
+**Merged pull requests:**
+
+- Create release candidate for v1.0.0 \(v1.0.0-rc6\) [\#9](https://github.com/NubeIO/grafana-schedule-panel/pull/9) ([RaiBnod](https://github.com/RaiBnod))
+
 ## [v1.0.0-rc5](https://github.com/NubeIO/grafana-schedule-panel/tree/v1.0.0-rc5) (2020-09-22)
 
 [Full Changelog](https://github.com/NubeIO/grafana-schedule-panel/compare/v1.0.0-rc4...v1.0.0-rc5)

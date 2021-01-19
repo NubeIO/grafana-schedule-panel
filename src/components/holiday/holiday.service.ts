@@ -60,6 +60,8 @@ export const convertDateTimeToDate = (datetime: string, timezone: string) => {
 export function getHolidayEvents(yearly: any = {}, selectedDate: string, timezone: string): HolidayOutputEvent[] {
   const sDate = new Date(selectedDate);
   const selectedYear = sDate.getFullYear();
-  const selectedYears = [selectedYear -1 , selectedYear, selectedYear+1];
-  return selectedYears.map(currentYear => Object.keys(yearly).map(key => transformYearlyEvent(yearly[key], currentYear, timezone))).flat();
+  const selectedYears = [selectedYear - 1, selectedYear, selectedYear + 1];
+  return selectedYears
+    .map(currentYear => Object.keys(yearly).map(key => transformYearlyEvent(yearly[key], currentYear, timezone)))
+    .flat();
 }
