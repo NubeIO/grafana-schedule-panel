@@ -11,7 +11,6 @@ import Autocomplete, { createFilterOptions } from '@material-ui/lab/Autocomplete
 import { Theme, Dialog, DialogTitle, createStyles, DialogContent, DialogActions } from '@material-ui/core';
 
 import { DAY_MAP } from '../utils';
-import DeleteButton from './DeleteButton';
 import Slider from '@material-ui/core/Slider';
 import Typography from '@material-ui/core/Typography';
 import ColorSelector from './renderProps/ColorSelector';
@@ -19,14 +18,13 @@ import { convertTimeFromTimezone, convertTimezoneFromUtc, convertWeekFromTimezon
 
 import { makeStyles } from '@material-ui/core/styles';
 import DateRangeCollection from './DateRangeCollection';
-import { ScheduleName } from 'components/scheduleName/scheduleName.model';
-import * as scheduleNameActions from 'components/scheduleName/scheduleName.action';
+import AutoCompleteSelectField from 'components/common/autoCompleteSearchField';
 
 const dayOptions = Object.values(DAY_MAP);
 const TIME_FORMAT = 'HH:mm';
 export const DATE_FORMAT = 'YYYY-MM-DDTHH:mm';
 
-const autoCompleteFilter = createFilterOptions<ScheduleName>();
+const autoCompleteFilter = createFilterOptions<string>();
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -72,11 +70,10 @@ interface EventModalProps {
   eventOutput: EventOutput | null;
   options: PanelOptions;
   timezone: string;
-  scheduleNames: ScheduleName[];
+  scheduleNames: string[];
   onClose: () => void;
   onSubmit: (event: Weekly | Event, id: string) => void;
   onDelete: (id: string) => void;
-  updateScheduleName: (action: string, value: string) => void;
 }
 
 const getAddEventInitialValues = (options: PanelOptions, isWeekly = false) => {
@@ -182,7 +179,6 @@ export default function EventModal(props: EventModalProps) {
     onClose,
     onSubmit,
     onDelete,
-    updateScheduleName,
   } = props;
   const [value, setValue] = useState(0);
   const classes = useStyles();
@@ -208,18 +204,6 @@ export default function EventModal(props: EventModalProps) {
 
   const forceUpdate = () => {
     setValue(value + 1);
-  };
-
-  const renderScheduleDeleteButton = (id: string | null) => {
-    if (id == null) {
-      return null;
-    }
-    return (
-      <DeleteButton
-        stopPropagation={true}
-        onClick={() => updateScheduleName(scheduleNameActions.DELETE_SCHEDULE_NAME, id)}
-      />
-    );
   };
 
   return (
@@ -259,77 +243,14 @@ export default function EventModal(props: EventModalProps) {
           function renderEventNames() {
             return (
               <div className={classes.input}>
-                <Autocomplete
-                  className={classes.input}
-                  selectOnFocus
-                  clearOnBlur={true}
-                  handleHomeEndKeys
+                <AutoCompleteSelectField
                   options={scheduleNames}
-                  openOnFocus={true}
-                  classes={{
-                    listbox: classes.listbox,
-                  }}
-                  getOptionLabel={(option: any) => {
-                    // Value selected with enter, right from the input
-                    if (typeof option === 'string') {
-                      return option;
-                    }
-                    // Add "xxx" option created dynamically
-                    if (option.inputValue) {
-                      return option.inputValue || '';
-                    }
-                    // Regular option
-                    return option.name || '';
-                  }}
-                  renderOption={(option: any) => (
-                    <div className="schedule-name-listitem">
-                      <span>{option.name}</span>
-                      <span>{option.button}</span>
-                    </div>
-                  )}
-                  freeSolo
-                  renderInput={params => {
-                    return (
-                      <TextField
-                        {...params}
-                        name="name"
-                        label="Title"
-                        size="small"
-                        variant="outlined"
-                        error={touched.name && Boolean(errors.name)}
-                        helperText={(touched.name && errors.name) || ''}
-                      />
-                    );
-                  }}
+                  name="name"
+                  label="Schedule Name"
                   value={name}
-                  onChange={(event, newValue: any) => {
-                    if (!newValue) {
-                      setFieldValue('name', null);
-                    } else if (typeof newValue === 'string') {
-                      updateScheduleName(scheduleNameActions.CREATE_SCHEDULE_NAME, newValue);
-                      setFieldValue('name', newValue);
-                    } else if (newValue && newValue.inputValue) {
-                      updateScheduleName(scheduleNameActions.CREATE_SCHEDULE_NAME, newValue.inputValue);
-                      setFieldValue('name', newValue.inputValue);
-                    } else if (newValue && newValue.name) {
-                      setFieldValue('name', newValue.name);
-                    }
-                  }}
-                  filterOptions={(options, params) => {
-                    let filtered: any = autoCompleteFilter(options, params).map(val => ({
-                      ...val,
-                      button: renderScheduleDeleteButton(val.id),
-                    }));
-                    if (params.inputValue !== '') {
-                      const newOption = {
-                        name: `Add ${params.inputValue}`,
-                        inputValue: params.inputValue,
-                        id: null,
-                      };
-                      filtered = filtered.concat(newOption);
-                    }
-                    return filtered;
-                  }}
+                  touched={touched}
+                  errors={errors}
+                  autoCompleteFilter={autoCompleteFilter}
                 />
               </div>
             );

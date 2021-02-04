@@ -1,6 +1,6 @@
 import React, { useReducer, useState, useEffect } from 'react';
 import { Input, Button } from '@grafana/ui';
-import * as scheduleActions from './scheduleNamesPlugin.actions';
+import * as schedulePluginActions from './scheduleNamesPlugin.actions';
 import { scheduleNameReducer } from './scheduleNamesPlugin.reducer';
 import './scheduleNamesPlugin.css';
 
@@ -26,16 +26,16 @@ function ScheduleNamesPanelPlugin(props: any) {
     if (!scheduleName) {
       return;
     }
-    dispatch(scheduleActions.createScheduleName(scheduleName));
+    dispatch(schedulePluginActions.createScheduleName(scheduleName));
     updateScheduleName('');
   };
 
   const changeScheduleName = (id: string, name: string) => {
-    dispatch(scheduleActions.updateScheduleName({ id, name }));
+    dispatch(schedulePluginActions.updateScheduleName({ id, name }));
   };
 
   const deleteScheduleName = (id: string) => {
-    dispatch(scheduleActions.deleteScheduleName(id));
+    dispatch(schedulePluginActions.deleteScheduleName(id));
   };
 
   return (

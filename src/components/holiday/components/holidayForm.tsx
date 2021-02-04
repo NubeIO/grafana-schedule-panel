@@ -5,7 +5,6 @@ import Button from '@material-ui/core/Button';
 import DialogTitle from '@material-ui/core/DialogTitle';
 
 import { PanelOptions, RawData } from 'types';
-import DeleteButton from 'components/DeleteButton';
 import { Holiday } from 'components/holiday/holiday.model';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
@@ -14,10 +13,8 @@ import SliderValueField from 'components/common/sliderValueField';
 import DateSelectorField from 'components/common/dateSelectorField';
 import * as holidayService from 'components/holiday/holiday.service';
 import holidayFormValidation from 'components/holiday/holiday.validation';
-import CreatableSelectField from 'components/common/creatableSelectField';
 import { createFilterOptions } from '@material-ui/lab/useAutocomplete';
-import { ScheduleName } from 'components/scheduleName/scheduleName.model';
-import * as scheduleNameActions from 'components/scheduleName/scheduleName.action';
+import AutoCompleteSelectField from 'components/common/autoCompleteSearchField';
 
 interface Props {
   id: string;
@@ -28,37 +25,14 @@ interface Props {
   onDelete: (e: any) => void;
   onClose: () => void;
   options: PanelOptions;
-  scheduleNames: ScheduleName[];
+  scheduleNames: string[];
   updateScheduleName: (action: string, value: string) => void;
 }
 
-const autoCompleteFilter = createFilterOptions<ScheduleName>();
+const autoCompleteFilter = createFilterOptions<string>();
 
 function HolidayFormUi(props: Props) {
-  const {
-    id,
-    dialogTitle,
-    isAddForm,
-    initialValues,
-    onSubmit,
-    onClose,
-    onDelete,
-    options,
-    updateScheduleName,
-    scheduleNames,
-  } = props;
-
-  const renderScheduleDeleteButton = (id: string | null) => {
-    if (id == null) {
-      return null;
-    }
-    return (
-      <DeleteButton
-        stopPropagation={true}
-        onClick={() => updateScheduleName(scheduleNameActions.DELETE_SCHEDULE_NAME, id)}
-      />
-    );
-  };
+  const { id, dialogTitle, isAddForm, initialValues, onSubmit, onClose, onDelete, options, scheduleNames } = props;
 
   return (
     <Formik initialValues={initialValues} validationSchema={holidayFormValidation(options)} onSubmit={onSubmit}>
@@ -67,28 +41,14 @@ function HolidayFormUi(props: Props) {
           <DialogTitle id={id}>{dialogTitle}</DialogTitle>
           <DialogContent>
             <form>
-              <CreatableSelectField
+              <AutoCompleteSelectField
                 options={scheduleNames}
                 name="name"
-                label="Title"
+                label="Schedule Name"
                 value={values.name}
                 touched={touched}
                 errors={errors}
-                listItemButton={renderScheduleDeleteButton}
                 autoCompleteFilter={autoCompleteFilter}
-                onChange={(e: any, newValue: any) => {
-                  if (!newValue) {
-                    setFieldValue('name', null);
-                  } else if (typeof newValue === 'string') {
-                    updateScheduleName(scheduleNameActions.CREATE_SCHEDULE_NAME, newValue);
-                    setFieldValue('name', newValue);
-                  } else if (newValue && newValue.inputValue) {
-                    updateScheduleName(scheduleNameActions.CREATE_SCHEDULE_NAME, newValue.inputValue);
-                    setFieldValue('name', newValue.inputValue);
-                  } else if (newValue && newValue.name) {
-                    setFieldValue('name', newValue.name);
-                  }
-                }}
               />
               <DateSelectorField
                 name="date"
@@ -168,7 +128,7 @@ interface HolidayFormProps {
   onClose: () => void;
   onEdit: () => void;
   options: PanelOptions;
-  scheduleNames: ScheduleName[];
+  scheduleNames: string[];
   updateScheduleName: (action: string, value: string) => void;
 }
 

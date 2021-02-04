@@ -5,11 +5,11 @@ export type Operation = 'add' | 'edit';
 
 export interface PanelOptions {
   defaultTitle: string;
-  sheduleNames: any;
   hasPayload: boolean;
   min?: number;
   max?: number;
   step?: number;
+  scheduleNames?: any;
   inputType: InputType;
   disableWeeklyEvent: boolean;
   disableEvent: boolean;
