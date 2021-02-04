@@ -26,6 +26,7 @@ interface Props {
   onClose: () => void;
   options: PanelOptions;
   scheduleNames: string[];
+  defaultScheduleName: undefined | string;
   updateScheduleName: (action: string, value: string) => void;
 }
 
@@ -98,11 +99,11 @@ function HolidayFormUi(props: Props) {
   );
 }
 
-const getInitialFormValues = (isAddForm: boolean | undefined, holiday: Holiday) => {
+const getInitialFormValues = (isAddForm: boolean | undefined, holiday: Holiday, defaultValues: any = {}) => {
   if (isAddForm) {
     return {
       id: null,
-      name: null,
+      name: defaultValues.name || null,
       date: null,
       value: null,
       color: '',
@@ -132,6 +133,7 @@ interface HolidayFormProps {
   onEdit: () => void;
   options: PanelOptions;
   scheduleNames: string[];
+  defaultScheduleName: undefined | string;
   updateScheduleName: (action: string, value: string) => void;
 }
 
@@ -164,7 +166,7 @@ function HolidayForm(props: HolidayFormProps) {
     handleUpdateHoliday(props.holiday.id, values, output);
   }
 
-  const initialFormValues = getInitialFormValues(props.isAddForm, props.holiday);
+  const initialFormValues = getInitialFormValues(props.isAddForm, props.holiday, { name: props.defaultScheduleName });
 
   return (
     <HolidayFormUi {...props} onSubmit={onSubmit} onDelete={handleDeleteHoliday} initialValues={initialFormValues} />

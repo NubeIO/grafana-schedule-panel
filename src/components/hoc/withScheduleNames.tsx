@@ -24,12 +24,17 @@ function getScheduleNames(scheduleNames: any, scheduleNameIds: any) {
 
 const withScheduleNames = (ComposedComponent: any) => (props: Props) => {
   const [scheduleNameCollection, setScheduleNameCollection] = useState<string[]>([]);
-  useEffect(() => {
-    let { scheduleNames = {} } = props.options || {};
-    setScheduleNameCollection(getScheduleNames(scheduleNames.scheduleNames, scheduleNames.scheduleNameIds));
-  }, [props.value]);
+  const [defaultScheduleName, updateDefaultScheduleName] = useState<string | undefined>();
 
-  return <ComposedComponent {...props} scheduleNames={scheduleNameCollection} />;
+  useEffect(() => {
+    let { scheduleNames = {}, defaultTitle } = props.options || {};
+    setScheduleNameCollection(getScheduleNames(scheduleNames.scheduleNames, scheduleNames.scheduleNameIds));
+    updateDefaultScheduleName(defaultTitle);
+  }, [props.options]);
+
+  return (
+    <ComposedComponent {...props} scheduleNames={scheduleNameCollection} defaultScheduleName={defaultScheduleName} />
+  );
 };
 
 export default withScheduleNames;

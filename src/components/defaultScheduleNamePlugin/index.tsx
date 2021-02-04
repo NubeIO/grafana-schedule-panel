@@ -5,6 +5,9 @@ import _get from 'lodash/get';
 function getOptions(props: any) {
   const scheduleNames = _get(props, 'context.options.scheduleNames.scheduleNames', {});
   const scheduleNameIds = _get(props, 'context.options.scheduleNames.scheduleNameIds', []);
+  if (!(scheduleNameIds.length > 0)) {
+    return [];
+  }
   return scheduleNameIds.map((id: string) => scheduleNames[id]);
 }
 
@@ -16,9 +19,9 @@ function DefaultScheduleName(props: any) {
       options={getOptions(props)}
       getOptionLabel={option => option.name}
       getOptionValue={option => option.id}
-      value={value}
+      value={value.name}
       onChange={v => {
-        onChange(v);
+        onChange(v.name);
       }}
     />
   );
