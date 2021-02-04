@@ -5,6 +5,7 @@ export type Operation = 'add' | 'edit';
 
 export interface PanelOptions {
   defaultTitle: string;
+  sheduleNames: any;
   hasPayload: boolean;
   min?: number;
   max?: number;
