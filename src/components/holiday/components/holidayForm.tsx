@@ -49,6 +49,9 @@ function HolidayFormUi(props: Props) {
                 touched={touched}
                 errors={errors}
                 autoCompleteFilter={autoCompleteFilter}
+                onChange={(e: any, value: string) => {
+                  setFieldValue('name', value);
+                }}
               />
               <DateSelectorField
                 name="date"

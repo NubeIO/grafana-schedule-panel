@@ -251,6 +251,9 @@ export default function EventModal(props: EventModalProps) {
                   touched={touched}
                   errors={errors}
                   autoCompleteFilter={autoCompleteFilter}
+                  onChange={(e: any, value: string) => {
+                    setFieldValue('name', value);
+                  }}
                 />
               </div>
             );
