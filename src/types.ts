@@ -9,6 +9,7 @@ export interface PanelOptions {
   min?: number;
   max?: number;
   step?: number;
+  scheduleNames?: any;
   inputType: InputType;
   disableWeeklyEvent: boolean;
   disableEvent: boolean;
