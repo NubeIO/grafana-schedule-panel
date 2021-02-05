@@ -13,13 +13,15 @@ function getOptions(props: any) {
 
 function DefaultScheduleName(props: any) {
   const { value, onChange } = props;
+  const val = typeof value === 'string' ? value : value?.name;
+
   return (
     <Select
       {...props}
       options={getOptions(props)}
-      getOptionLabel={option => option.name}
-      getOptionValue={option => option.id}
-      value={value.name}
+      getOptionLabel={option => option?.name}
+      getOptionValue={option => option?.id}
+      value={val}
       onChange={v => {
         onChange(v.name);
       }}
