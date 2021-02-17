@@ -2,12 +2,24 @@ import { PanelPlugin } from '@grafana/data';
 import moment from 'moment-timezone';
 import { PanelOptions } from './types';
 import { SimplePanel } from './SimplePanel';
+import ScheduleNamesPanelPlugin from './components/scheduleNamesPlugin';
+import DefaultScheduleNamePlugin from './components/defaultScheduleNamePlugin';
 
 export const plugin = new PanelPlugin<PanelOptions>(SimplePanel).setPanelOptions(builder => {
   return builder
-    .addTextInput({
+    .addCustomEditor({
+      id: 'scheduleName',
+      path: 'scheduleNames',
+      name: 'Schedule Names',
+      description: 'Add Schedule Names',
+      editor: ScheduleNamesPanelPlugin,
+    })
+    .addCustomEditor({
+      id: 'defaultTitle',
       path: 'defaultTitle',
-      name: 'Default Title',
+      name: 'Default Schedule Name',
+      description: 'Select default schedule name',
+      editor: DefaultScheduleNamePlugin,
     })
     .addBooleanSwitch({
       path: 'hasPayload',

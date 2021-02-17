@@ -99,7 +99,6 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
 
   const syncData = (data: any) => {
     const output = JSON.stringify(data);
-    const publishSuccessTopics: string[] = [];
     setIsRunning(true);
     if (!_client.current) {
       return;
@@ -110,15 +109,7 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
 
     topics.forEach((topic: string) => {
       _client.current.publish(topic, output, { retain: true });
-      isAllTopicPublished(topic);
     });
-
-    function isAllTopicPublished(topicName: string) {
-      publishSuccessTopics.push(topicName);
-      if (publishSuccessTopics.every(val => topics.indexOf(val) > -1)) {
-        setIsRunning(false);
-      }
-    }
   };
 
   const styles = getStyles();

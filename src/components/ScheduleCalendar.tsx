@@ -19,7 +19,6 @@ import withGenericDialog from './hoc/withGenericDialog';
 import withScheduleNames from './hoc/withScheduleNames';
 import TimezoneToggle from './renderProps/TimezoneToggle';
 import withCalendarHolidays from './hoc/withCalendarHolidays';
-import { ScheduleName } from './scheduleName/scheduleName.model';
 import { DAY_MAP, extractEvents, getDaysArrayByMonth } from '../utils';
 import { EventOutput, Event, Weekly, PanelOptions, Operation, RawData } from '../types';
 
@@ -32,8 +31,7 @@ interface Props {
   options: PanelOptions;
   syncData: Function;
   openGenericDialog?: Function;
-  scheduleNames: ScheduleName[];
-  updateScheduleName: (action: string, value: string) => void;
+  scheduleNames: string[];
 }
 
 const CalendarHOC = flowRight(withTimeZone, withCalendarHolidays)(Calendar);
@@ -256,7 +254,6 @@ function ScheduleCalendar(props: Props) {
             <EventModal
               isOpenModal={isOpenModal}
               scheduleNames={props.scheduleNames}
-              updateScheduleName={props.updateScheduleName}
               isWeekly={isWeekly}
               operation={operation}
               eventOutput={eventOutput}

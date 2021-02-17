@@ -67,7 +67,7 @@ function CreatableSelectField(props: Props) {
         filterOptions={(options, params) => {
           let filtered: any = autoCompleteFilter(options, params).map((val: any) => ({
             ...val,
-            button: listItemButton(val.id),
+            button: typeof listItemButton === 'function' ? listItemButton(val.id) : null,
           }));
           if (params.inputValue !== '') {
             const newOption = {
