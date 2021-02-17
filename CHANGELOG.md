@@ -17,6 +17,16 @@
 
 - GSP-11 Add Holiday in Calendar [\#14](https://github.com/NubeIO/grafana-schedule-panel/pull/14) ([sanjevShakya](https://github.com/sanjevShakya))
 
+## [v1.0.1-rc1](https://github.com/NubeIO/grafana-schedule-panel/tree/v1.0.1-rc1) (2021-02-18)
+
+[Full Changelog](https://github.com/NubeIO/grafana-schedule-panel/compare/v1.0.0...v1.0.1-rc1)
+
+- Update build and change a distribute way.
+
+## [v1.0.0](https://github.com/NubeIO/grafana-schedule-panel/tree/v1.0.0) (2021-01-19)
+
+[Full Changelog](https://github.com/NubeIO/grafana-schedule-panel/compare/v1.0.0-rc6...v1.0.0)
+
 ## [v1.0.0-rc6](https://github.com/NubeIO/grafana-schedule-panel/tree/v1.0.0-rc6) (2020-09-22)
 
 [Full Changelog](https://github.com/NubeIO/grafana-schedule-panel/compare/v1.0.0-rc5...v1.0.0-rc6)
