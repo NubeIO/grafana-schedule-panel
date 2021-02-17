@@ -1,6 +1,6 @@
 {
   "name": "nubeio-schedule",
-  "version": "1.0.0",
+  "version": "1.0.1-rc1",
   "description": "It's a panel for scheduling events.",
   "scripts": {
     "build": "grafana-toolkit plugin:build",
