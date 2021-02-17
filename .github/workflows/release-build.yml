@@ -74,7 +74,7 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
 
       - name: YARN install
-        if: steps.cache_layer.outputs.cache-hit != 'true'
+        if: steps.cache_yarn.outputs.cache-hit != 'true'
         run: yarn install
 
       - name: YARN build
