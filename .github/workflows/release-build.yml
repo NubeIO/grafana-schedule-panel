@@ -30,7 +30,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          token: ${{ secrets.NUBEIO_CI_COMMITER_PAT }}
+          token: ${{ secrets.NUBEIO_CI_GITHUB_COMMITER_PAT }}
 
       - name: Import GPG key
         uses: crazy-max/ghaction-import-gpg@v3
@@ -121,9 +121,9 @@ jobs:
       - name: Create PR in grafana-docker
         run: |
           workflow=create-pr-when-released-plugin.yml
-          secret="${{ secrets.NUBEIO_CI_PACKAGES_PAT }}"
+          secret="${{ secrets.NUBEIO_CI_GITHUB_WORKFLOWS_PAT }}"
           name="${{ env.CURRENT_REPO }}"
-          version="${{ needs.context.outputs.version }}"
+          version="v${{ needs.context.outputs.version }}"
           archive="${{ needs.context.outputs.fqn }}.zip"
           data="{\"ref\":\"main\",\"inputs\":{\"name\":\"$name\",\"version\":\"$version\",\"archive\":\"$archive\"}}"
           status=$(curl -X POST \
