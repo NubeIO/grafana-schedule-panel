@@ -81,7 +81,7 @@ jobs:
         run: yarn build
 
       - name: Zip artifact
-        run: zip -rv ${{ needs.context.outputs.fqn }}.zip dist/
+        run: cd dist && zip -rv ../${{ needs.context.outputs.fqn }}.zip . && cd -
 
       - name: Upload artifact
         uses: actions/upload-artifact@v2
@@ -123,6 +123,7 @@ jobs:
           workflow=create-pr-when-released-plugin.yml
           secret="${{ secrets.NUBEIO_CI_PACKAGES_PAT }}"
           name="${{ env.CURRENT_REPO }}"
+          version="${{ needs.context.outputs.version }}"
           archive="${{ needs.context.outputs.fqn }}.zip"
           data="{\"ref\":\"main\",\"inputs\":{\"name\":\"$name\",\"version\":\"$version\",\"archive\":\"$archive\"}}"
           status=$(curl -X POST \
