@@ -16,7 +16,6 @@ on:
 env:
   NODE_VERSION: 14
   CURRENT_REPO: grafana-schedule-panel
-  DISTRIBUTE_REPO: grafana-schedule-panel-build
 
 jobs:
   context:
@@ -31,7 +30,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          token: ${{ secrets.NUBEIO_CI_GITHUBPROJECT_TOKEN }}
+          token: ${{ secrets.NUBEIO_CI_COMMITER_PAT }}
 
       - name: Import GPG key
         uses: crazy-max/ghaction-import-gpg@v3
@@ -48,6 +47,7 @@ jobs:
         uses: zero88/gh-project-context@v1
         with:
           dry: false
+          defaultBranch: master
           mustSign: true
 
       - name: Project name
@@ -80,7 +80,7 @@ jobs:
       - name: YARN build
         run: yarn build
 
-      - name: zip
+      - name: Zip artifact
         run: zip -rv ${{ needs.context.outputs.fqn }}.zip dist/
 
       - name: Upload artifact
@@ -118,21 +118,17 @@ jobs:
     needs: [ context, build ]
     if: needs.context.outputs.isRelease == 'true'
     steps:
-      - name: Trigger release distribution
+      - name: Create PR in grafana-docker
         run: |
-          workflow=release-distribution-gh-repo.yml
-          project="${{ env.CURRENT_REPO }}"
-          version="v${{ needs.context.outputs.version }}"
-          assetId="${{ needs.context.outputs.fqn }}.zip"
-          target="${{ env.DISTRIBUTE_REPO }}"
-          target_ref=master
-          secret="${{ secrets.NUBEIO_CI_GITHUBPACKAGE_TOKEN }}"
-
-          data="{\"ref\":\"main\",\"inputs\":{\"project\":\"$project\",\"target\":\"$target\",\"version\":\"$version\",\"assetId\":\"$assetId\",\"ref\":\"$target_ref\"}}"
+          workflow=create-pr-when-released-plugin.yml
+          secret="${{ secrets.NUBEIO_CI_PACKAGES_PAT }}"
+          name="${{ env.CURRENT_REPO }}"
+          archive="${{ needs.context.outputs.fqn }}.zip"
+          data="{\"ref\":\"main\",\"inputs\":{\"name\":\"$name\",\"version\":\"$version\",\"archive\":\"$archive\"}}"
           status=$(curl -X POST \
-            -H "Accept: application/vnd.github.v3+json" \
-            -H "Authorization: Bearer $secret" \
-            -d "$data" -w "%{http_code}\n" -o out.json \
-            https://api.github.com/repos/nubeio/ci-workflows/actions/workflows/$workflow/dispatches)
+                      -H "Accept: application/vnd.github.v3+json" \
+                      -H "Authorization: Bearer $secret" \
+                      -d "$data" -w "%{http_code}\n" -o out.json \
+                      https://api.github.com/repos/nubeio/grafana-docker/actions/workflows/$workflow/dispatches)
           cat out.json
           [[ "$status" =~ ^2[[:digit:]][[:digit:]] ]] || exit 1
