@@ -9,9 +9,9 @@ on:
       - '.github/*.yml'
       - '*.md'
       - 'LICENSE'
-    pull_request:
-      types: [ opened, synchronize, reopened, closed ]
-      branches: [ master ]
+  pull_request:
+    types: [ opened, synchronize, reopened, closed ]
+    branches: [ master ]
 
 env:
   NODE_VERSION: 14
