@@ -53,7 +53,7 @@ jobs:
       - name: Project name
         id: fqn
         run: |
-          echo ::set-output name=fqn::$(jq -r .name < package.json)-${{ steps.context.outputs.shortCommitId }}
+          echo ::set-output name=fqn::$(jq -r .name < package.json)-${{ steps.context.outputs.version }}-${{ steps.context.outputs.shortCommitId }}
 
   build:
     runs-on: ubuntu-latest
