@@ -126,10 +126,11 @@ const getEditEventInitialValues = (
 
   return {
     name: event.name,
-    dates: eventOutput?.dates?.map(date => ({
-      start: convertTimezoneFromUtc(date.start, timezone).format(DATE_FORMAT),
-      end: convertTimezoneFromUtc(date.end, timezone).format(DATE_FORMAT),
-    })) || [],
+    dates:
+      eventOutput?.dates?.map(date => ({
+        start: convertTimezoneFromUtc(date.start, timezone).format(DATE_FORMAT),
+        end: convertTimezoneFromUtc(date.end, timezone).format(DATE_FORMAT),
+      })) || [],
     value: event.value,
     color: event.color,
   };
