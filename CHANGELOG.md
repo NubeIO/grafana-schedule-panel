@@ -2,7 +2,33 @@
 
 ## [Unreleased](https://github.com/NubeIO/grafana-schedule-panel/tree/HEAD)
 
-[Full Changelog](https://github.com/NubeIO/grafana-schedule-panel/compare/v1.0.0-rc6...HEAD)
+[Full Changelog](https://github.com/NubeIO/grafana-schedule-panel/compare/v1.0.1-rc1...HEAD)
+
+**Closed issues:**
+
+- Fix: Event schema [\#25](https://github.com/NubeIO/grafana-schedule-panel/issues/25)
+- Schedule Name Selector [\#24](https://github.com/NubeIO/grafana-schedule-panel/issues/24)
+- Other Schedule Improvements [\#22](https://github.com/NubeIO/grafana-schedule-panel/issues/22)
+
+**Merged pull requests:**
+
+- GSP-25 Rename yearly to holiday [\#27](https://github.com/NubeIO/grafana-schedule-panel/pull/27) ([sanjevShakya](https://github.com/sanjevShakya))
+- GSP-25 remove inputDates and eventNames from payload of event [\#26](https://github.com/NubeIO/grafana-schedule-panel/pull/26) ([sanjevShakya](https://github.com/sanjevShakya))
+- GSP-2 Do not close day select popover while selecting days [\#18](https://github.com/NubeIO/grafana-schedule-panel/pull/18) ([sanjevShakya](https://github.com/sanjevShakya))
+
+## [v1.0.1-rc1](https://github.com/NubeIO/grafana-schedule-panel/tree/v1.0.1-rc1) (2021-02-17)
+
+[Full Changelog](https://github.com/NubeIO/grafana-schedule-panel/compare/v1.0.0...v1.0.1-rc1)
+
+**Merged pull requests:**
+
+- Update CHANGELOG.md [\#19](https://github.com/NubeIO/grafana-schedule-panel/pull/19) ([zero88](https://github.com/zero88))
+- GSP-Schedule-name Schedule names to be created from the options panel only [\#17](https://github.com/NubeIO/grafana-schedule-panel/pull/17) ([sanjevShakya](https://github.com/sanjevShakya))
+- Bump new release [\#15](https://github.com/NubeIO/grafana-schedule-panel/pull/15) ([RaiBnod](https://github.com/RaiBnod))
+
+## [v1.0.0](https://github.com/NubeIO/grafana-schedule-panel/tree/v1.0.0) (2021-01-19)
+
+[Full Changelog](https://github.com/NubeIO/grafana-schedule-panel/compare/v1.0.0-rc6...v1.0.0)
 
 **Implemented enhancements:**
 
@@ -15,17 +41,8 @@
 
 **Merged pull requests:**
 
+- Bump new version [\#16](https://github.com/NubeIO/grafana-schedule-panel/pull/16) ([RaiBnod](https://github.com/RaiBnod))
 - GSP-11 Add Holiday in Calendar [\#14](https://github.com/NubeIO/grafana-schedule-panel/pull/14) ([sanjevShakya](https://github.com/sanjevShakya))
-
-## [v1.0.1-rc1](https://github.com/NubeIO/grafana-schedule-panel/tree/v1.0.1-rc1) (2021-02-18)
-
-[Full Changelog](https://github.com/NubeIO/grafana-schedule-panel/compare/v1.0.0...v1.0.1-rc1)
-
-- Update build and change a distribute way.
-
-## [v1.0.0](https://github.com/NubeIO/grafana-schedule-panel/tree/v1.0.0) (2021-01-19)
-
-[Full Changelog](https://github.com/NubeIO/grafana-schedule-panel/compare/v1.0.0-rc6...v1.0.0)
 
 ## [v1.0.0-rc6](https://github.com/NubeIO/grafana-schedule-panel/tree/v1.0.0-rc6) (2020-09-22)
 
