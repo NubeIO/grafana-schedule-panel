@@ -83,7 +83,6 @@ const getAddEventInitialValues = (options: PanelOptions, isWeekly = false) => {
       days: [],
       start: '00:00',
       end: '01:00',
-      eventNames: [{ name: options.defaultTitle }],
       value: options.min,
       color: '',
     };
@@ -91,9 +90,7 @@ const getAddEventInitialValues = (options: PanelOptions, isWeekly = false) => {
 
   return {
     name: options.defaultTitle,
-    dates: [],
-    eventNames: [{ name: options.defaultTitle }],
-    inputDates: [
+    dates: [
       {
         start: moment().format(DATE_FORMAT),
         end: moment()
@@ -129,11 +126,10 @@ const getEditEventInitialValues = (
 
   return {
     name: event.name,
-    dates: [],
-    inputDates: eventOutput?.dates?.map(date => ({
+    dates: eventOutput?.dates?.map(date => ({
       start: convertTimezoneFromUtc(date.start, timezone).format(DATE_FORMAT),
       end: convertTimezoneFromUtc(date.end, timezone).format(DATE_FORMAT),
-    })),
+    })) || [],
     value: event.value,
     color: event.color,
   };
@@ -237,7 +233,7 @@ export default function EventModal(props: EventModalProps) {
             onChange: (e: any) => handleChange(e),
           };
 
-          const { name, days, start, end, inputDates, value, color } = values;
+          const { name, days, start, end, dates, value, color } = values;
           let parsedDates = days as string[];
 
           function renderEventNames() {
@@ -331,7 +327,7 @@ export default function EventModal(props: EventModalProps) {
               <div className={classes.input}>
                 <DateRangeCollection
                   {...defaultProps}
-                  inputDates={inputDates}
+                  inputDates={dates}
                   onChange={(eventDates, error) => {
                     setFieldValue('dates', eventDates);
                     if (error) {
