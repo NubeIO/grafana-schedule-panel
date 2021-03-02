@@ -265,6 +265,7 @@ export default function EventModal(props: EventModalProps) {
                 <Autocomplete
                   className={classes.input}
                   multiple
+                  disableCloseOnSelect
                   options={dayOptions}
                   getOptionLabel={(option: string) => option.toUpperCase()}
                   filterSelectedOptions
