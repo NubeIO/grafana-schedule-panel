@@ -123,7 +123,7 @@ function ScheduleCalendar(props: Props) {
   };
 
   const onSelectEvent = (eventOutput: EventOutput) => {
-    if (eventOutput.isYearly) {
+    if (eventOutput.isHoliday) {
       return openGenericDialog(DIALOG_NAMES.editHolidayDialog, { holiday: eventOutput });
     }
     setOperation('edit');

@@ -153,7 +153,7 @@ function HolidayForm(props: HolidayFormProps) {
   }
 
   function handleDeleteHoliday() {
-    delete props.value.yearly[props.holiday.id];
+    delete props.value.holiday[props.holiday.id];
     props.syncData(props.value);
     props.closeGenericDialog();
   }
