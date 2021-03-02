@@ -97,7 +97,7 @@ export default function withTimeZone(Calendar: any) {
               return onSelectEvent({
                 ...restProps,
                 ...event,
-                isYearly: true,
+                isHoliday: true,
                 start: start ? convertDateTimeToDate(start, timezone) : undefined,
                 end: end ? convertDateTimeToDate(end, timezone) : undefined,
               });

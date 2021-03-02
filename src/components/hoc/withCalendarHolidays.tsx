@@ -18,7 +18,7 @@ interface Props {
 }
 
 const withCalendarHolidays = (ComposedComponent: any) => (props: Props) => {
-  const holidays = holidayService.getHolidayEvents(props?.value?.yearly, props.date, props.timezone);
+  const holidays = holidayService.getHolidayEvents(props?.value?.holiday, props.date, props.timezone);
 
   return <ComposedComponent {...props} events={[...props.events, ...holidays]} />;
 };

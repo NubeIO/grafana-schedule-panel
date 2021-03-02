@@ -70,7 +70,7 @@ export interface EventOutput {
   value: number | string;
   color: string;
   isWeekly: boolean;
-  isYearly?: boolean;
+  isHoliday?: boolean;
   event: Weekly | Event;
   backupEvent: Weekly | Event;
   dates?: EventDate[];
@@ -82,5 +82,5 @@ export interface RawData {
   events: any;
   weekly: any;
   scheduleNames: any;
-  yearly: any;
+  holiday: any;
 }

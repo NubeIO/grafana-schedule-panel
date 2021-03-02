@@ -14,11 +14,11 @@ export function getHolidayInstance(id: string | null, name: string, color: strin
 }
 
 export function updateData(holiday: Holiday, data: RawData) {
-  const yearlyData = data?.yearly ? data.yearly : {};
+  const holidayData = data?.holiday ? data.holiday : {};
   return {
     ...data,
-    yearly: {
-      ...yearlyData,
+    holiday: {
+      ...holidayData,
       [holiday.id]: {
         ...holiday,
       },
@@ -33,7 +33,7 @@ interface HolidayDTO {
   value: number;
 }
 
-export function transformYearlyEvent(event: HolidayDTO, selectedYear: number, timezone: string): HolidayOutputEvent {
+export function transformHolidayEvent(event: HolidayDTO, selectedYear: number, timezone: string): HolidayOutputEvent {
   const start = moment
     .tz(selectedYear.toString().concat('-', event.date), timezone)
     .startOf('day')
@@ -57,11 +57,11 @@ export const convertDateTimeToDate = (datetime: string, timezone: string) => {
   return new Date(m.year(), m.month(), m.date(), 0, 0, 0);
 };
 
-export function getHolidayEvents(yearly: any = {}, selectedDate: string, timezone: string): HolidayOutputEvent[] {
+export function getHolidayEvents(holiday: any = {}, selectedDate: string, timezone: string): HolidayOutputEvent[] {
   const sDate = new Date(selectedDate);
   const selectedYear = sDate.getFullYear();
   const selectedYears = [selectedYear - 1, selectedYear, selectedYear + 1];
   return selectedYears
-    .map(currentYear => Object.keys(yearly).map(key => transformYearlyEvent(yearly[key], currentYear, timezone)))
+    .map(currentYear => Object.keys(holiday).map(key => transformHolidayEvent(holiday[key], currentYear, timezone)))
     .flat();
 }

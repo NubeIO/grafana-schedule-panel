@@ -14,7 +14,6 @@ export interface HolidayOutputEvent {
   date: string | Date | DateTime;
   color: string;
   value: number | string;
-  isYearly?: boolean;
   start: Date;
   isHoliday?: boolean;
   end: Date;
