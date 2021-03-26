@@ -56,7 +56,19 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
   useEffect(() => {
     const targets: any[] = data?.request?.targets || [];
     const mqttValidConfig: any[] = targets.filter(target => !!target.topic);
-    const topics: string[] = mqttValidConfig.map(target => target.topic);
+    const topics: string[] = mqttValidConfig.map(target => {
+      if (target.hasManualTopic) {
+        return target.topic;
+      } else {
+        let topic = `${target.clientId}/${target.siteId}/${target.deviceId}/rubix/points/listen/schedules/`;
+        if (target.subscription === 'Name') {
+          topic += `name/${target.schedule}`;
+        } else {
+          topic += `uuid/${target.schedule}`;
+        }
+        return topic;
+      }
+    });
     setTopics(topics);
     if (mqttValidConfig.length) {
       const dataSources$: any[] = mqttValidConfig.map(x => x.datasource);
