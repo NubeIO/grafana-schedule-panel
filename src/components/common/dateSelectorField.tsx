@@ -31,6 +31,7 @@ function DateSelectorField(props: Props) {
         variant="inline"
         onChange={onChange}
         inputVariant="outlined"
+        autoOk={true}
       />
     </div>
   );
