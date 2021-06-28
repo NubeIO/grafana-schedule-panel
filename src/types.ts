@@ -8,6 +8,7 @@ export interface PanelOptions {
   hasPayload: boolean;
   min?: number;
   max?: number;
+  default?: number;
   step?: number;
   scheduleNames?: any;
   inputType: InputType;

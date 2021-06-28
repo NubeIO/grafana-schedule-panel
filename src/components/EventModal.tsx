@@ -83,7 +83,7 @@ const getAddEventInitialValues = (options: PanelOptions, isWeekly = false) => {
       days: [],
       start: '00:00',
       end: '01:00',
-      value: options.min,
+      value: options.default || options.min,
       color: '',
     };
   }
@@ -98,7 +98,7 @@ const getAddEventInitialValues = (options: PanelOptions, isWeekly = false) => {
           .format(DATE_FORMAT),
       },
     ],
-    value: options.min,
+    value: options.default || options.min,
     color: '',
   };
 };
