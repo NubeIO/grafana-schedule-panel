@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { DataFrame, Field, PanelProps } from '@grafana/data';
-import { PanelOptions } from 'types';
+import { PanelOptions, RawData } from 'types';
 import { css, cx } from 'emotion';
 import { stylesFactory, useTheme } from '@grafana/ui';
 import ScheduleCalendar from './components/ScheduleCalendar';
@@ -109,7 +109,16 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
     },
   });
 
-  const syncData = (data: any) => {
+  const syncData = (data: RawData) => {
+    if (!data.events) {
+      data.events = {};
+    }
+    if (!data.weekly) {
+      data.weekly = {};
+    }
+    if (!data.holiday) {
+      data.holiday = {};
+    }
     const output = JSON.stringify(data);
     setIsRunning(true);
     if (!_client.current) {
@@ -137,9 +146,7 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
     >
       <ThemeProvider theme={materialTheme}>
         <ScheduleCalendar
-          _client={_client}
           syncData={syncData}
-          topics={topics}
           value={value}
           isRunning={isRunning}
           options={options}
