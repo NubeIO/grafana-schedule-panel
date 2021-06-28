@@ -110,16 +110,11 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
   });
 
   const syncData = (data: RawData) => {
-    if (!data.events) {
-      data.events = {};
-    }
-    if (!data.weekly) {
-      data.weekly = {};
-    }
-    if (!data.holiday) {
-      data.holiday = {};
-    }
-    const output = JSON.stringify(data);
+    const output = JSON.stringify({
+      events: { ...data.events },
+      weekly: { ...data.weekly },
+      holiday: { ...data.holiday },
+    });
     setIsRunning(true);
     if (!_client.current) {
       return;

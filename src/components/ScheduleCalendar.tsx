@@ -136,16 +136,13 @@ function ScheduleCalendar(props: Props) {
   };
 
   const handleModalSubmit = (event: Weekly | Event, id: string) => {
-    let output: RawData = _cloneDeep(value) || {};
+    let output: RawData = { events: {}, weekly: {}, holiday: {} };
+    try {
+      output = { events: { ...value.events }, weekly: { ...value.weekly }, holiday: { ...value.holiday } };
+    } catch (e) {}
     if (isWeekly) {
-      if (!output.weekly) {
-        output['weekly'] = {};
-      }
       output.weekly[id] = event;
     } else {
-      if (!output.events) {
-        output['events'] = {};
-      }
       output.events[id] = event;
     }
     syncOnMqttServer(output);
