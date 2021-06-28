@@ -192,8 +192,8 @@ export default function EventModal(props: EventModalProps) {
       data.end = convertTimeFromTimezone(moment(data.end, TIME_FORMAT), timezone).format(TIME_FORMAT);
     } else {
       data.dates = data.dates.map(({ start, end }: EventDate) => ({
-        start: convertTimeFromTimezone(moment(start), timezone).format(DATE_FORMAT),
-        end: convertTimeFromTimezone(moment(end), timezone).format(DATE_FORMAT),
+        start: convertTimeFromTimezone(moment(start), timezone).toISOString(),
+        end: convertTimeFromTimezone(moment(end), timezone).toISOString(),
       }));
     }
     onSubmit(data, eventOutput?.id || uuidv4());
