@@ -83,7 +83,7 @@ const getAddEventInitialValues = (options: PanelOptions, isWeekly = false) => {
       days: [],
       start: '00:00',
       end: '01:00',
-      value: options.min,
+      value: options.default || options.min,
       color: '',
     };
   }
@@ -98,7 +98,7 @@ const getAddEventInitialValues = (options: PanelOptions, isWeekly = false) => {
           .format(DATE_FORMAT),
       },
     ],
-    value: options.min,
+    value: options.default || options.min,
     color: '',
   };
 };
@@ -192,8 +192,8 @@ export default function EventModal(props: EventModalProps) {
       data.end = convertTimeFromTimezone(moment(data.end, TIME_FORMAT), timezone).format(TIME_FORMAT);
     } else {
       data.dates = data.dates.map(({ start, end }: EventDate) => ({
-        start: convertTimeFromTimezone(moment(start), timezone).format(DATE_FORMAT),
-        end: convertTimeFromTimezone(moment(end), timezone).format(DATE_FORMAT),
+        start: convertTimeFromTimezone(moment(start), timezone).toISOString(),
+        end: convertTimeFromTimezone(moment(end), timezone).toISOString(),
       }));
     }
     onSubmit(data, eventOutput?.id || uuidv4());

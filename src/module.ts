@@ -39,6 +39,12 @@ export const plugin = new PanelPlugin<PanelOptions>(SimplePanel).setPanelOptions
       showIf: config => config.hasPayload,
     })
     .addNumberInput({
+      path: 'default',
+      name: 'Default value',
+      defaultValue: 20,
+      showIf: config => config.hasPayload,
+    })
+    .addNumberInput({
       path: 'step',
       name: 'Step',
       defaultValue: 1,

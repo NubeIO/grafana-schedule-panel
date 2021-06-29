@@ -23,9 +23,7 @@ import { DAY_MAP, extractEvents, getDaysArrayByMonth } from '../utils';
 import { EventOutput, Event, Weekly, PanelOptions, Operation, RawData } from '../types';
 
 interface Props {
-  _client: any;
   value: any;
-  topics: string[];
   setIsRunning: any;
   isRunning: boolean;
   options: PanelOptions;
@@ -45,7 +43,7 @@ function AppContainer(props: any) {
 }
 
 function ScheduleCalendar(props: Props) {
-  const { _client, topics, value, options, isRunning, setIsRunning, openGenericDialog = (f: any) => f } = props;
+  const { value, options, isRunning, setIsRunning, syncData, openGenericDialog = (f: any) => f } = props;
   const classes = useStyles();
 
   const staticLocalizer = momentLocalizer(moment);
@@ -132,34 +130,22 @@ function ScheduleCalendar(props: Props) {
     setIsOpenModal(true);
   };
 
-  const syncOnMqttServer = (output: string) => {
-    setIsRunning(true);
-    if (!_client.current) {
-      return;
-    }
-    if (_client.current.disconnected) {
-      _client.current.reconnect();
-    }
-    topics.forEach((topic: string) => {
-      _client.current.publish(topic, output, { retain: true });
-    });
+  const syncOnMqttServer = (output: RawData) => {
+    syncData(output);
     setIsOpenModal(false);
   };
 
   const handleModalSubmit = (event: Weekly | Event, id: string) => {
-    let output: RawData = _cloneDeep(value) || {};
+    let output: RawData = { events: {}, weekly: {}, holiday: {} };
+    try {
+      output = { events: { ...value.events }, weekly: { ...value.weekly }, holiday: { ...value.holiday } };
+    } catch (e) {}
     if (isWeekly) {
-      if (!output.weekly) {
-        output['weekly'] = {};
-      }
       output.weekly[id] = event;
     } else {
-      if (!output.events) {
-        output['events'] = {};
-      }
       output.events[id] = event;
     }
-    syncOnMqttServer(JSON.stringify(output));
+    syncOnMqttServer(output);
   };
 
   const handleModalDelete = (id: string) => {
@@ -169,7 +155,7 @@ function ScheduleCalendar(props: Props) {
     } else {
       delete output.events[id];
     }
-    syncOnMqttServer(JSON.stringify(output));
+    syncOnMqttServer(output);
   };
 
   const onNavigate = (visibleDate: any) => {

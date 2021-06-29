@@ -8,6 +8,7 @@ export interface PanelOptions {
   hasPayload: boolean;
   min?: number;
   max?: number;
+  default?: number;
   step?: number;
   scheduleNames?: any;
   inputType: InputType;
@@ -81,6 +82,5 @@ export interface EventOutput {
 export interface RawData {
   events: any;
   weekly: any;
-  scheduleNames: any;
   holiday: any;
 }

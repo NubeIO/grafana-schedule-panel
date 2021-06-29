@@ -105,7 +105,7 @@ const getInitialFormValues = (isAddForm: boolean | undefined, holiday: Holiday, 
       id: null,
       name: defaultValues.name || null,
       date: null,
-      value: null,
+      value: defaultValues.value || null,
       color: '',
     };
   }
@@ -166,7 +166,10 @@ function HolidayForm(props: HolidayFormProps) {
     handleUpdateHoliday(props.holiday.id, values, output);
   }
 
-  const initialFormValues = getInitialFormValues(props.isAddForm, props.holiday, { name: props.defaultScheduleName });
+  const initialFormValues = getInitialFormValues(props.isAddForm, props.holiday, {
+    name: props.defaultScheduleName,
+    value: props.options.default || props.options.min,
+  });
 
   return (
     <HolidayFormUi {...props} onSubmit={onSubmit} onDelete={handleDeleteHoliday} initialValues={initialFormValues} />
