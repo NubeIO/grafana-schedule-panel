@@ -2,11 +2,12 @@ import React, { Component } from 'react';
 // @ts-ignore
 import { accessor } from 'react-big-calendar/lib/utils/accessors';
 import moment from 'moment-timezone';
-import { DAY_MAP, enumerateDaysBetweenDates, getStartAndEndWithTimezone } from 'utils';
+import { DAY_MAP, enumerateDaysBetweenDates, getStartAndEndWithTimezone, removeDST } from 'utils';
 import { EventOutput, RawData } from '../../types';
 
 export const convertDateTimeToDate = (datetime: string, timezone: string) => {
-  const m = moment.tz(datetime, timezone);
+  let m = moment.tz(datetime, timezone);
+  m = removeDST(m)
   return new Date(m.year(), m.month(), m.date(), m.hour(), m.minute(), 0);
 };
 
@@ -72,7 +73,6 @@ export default function withTimeZone(Calendar: any) {
 
     render() {
       const { timezone, startAccessorField, endAccessorField, onSelectEvent } = this.props;
-
       const bigCalendarProps = {
         ...this.props,
         startAccessor: (event: object) => this.accessor(event, startAccessorField, timezone),
@@ -108,10 +108,10 @@ export default function withTimeZone(Calendar: any) {
               ...event,
               days: days
                 ? days.map(day =>
-                    moment(day)
-                      .tz(timezone)
-                      .format('dddd')
-                      .toLowerCase()
+                      moment(day)
+                        .tz(timezone)
+                        .format('dddd')
+                        .toLowerCase()
                   )
                 : [],
               dates: dates,

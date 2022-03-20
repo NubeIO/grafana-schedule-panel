@@ -111,11 +111,10 @@ const getEditEventInitialValues = (
 ) => {
   if (isWeekly) {
     const event: Weekly = eventOutput.backupEvent as Weekly;
-
     return {
       name: event.name,
       days: eventOutput.days,
-      start: moment(eventOutput.start).format(TIME_FORMAT),
+      start:moment(eventOutput.start).format(TIME_FORMAT),
       end: moment(eventOutput.end).format(TIME_FORMAT),
       value: event.value,
       color: event.color,

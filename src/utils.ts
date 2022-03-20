@@ -1,6 +1,35 @@
 import moment from 'moment-timezone';
 import { ExtractionOption, Weekly, Event, EventOutput } from './types';
 
+function isNextDayDST(mObj: moment.Moment) {
+  return mObj
+    .clone()
+    .add(1, 'days')
+    .isDST();
+}
+
+function isTodayDST(mObj: moment.Moment) {
+  return mObj.clone().isDST();
+}
+
+function getDSTHourCompensation(mObj: moment.Moment) {
+  const todayDST = isTodayDST(mObj.clone());
+  const tomorrowDST = isNextDayDST(mObj.clone());
+
+  if (todayDST == false && tomorrowDST == true) {
+    return 1;
+  }
+  if(todayDST == false && tomorrowDST == false) {
+    return 1;
+  }
+  return 0;
+}
+
+export function removeDST(mObj: moment.Moment) {
+  const hourCompentation = getDSTHourCompensation(mObj);
+  return mObj.clone().add(hourCompentation, 'hours');
+}
+
 /**
  * Gets the list of dates that would be visible in calendar view with dates from
  * previous and next month, that lies in the week of starting-1 and ending+1 day.
@@ -122,9 +151,11 @@ function getStartAndEndDate(
 
 export const convertWeekToUTC = (event: Weekly): moment.Moment[] => {
   const { start, days } = event;
-  return enumerateDaysBetweenDates(moment().startOf('week'), moment().endOf('week'), true, true)
+  const afterEnumeration = enumerateDaysBetweenDates(moment().startOf('week'), moment().endOf('week'), true, true)
     .map(el => getUTCFromStartAndEnd(el.utc(), start))
     .filter(day => days.includes(DAY_MAP[day.day()]));
+
+  return afterEnumeration;
 };
 
 /**
@@ -174,5 +205,16 @@ export function extractEvents(events: { [id: string]: Weekly | Event }, options?
       }
     }
   }
+
   return eventsCollection;
 }
+
+// End goal day-light saving is not necessary
+// moment.isTodayHasDaylightSaving()
+// create/delete events (isEventCreatedDuringDaylight?)
+// if weekly event created during daylight saving and today does not have daylight saving
+// then add 1hr
+// if weekly event created during non-daylight saving but today it has daylight saving
+// then reduce 1hr
+// else
+// do nothing
