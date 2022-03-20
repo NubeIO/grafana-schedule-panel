@@ -208,13 +208,3 @@ export function extractEvents(events: { [id: string]: Weekly | Event }, options?
 
   return eventsCollection;
 }
-
-// End goal day-light saving is not necessary
-// moment.isTodayHasDaylightSaving()
-// create/delete events (isEventCreatedDuringDaylight?)
-// if weekly event created during daylight saving and today does not have daylight saving
-// then add 1hr
-// if weekly event created during non-daylight saving but today it has daylight saving
-// then reduce 1hr
-// else
-// do nothing
