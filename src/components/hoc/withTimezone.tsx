@@ -7,7 +7,7 @@ import { EventOutput, RawData } from '../../types';
 
 export const convertDateTimeToDate = (datetime: string, timezone: string) => {
   let m = moment.tz(datetime, timezone);
-  m = removeDST(m)
+  m = removeDST(m, timezone);
   return new Date(m.year(), m.month(), m.date(), m.hour(), m.minute(), 0);
 };
 
@@ -108,10 +108,10 @@ export default function withTimeZone(Calendar: any) {
               ...event,
               days: days
                 ? days.map(day =>
-                      moment(day)
-                        .tz(timezone)
-                        .format('dddd')
-                        .toLowerCase()
+                    moment(day)
+                      .tz(timezone)
+                      .format('dddd')
+                      .toLowerCase()
                   )
                 : [],
               dates: dates,

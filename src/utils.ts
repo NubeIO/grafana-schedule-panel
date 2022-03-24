@@ -12,18 +12,33 @@ function isTodayDST(mObj: moment.Moment) {
   return mObj.clone().isDST();
 }
 
-function getDSTHourCompensation(mObj: moment.Moment) {
+function getDSTHourCompensation(mObj: moment.Moment, isRegionDST: boolean) {
   const todayDST = isTodayDST(mObj.clone());
   const tomorrowDST = isNextDayDST(mObj.clone());
 
+  if (!isRegionDST) {
+    return 0;
+  }
+
   if (todayDST == false && tomorrowDST == true) {
+    return 1;
+  }
+  if (todayDST == false && tomorrowDST == false) {
     return 1;
   }
   return 0;
 }
 
-export function removeDST(mObj: moment.Moment) {
-  const hourCompentation = getDSTHourCompensation(mObj);
+export function isCurrentRegionDST(timezone: string) {
+  return moment(new Date())
+    .clone()
+    .tz(timezone)
+    .isDST();
+}
+
+export function removeDST(mObj: moment.Moment, timezone: string) {
+  const isRegionDST = isCurrentRegionDST(timezone);
+  const hourCompentation = getDSTHourCompensation(mObj, isRegionDST);
   return mObj.clone().add(hourCompentation, 'hours');
 }
 
