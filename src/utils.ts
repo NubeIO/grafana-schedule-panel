@@ -19,9 +19,6 @@ function getDSTHourCompensation(mObj: moment.Moment) {
   if (todayDST == false && tomorrowDST == true) {
     return 1;
   }
-  if(todayDST == false && tomorrowDST == false) {
-    return 1;
-  }
   return 0;
 }
 
