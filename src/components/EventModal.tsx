@@ -10,7 +10,7 @@ import TextField from '@material-ui/core/TextField/TextField';
 import Autocomplete, { createFilterOptions } from '@material-ui/lab/Autocomplete/Autocomplete';
 import { Theme, Dialog, DialogTitle, createStyles, DialogContent, DialogActions } from '@material-ui/core';
 
-import { DAY_MAP } from '../utils';
+import { addDST, DAY_MAP } from '../utils';
 import Slider from '@material-ui/core/Slider';
 import Typography from '@material-ui/core/Typography';
 import ColorSelector from './renderProps/ColorSelector';
@@ -111,7 +111,6 @@ const getEditEventInitialValues = (
 ) => {
   if (isWeekly) {
     const event: Weekly = eventOutput.backupEvent as Weekly;
-
     return {
       name: event.name,
       days: eventOutput.days,
@@ -188,8 +187,10 @@ export default function EventModal(props: EventModalProps) {
   const handleSubmit = (data: any) => {
     if (isWeekly) {
       data.days = convertWeekFromTimezoneToUTC(data.days, data.start, timezone);
-      data.start = convertTimeFromTimezone(moment(data.start, TIME_FORMAT), timezone).format(TIME_FORMAT);
-      data.end = convertTimeFromTimezone(moment(data.end, TIME_FORMAT), timezone).format(TIME_FORMAT);
+      data.start = addDST(convertTimeFromTimezone(moment(data.start, TIME_FORMAT), timezone), timezone).format(
+        TIME_FORMAT
+      );
+      data.end = addDST(convertTimeFromTimezone(moment(data.end, TIME_FORMAT), timezone), timezone).format(TIME_FORMAT);
     } else {
       data.dates = data.dates.map(({ start, end }: EventDate) => ({
         start: convertTimeFromTimezone(moment(start), timezone).toISOString(),

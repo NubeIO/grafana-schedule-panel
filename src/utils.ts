@@ -1,6 +1,54 @@
 import moment from 'moment-timezone';
 import { ExtractionOption, Weekly, Event, EventOutput } from './types';
 
+function isTodayDST(mObj: moment.Moment) {
+  return mObj.clone().isDST();
+}
+
+function getDSTHourCompensation(mObj: moment.Moment, isRegionDST: boolean) {
+  const todayDST = isTodayDST(mObj.clone());
+
+  if (!isRegionDST) {
+    return 0;
+  }
+
+  if (todayDST) {
+    return -1;
+  }
+  return 0;
+}
+
+export function isCurrentRegionDST(timezone: string) {
+  return moment(new Date())
+    .clone()
+    .tz(timezone)
+    .isDST();
+}
+
+export function isTodayRegionDST(mObj: moment.Moment, timezone: string) {
+  return mObj
+    .clone()
+    .tz(timezone)
+    .isDST();
+}
+
+export function removeDST(mObj: moment.Moment, timezone: string) {
+  const isRegionDST = isCurrentRegionDST(timezone);
+  const hourCompentation = getDSTHourCompensation(mObj, isRegionDST);
+  return mObj.clone().add(hourCompentation, 'hours');
+}
+
+export function addDST(mObj: moment.Moment, timezone: string) {
+  const isRegionDST = isCurrentRegionDST(timezone);
+  const isTodayDSTInRegion = isTodayRegionDST(mObj, timezone);
+
+  if (isRegionDST && isTodayDSTInRegion) {
+    return mObj.clone().add(1, 'hours');
+  }
+
+  return mObj;
+}
+
 /**
  * Gets the list of dates that would be visible in calendar view with dates from
  * previous and next month, that lies in the week of starting-1 and ending+1 day.
@@ -122,9 +170,11 @@ function getStartAndEndDate(
 
 export const convertWeekToUTC = (event: Weekly): moment.Moment[] => {
   const { start, days } = event;
-  return enumerateDaysBetweenDates(moment().startOf('week'), moment().endOf('week'), true, true)
+  const afterEnumeration = enumerateDaysBetweenDates(moment().startOf('week'), moment().endOf('week'), true, true)
     .map(el => getUTCFromStartAndEnd(el.utc(), start))
     .filter(day => days.includes(DAY_MAP[day.day()]));
+
+  return afterEnumeration;
 };
 
 /**
@@ -174,5 +224,6 @@ export function extractEvents(events: { [id: string]: Weekly | Event }, options?
       }
     }
   }
+
   return eventsCollection;
 }

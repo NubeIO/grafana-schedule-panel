@@ -54,7 +54,6 @@ function ScheduleCalendar(props: Props) {
   const [isWeekly, setIsWeekly] = useState(false);
   const [eventOutput, setEventOutput] = useState<EventOutput | null>(null);
   const [operation, setOperation] = useState<Operation>('add');
-
   useEffect(() => {
     updateEvents();
   }, [value, visibleDate]);
@@ -224,17 +223,17 @@ function ScheduleCalendar(props: Props) {
             <div className={classes.calendar}>
               <CalendarHOC
                 value={value}
-                events={eventCollection}
+                defaultView="week"
                 timezone={timezone}
-                startAccessorField="start"
                 endAccessorField="end"
                 onNavigate={onNavigate}
-                onSelectEvent={onSelectEvent}
-                eventPropGetter={eventStyleGetter}
-                localizer={staticLocalizer}
-                components={{ event: CustomEvent }}
-                defaultView="week"
+                events={eventCollection}
+                startAccessorField="start"
                 date={visibleDate.toDate()}
+                localizer={staticLocalizer}
+                onSelectEvent={onSelectEvent}
+                components={{ event: CustomEvent }}
+                eventPropGetter={eventStyleGetter}
               />
             </div>
             <EventModal
