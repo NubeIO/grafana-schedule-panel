@@ -1,30 +1,19 @@
 import moment from 'moment-timezone';
 import { ExtractionOption, Weekly, Event, EventOutput } from './types';
 
-function isNextDayDST(mObj: moment.Moment) {
-  return mObj
-    .clone()
-    .add(1, 'days')
-    .isDST();
-}
-
 function isTodayDST(mObj: moment.Moment) {
   return mObj.clone().isDST();
 }
 
 function getDSTHourCompensation(mObj: moment.Moment, isRegionDST: boolean) {
   const todayDST = isTodayDST(mObj.clone());
-  const tomorrowDST = isNextDayDST(mObj.clone());
 
   if (!isRegionDST) {
     return 0;
   }
 
-  if (todayDST == false && tomorrowDST == true) {
-    return 1;
-  }
-  if (todayDST == false && tomorrowDST == false) {
-    return 1;
+  if (todayDST) {
+    return -1;
   }
   return 0;
 }
@@ -36,10 +25,28 @@ export function isCurrentRegionDST(timezone: string) {
     .isDST();
 }
 
+export function isTodayRegionDST(mObj: moment.Moment, timezone: string) {
+  return mObj
+    .clone()
+    .tz(timezone)
+    .isDST();
+}
+
 export function removeDST(mObj: moment.Moment, timezone: string) {
   const isRegionDST = isCurrentRegionDST(timezone);
   const hourCompentation = getDSTHourCompensation(mObj, isRegionDST);
   return mObj.clone().add(hourCompentation, 'hours');
+}
+
+export function addDST(mObj: moment.Moment, timezone: string) {
+  const isRegionDST = isCurrentRegionDST(timezone);
+  const isTodayDSTInRegion = isTodayRegionDST(mObj, timezone);
+
+  if (isRegionDST && isTodayDSTInRegion) {
+    return mObj.clone().add(1, 'hours');
+  }
+
+  return mObj;
 }
 
 /**
